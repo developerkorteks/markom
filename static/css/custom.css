@@ -562,27 +562,235 @@ footer {
 /* ============================================
    13. RESPONSIVE (Mobile-friendly)
    ============================================ */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .container-fluid {
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+}
+
+/* Mobile (up to 768px) */
 @media (max-width: 768px) {
+    /* Adjust spacing for mobile */
     :root {
+        --space-6: 1rem;
+        --space-8: 1.5rem;
         --space-12: 2rem;
         --space-16: 2.5rem;
+    }
+    
+    body {
+        font-size: var(--text-sm);
+    }
+    
+    /* Container */
+    .container-fluid {
+        padding-left: var(--space-3);
+        padding-right: var(--space-3);
+    }
+    
+    /* Navbar */
+    .navbar {
+        min-height: 56px;
+        padding: var(--space-3) 0;
     }
     
     .navbar-brand {
         font-size: var(--text-base);
     }
     
-    .table-responsive {
-        font-size: var(--text-xs);
+    .navbar-toggler {
+        border-color: var(--color-gray-300);
+        padding: var(--space-2);
     }
     
-    .btn {
-        width: 100%;
-        justify-content: center;
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 2px var(--color-gray-200);
+    }
+    
+    .navbar-collapse {
+        margin-top: var(--space-3);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--color-gray-200);
+    }
+    
+    .navbar-nav .nav-link {
+        padding: var(--space-3) var(--space-2) !important;
+    }
+    
+    /* Headings */
+    h1 {
+        font-size: var(--text-3xl);
+    }
+    
+    h2 {
+        font-size: var(--text-2xl);
+    }
+    
+    h3 {
+        font-size: var(--text-xl);
+    }
+    
+    .display-5 {
+        font-size: var(--text-2xl) !important;
+    }
+    
+    .lead {
+        font-size: var(--text-base);
+    }
+    
+    /* Cards */
+    .card {
+        margin-bottom: var(--space-4);
     }
     
     .card-body {
         padding: var(--space-4);
+    }
+    
+    .card-header {
+        padding: var(--space-3) var(--space-4);
+    }
+    
+    /* Buttons */
+    .btn {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: var(--space-2);
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        border-radius: var(--radius-md) !important;
+        margin-bottom: var(--space-2);
+    }
+    
+    .btn-group .btn:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Don't make these buttons full-width */
+    .d-flex .btn,
+    .btn-sm {
+        width: auto;
+    }
+    
+    /* Tables */
+    .table-responsive {
+        font-size: var(--text-xs);
+        margin-left: calc(var(--space-3) * -1);
+        margin-right: calc(var(--space-3) * -1);
+        padding-left: var(--space-3);
+        padding-right: var(--space-3);
+    }
+    
+    .table {
+        font-size: var(--text-xs);
+    }
+    
+    .table thead th {
+        padding: var(--space-2);
+        font-size: 10px;
+    }
+    
+    .table tbody td {
+        padding: var(--space-2);
+    }
+    
+    /* Forms */
+    .form-control,
+    .form-select {
+        font-size: var(--text-sm);
+    }
+    
+    .form-label {
+        font-size: var(--text-xs);
+    }
+    
+    /* Row spacing */
+    .row.g-3 {
+        row-gap: var(--space-3);
+    }
+    
+    .row.g-4 {
+        row-gap: var(--space-4);
+    }
+    
+    .row.g-5 {
+        row-gap: var(--space-5);
+    }
+    
+    /* Badges */
+    .badge {
+        font-size: 10px;
+        padding: var(--space-1) var(--space-2);
+    }
+    
+    /* Breadcrumb */
+    .breadcrumb {
+        font-size: var(--text-xs);
+        margin-bottom: var(--space-3);
+    }
+    
+    /* Stats cards - stack on mobile */
+    .col-md-3,
+    .col-md-4 {
+        margin-bottom: var(--space-3);
+    }
+    
+    /* Action buttons container */
+    .d-flex.gap-2 {
+        flex-direction: column;
+        gap: var(--space-2) !important;
+    }
+    
+    .d-flex.gap-2 .btn {
+        width: 100%;
+    }
+    
+    /* Pagination */
+    .pagination {
+        font-size: var(--text-xs);
+    }
+    
+    .page-link {
+        padding: var(--space-1) var(--space-2);
+    }
+}
+
+/* Extra Small Mobile (up to 375px) */
+@media (max-width: 375px) {
+    :root {
+        --space-4: 0.75rem;
+        --space-6: 1rem;
+    }
+    
+    .container-fluid {
+        padding-left: var(--space-2);
+        padding-right: var(--space-2);
+    }
+    
+    h1 {
+        font-size: var(--text-2xl);
+    }
+    
+    h2 {
+        font-size: var(--text-xl);
+    }
+    
+    .card-body {
+        padding: var(--space-3);
+    }
+    
+    .table {
+        font-size: 10px;
     }
 }
 
