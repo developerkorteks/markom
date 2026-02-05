@@ -14,65 +14,37 @@
     <div class="row g-4">
         <!-- Statistics Cards -->
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
+            <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-subtitle mb-2">Total Orders</h6>
-                            <h2 class="mb-0">0</h2>
-                        </div>
-                        <div>
-                            <i class="bi bi-receipt" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
+                    <h6 class="text-muted mb-2">Total Orders</h6>
+                    <h2 class="mb-0">0</h2>
                 </div>
             </div>
         </div>
         
         <div class="col-md-3">
-            <div class="card bg-success text-white">
+            <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-subtitle mb-2">Merchandise</h6>
-                            <h2 class="mb-0">0</h2>
-                        </div>
-                        <div>
-                            <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
+                    <h6 class="text-muted mb-2">Merchandise</h6>
+                    <h2 class="mb-0">0</h2>
                 </div>
             </div>
         </div>
         
         <div class="col-md-3">
-            <div class="card bg-info text-white">
+            <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-subtitle mb-2">Sales Users</h6>
-                            <h2 class="mb-0">0</h2>
-                        </div>
-                        <div>
-                            <i class="bi bi-people" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
+                    <h6 class="text-muted mb-2">Sales Users</h6>
+                    <h2 class="mb-0">0</h2>
                 </div>
             </div>
         </div>
         
         <div class="col-md-3">
-            <div class="card bg-warning text-white">
+            <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-subtitle mb-2">Low Stock</h6>
-                            <h2 class="mb-0">0</h2>
-                        </div>
-                        <div>
-                            <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
+                    <h6 class="text-muted mb-2">Low Stock</h6>
+                    <h2 class="mb-0">0</h2>
                 </div>
             </div>
         </div>
@@ -87,25 +59,25 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-primary w-100 py-3">
+                            <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary w-100 py-3">
                                 <i class="bi bi-people" style="font-size: 2rem;"></i><br>
                                 Manage Users
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="{% url 'merchandise:category_list' %}" class="btn btn-outline-success w-100 py-3">
+                            <a href="{% url 'merchandise:category_list' %}" class="btn btn-secondary w-100 py-3">
                                 <i class="bi bi-tags" style="font-size: 2rem;"></i><br>
                                 Manage Categories
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-outline-info w-100 py-3">
+                            <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-secondary w-100 py-3">
                                 <i class="bi bi-box-seam" style="font-size: 2rem;"></i><br>
                                 Manage Merchandise
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="{% url 'orders:order_list' %}" class="btn btn-outline-warning w-100 py-3">
+                            <a href="{% url 'orders:order_list' %}" class="btn btn-secondary w-100 py-3">
                                 <i class="bi bi-receipt" style="font-size: 2rem;"></i><br>
                                 View Orders
                             </a>
