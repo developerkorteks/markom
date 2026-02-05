@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Sales Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-speedometer2"></i> Sales Dashboard</h2>
+            <p class="text-muted">Welcome back, {{ user.full_name }}!</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Statistics Cards -->
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2">My Total Orders</h6>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                        <div>
+                            <i class="bi bi-receipt" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Orders Today</h6>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                        <div>
+                            <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Available Items</h6>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                        <div>
+                            <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-lightning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="{% url 'orders:order_create' %}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="bi bi-plus-circle" style="font-size: 2rem;"></i><br>
+                                Create New Order
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-outline-success w-100 py-3">
+                                <i class="bi bi-box-seam" style="font-size: 2rem;"></i><br>
+                                Browse Merchandise
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{% url 'orders:order_list' %}" class="btn btn-outline-info w-100 py-3">
+                                <i class="bi bi-receipt" style="font-size: 2rem;"></i><br>
+                                My Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

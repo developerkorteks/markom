@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Adjust Stock - {{ merchandise.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-arrow-repeat"></i> Adjust Stock</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_list' %}">Merchandise</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_detail' merchandise.pk %}">{{ merchandise.name }}</a></li>
+                    <li class="breadcrumb-item active">Adjust Stock</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ merchandise.name }}</h5>
+                    
+                    <div class="alert alert-info">
+                        <strong>Current Stock:</strong> 
+                        <span class="fs-4">{{ merchandise.stock }}</span> units
+                    </div>
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.adjustment.id_for_label }}" class="form-label">
+                                {{ form.adjustment.label }} *
+                            </label>
+                            {{ form.adjustment }}
+                            <div class="form-text">{{ form.adjustment.help_text }}</div>
+                            {% if form.adjustment.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.adjustment.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.reason.id_for_label }}" class="form-label">
+                                {{ form.reason.label }} *
+                            </label>
+                            {{ form.reason }}
+                            <div class="form-text">{{ form.reason.help_text }}</div>
+                            {% if form.reason.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.reason.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors.0 }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-check-circle"></i> Adjust Stock
+                            </button>
+                            <a href="{% url 'merchandise:merchandise_detail' merchandise.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="bi bi-info-circle"></i> Examples</h5>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Adjustment</th>
+                                <th>Result</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-success">+50</span></td>
+                                <td>{{ merchandise.stock }} → {{ merchandise.stock|add:50 }}</td>
+                                <td>Restock from supplier</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">-10</span></td>
+                                <td>{{ merchandise.stock }} → {{ merchandise.stock|add:-10 }}</td>
+                                <td>Damaged items</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">+100</span></td>
+                                <td>{{ merchandise.stock }} → {{ merchandise.stock|add:100 }}</td>
+                                <td>New shipment arrived</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="alert alert-warning small mb-0">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        All adjustments are logged for audit purposes.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

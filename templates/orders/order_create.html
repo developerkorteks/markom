@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Order{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-plus-circle"></i> Create New Order</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">Orders</a></li>
+                    <li class="breadcrumb-item active">Create Order</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <form method="post" id="orderForm" novalidate>
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Customer Information -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person"></i> Customer Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="{{ order_form.customer_name.id_for_label }}" class="form-label">Customer Name *</label>
+                            {{ order_form.customer_name }}
+                            {% if order_form.customer_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ order_form.customer_name.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ order_form.customer_phone.id_for_label }}" class="form-label">WhatsApp Number *</label>
+                            {{ order_form.customer_phone }}
+                            {% if order_form.customer_phone.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ order_form.customer_phone.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ order_form.notes.id_for_label }}" class="form-label">Notes</label>
+                            {{ order_form.notes }}
+                            {% if order_form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ order_form.notes.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Items -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-cart"></i> Order Items</h5>
+                        <button type="button" class="btn btn-light btn-sm" id="addItemBtn">
+                            <i class="bi bi-plus-circle"></i> Add Item
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        {{ item_formset.management_form }}
+                        
+                        {% if item_formset.non_form_errors %}
+                        <div class="alert alert-danger">
+                            {{ item_formset.non_form_errors.0 }}
+                        </div>
+                        {% endif %}
+                        
+                        <div id="itemsContainer">
+                            {% for form in item_formset %}
+                            <div class="item-row row mb-3 p-3 border rounded">
+                                <div class="col-md-7">
+                                    <label class="form-label">Merchandise *</label>
+                                    {{ form.merchandise }}
+                                    {% if form.merchandise.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.merchandise.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                    <small class="text-muted stock-info"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Quantity *</label>
+                                    {{ form.quantity }}
+                                    {% if form.quantity.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.quantity.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger btn-sm remove-item w-100">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Select merchandise and enter quantity. Stock will be automatically deducted upon order creation.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle"></i> Create Order
+                    </button>
+                    <a href="{% url 'orders:order_list' %}" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const itemsContainer = document.getElementById('itemsContainer');
+    const addItemBtn = document.getElementById('addItemBtn');
+    const totalForms = document.querySelector('#id_form-TOTAL_FORMS');
+    
+    // Function to update form indices
+    function updateFormIndices() {
+        const forms = itemsContainer.querySelectorAll('.item-row');
+        forms.forEach((form, index) => {
+            form.querySelectorAll('select, input').forEach(field => {
+                const name = field.name.replace(/form-\d+-/, `form-${index}-`);
+                const id = field.id.replace(/id_form-\d+-/, `id_form-${index}-`);
+                field.name = name;
+                field.id = id;
+            });
+        });
+        totalForms.value = forms.length;
+    }
+    
+    // Add item button
+    addItemBtn.addEventListener('click', function() {
+        const emptyForm = itemsContainer.querySelector('.item-row').cloneNode(true);
+        
+        // Clear values
+        emptyForm.querySelectorAll('select, input').forEach(field => {
+            if (field.type !== 'hidden') {
+                field.value = '';
+            }
+        });
+        
+        // Clear error messages
+        emptyForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        
+        itemsContainer.appendChild(emptyForm);
+        updateFormIndices();
+        attachStockCheck(emptyForm.querySelector('select'));
+    });
+    
+    // Remove item buttons
+    itemsContainer.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-item')) {
+            const forms = itemsContainer.querySelectorAll('.item-row');
+            if (forms.length > 1) {
+                e.target.closest('.item-row').remove();
+                updateFormIndices();
+            } else {
+                alert('At least one item is required!');
+            }
+        }
+    });
+    
+    // Stock check function
+    function attachStockCheck(select) {
+        select.addEventListener('change', function() {
+            const merchandiseId = this.value;
+            const stockInfo = this.closest('.item-row').querySelector('.stock-info');
+            
+            if (merchandiseId) {
+                const option = this.options[this.selectedIndex];
+                const text = option.text;
+                
+                // Extract stock from option text (assuming format: "Name (Stock: X)")
+                const match = text.match(/Stock:\s*(\d+)/i);
+                if (match) {
+                    const stock = parseInt(match[1]);
+                    if (stock === 0) {
+                        stockInfo.innerHTML = '<span class="text-danger">⚠ Out of stock!</span>';
+                    } else if (stock < 10) {
+                        stockInfo.innerHTML = `<span class="text-warning">⚠ Low stock: ${stock} available</span>`;
+                    } else {
+                        stockInfo.innerHTML = `<span class="text-success">✓ Stock: ${stock} available</span>`;
+                    }
+                } else {
+                    stockInfo.innerHTML = '';
+                }
+            } else {
+                stockInfo.innerHTML = '';
+            }
+        });
+    }
+    
+    // Attach to initial forms
+    document.querySelectorAll('.merchandise-select').forEach(select => {
+        attachStockCheck(select);
+    });
+});
+</script>
+{% endblock %}

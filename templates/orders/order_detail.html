@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Order {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-receipt"></i> Order Details</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">Orders</a></li>
+                    <li class="breadcrumb-item active">{{ order.order_number }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'orders:order_print' order.pk %}" class="btn btn-primary" target="_blank">
+                <i class="bi bi-printer"></i> Print Order
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Order Information -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Order Number:</th>
+                            <td><strong>{{ order.order_number }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Date:</th>
+                            <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Sales:</th>
+                            <td>{{ order.sales_user.full_name }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Name:</th>
+                            <td>{{ order.customer_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>WhatsApp:</th>
+                            <td>
+                                <a href="https://wa.me/{{ order.customer_phone|cut:'+' }}" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-whatsapp text-success"></i> {{ order.customer_phone }}
+                                </a>
+                            </td>
+                        </tr>
+                        {% if order.notes %}
+                        <tr>
+                            <th>Notes:</th>
+                            <td>{{ order.notes }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Items -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-cart"></i> Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Image</th>
+                                    <th>Merchandise</th>
+                                    <th>Category</th>
+                                    <th class="text-center">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        {% if item.merchandise.image %}
+                                        <img src="{{ item.merchandise.image.url }}" alt="{{ item.merchandise_name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                        {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border-radius: 5px;">
+                                            <i class="bi bi-image text-muted"></i>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>{{ item.merchandise_name }}</strong>
+                                        {% if not item.merchandise.is_active %}
+                                        <br><small class="text-muted">(Item no longer available)</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ item.merchandise.category.name }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary fs-6">{{ item.quantity }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4" class="text-end">Total Items:</th>
+                                    <th class="text-center">
+                                        <span class="badge bg-success fs-6">{{ order.total_items }}</span>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

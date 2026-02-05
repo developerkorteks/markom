@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-receipt"></i> {{ title }}</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Orders</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'orders:order_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create New Order
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Search by order number, customer name, or phone..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">From Date</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">To Date</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Filter
+                    </button>
+                    <a href="{% url 'orders:order_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Orders Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order Number</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            {% if user.is_admin %}
+                            <th>Sales</th>
+                            {% endif %}
+                            <th>Items</th>
+                            <th>Total Qty</th>
+                            <th>Date</th>
+                            <th width="150">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'orders:order_detail' order.pk %}" class="text-decoration-none">
+                                    <strong>{{ order.order_number }}</strong>
+                                </a>
+                            </td>
+                            <td>{{ order.customer_name }}</td>
+                            <td>
+                                <a href="https://wa.me/{{ order.customer_phone|cut:'+' }}" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-whatsapp text-success"></i> {{ order.customer_phone }}
+                                </a>
+                            </td>
+                            {% if user.is_admin %}
+                            <td>{{ order.sales_user.full_name }}</td>
+                            {% endif %}
+                            <td>
+                                <span class="badge bg-info">{{ order.item_count }} item(s)</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ order.total_quantity }} pcs</span>
+                            </td>
+                            <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-outline-info" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'orders:order_print' order.pk %}" class="btn btn-outline-primary" title="Print" target="_blank">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-muted mt-2">
+                Total: {{ orders.count }} order(s)
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">No orders found.</p>
+                <a href="{% url 'orders:order_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create First Order
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
