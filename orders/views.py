@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q, Count, Sum
+from django.http import JsonResponse
 from accounts.decorators import admin_required, admin_or_sales_required
 from .models import Order, OrderItem
 from .forms import OrderForm, OrderItemFormSet
+from .utils import export_orders_to_excel, export_order_details_to_excel
 from merchandise.models import Merchandise
 
 @admin_or_sales_required
@@ -165,3 +167,57 @@ def merchandise_stock_check(request):
         })
     except Merchandise.DoesNotExist:
         return JsonResponse({'error': 'Merchandise not found'}, status=404)
+
+@admin_or_sales_required
+def order_export_excel(request):
+    """Export orders to Excel with filters"""
+    search_query = request.GET.get('search', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    # Base queryset
+    if request.user.is_admin:
+        orders = Order.objects.select_related('sales_user').all()
+    else:
+        orders = Order.objects.filter(sales_user=request.user).all()
+    
+    # Apply search filter
+    if search_query:
+        orders = orders.filter(
+            Q(order_number__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(customer_phone__icontains=search_query)
+        )
+    
+    # Apply date filters
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
+    
+    # Annotate with item counts
+    orders = orders.annotate(
+        item_count=Count('items'),
+        total_quantity=Sum('items__quantity')
+    )
+    
+    # Order by created date (newest first)
+    orders = orders.order_by('-created_at')
+    
+    # Export to Excel
+    return export_orders_to_excel(orders, user=request.user)
+
+@admin_or_sales_required
+def order_export_detail_excel(request, pk):
+    """Export single order details to Excel"""
+    order = get_object_or_404(
+        Order.objects.select_related('sales_user').prefetch_related('items__merchandise__category'),
+        pk=pk
+    )
+    
+    # Check permission (sales can only export own orders)
+    if request.user.is_sales and order.sales_user != request.user:
+        messages.error(request, 'You can only export your own orders.')
+        return redirect('orders:order_list')
+    
+    return export_order_details_to_excel(order)

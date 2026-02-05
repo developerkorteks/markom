@@ -15,9 +15,14 @@
             </nav>
         </div>
         <div class="col-auto">
-            <a href="{% url 'orders:order_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Create New Order
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'orders:order_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create New Order
+                </a>
+                <button type="button" class="btn btn-secondary" onclick="exportExcel()" id="exportBtn">
+                    <i class="bi bi-file-earmark-excel"></i> Export Excel
+                </button>
+            </div>
         </div>
     </div>
     
@@ -101,6 +106,9 @@
                                     <a href="{% url 'orders:order_print' order.pk %}" class="btn btn-outline-primary" title="Print" target="_blank">
                                         <i class="bi bi-printer"></i>
                                     </a>
+                                    <a href="{% url 'orders:order_export_detail_excel' order.pk %}" class="btn btn-outline-success" title="Export">
+                                        <i class="bi bi-file-earmark-excel"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -123,4 +131,38 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function exportExcel() {
+    // Get current filter values
+    const search = document.querySelector('input[name="search"]')?.value || '';
+    const dateFrom = document.querySelector('input[name="date_from"]')?.value || '';
+    const dateTo = document.querySelector('input[name="date_to"]')?.value || '';
+    
+    // Build URL with query parameters
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
+    
+    const exportUrl = "{% url 'orders:order_export_excel' %}?" + params.toString();
+    
+    // Show loading state
+    const exportBtn = document.getElementById('exportBtn');
+    const originalHTML = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Exporting...';
+    exportBtn.disabled = true;
+    
+    // Download file
+    window.location.href = exportUrl;
+    
+    // Reset button after short delay
+    setTimeout(() => {
+        exportBtn.innerHTML = originalHTML;
+        exportBtn.disabled = false;
+    }, 2000);
+}
+</script>
 {% endblock %}
