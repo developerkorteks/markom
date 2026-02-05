@@ -2,140 +2,340 @@
 
 {% block title %}{{ merchandise.name }}{% endblock %}
 
+{% block extra_css %}
+<style>
+.product-detail-hero {
+    background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-white) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    margin-bottom: var(--space-6);
+}
+
+.product-image-container {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-white);
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--transition-normal);
+}
+
+.product-image-container:hover {
+    transform: scale(1.02);
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+}
+
+.product-image-placeholder {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-gray-100);
+}
+
+.stock-badge-large {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+}
+
+.stock-badge-large i {
+    font-size: var(--text-3xl);
+}
+
+.info-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-4);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    font-weight: var(--font-medium);
+}
+
+.info-value {
+    font-size: var(--text-base);
+    color: var(--color-gray-900);
+    font-weight: var(--font-medium);
+    text-align: right;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-left: 2px solid var(--color-gray-200);
+}
+
+.timeline-item:last-child {
+    border-left: 2px solid transparent;
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -6px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-gray-400);
+}
+
+.timeline-dot.positive {
+    background: var(--color-success);
+}
+
+.timeline-dot.negative {
+    background: var(--color-danger);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.stat-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-2);
+}
+
+.stat-label {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h2><i class="bi bi-box-seam"></i> {{ merchandise.name }}</h2>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_list' %}">Merchandise</a></li>
-                    <li class="breadcrumb-item active">{{ merchandise.name }}</li>
-                </ol>
-            </nav>
-        </div>
-        <div class="col-auto">
-            {% if user.is_admin %}
+    <!-- Breadcrumb & Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_list' %}">Merchandise</a></li>
+                <li class="breadcrumb-item active">{{ merchandise.name }}</li>
+            </ol>
+        </nav>
+        {% if user.is_admin %}
+        <div class="d-flex gap-2">
             <a href="{% url 'merchandise:merchandise_edit' merchandise.pk %}" class="btn btn-primary">
                 <i class="bi bi-pencil"></i> Edit
             </a>
-            <a href="{% url 'merchandise:merchandise_adjust_stock' merchandise.pk %}" class="btn btn-warning">
+            <a href="{% url 'merchandise:merchandise_adjust_stock' merchandise.pk %}" class="btn btn-secondary">
                 <i class="bi bi-arrow-repeat"></i> Adjust Stock
             </a>
-            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Product Hero Section -->
+    <div class="product-detail-hero">
+        <div class="row g-5 align-items-center">
+            <div class="col-md-5">
+                <div class="product-image-container">
+                    {% if merchandise.image %}
+                    <img src="{{ merchandise.image.url }}" alt="{{ merchandise.name }}">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <i class="bi bi-image" style="font-size: 6rem; color: var(--color-gray-400);"></i>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-7">
+                <div class="mb-3">
+                    <span class="badge bg-secondary" style="font-size: var(--text-sm);">
+                        {{ merchandise.category.name }}
+                    </span>
+                    {% if merchandise.is_active %}
+                    <span class="badge bg-success ms-2" style="font-size: var(--text-sm);">
+                        <i class="bi bi-check-circle"></i> Active
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary ms-2" style="font-size: var(--text-sm);">
+                        Inactive
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <h1 class="display-5 fw-semibold mb-4">{{ merchandise.name }}</h1>
+                
+                <p class="lead text-muted mb-4">
+                    {{ merchandise.description|default:"No description available for this item." }}
+                </p>
+                
+                <!-- Stock Status (Large) -->
+                <div class="mb-4">
+                    {% if merchandise.is_out_of_stock %}
+                    <div class="stock-badge-large" style="background: var(--color-danger-bg); color: var(--color-danger);">
+                        <i class="bi bi-x-circle-fill"></i>
+                        <div>
+                            <div>{{ merchandise.stock }}</div>
+                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Out of Stock</div>
+                        </div>
+                    </div>
+                    {% elif merchandise.is_low_stock %}
+                    <div class="stock-badge-large" style="background: var(--color-warning-bg); color: var(--color-warning);">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>
+                            <div>{{ merchandise.stock }}</div>
+                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Low Stock</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="stock-badge-large" style="background: var(--color-success-bg); color: var(--color-success);">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div>
+                            <div>{{ merchandise.stock }}</div>
+                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">In Stock</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="row">
-        <!-- Merchandise Details -->
+
+    <!-- Info & History Grid -->
+    <div class="row g-4">
+        <!-- Product Information -->
         <div class="col-md-4">
-            <div class="card mb-4">
-                {% if merchandise.image %}
-                <img src="{{ merchandise.image.url }}" class="card-img-top" alt="{{ merchandise.name }}">
-                {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
-                    <i class="bi bi-image" style="font-size: 5rem; color: #ccc;"></i>
+            <h5 class="mb-4">
+                <i class="bi bi-info-circle"></i> Product Information
+            </h5>
+            
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">Category</span>
+                    <span class="info-value">{{ merchandise.category.name }}</span>
                 </div>
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ merchandise.name }}</h5>
-                    <p class="card-text">{{ merchandise.description|default:"No description available" }}</p>
-                    
-                    <hr>
-                    
-                    <table class="table table-sm">
-                        <tr>
-                            <th>Category:</th>
-                            <td><span class="badge bg-secondary">{{ merchandise.category.name }}</span></td>
-                        </tr>
-                        <tr>
-                            <th>Status:</th>
-                            <td>
-                                {% if merchandise.is_active %}
-                                <span class="badge bg-success">Active</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Inactive</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Current Stock:</th>
-                            <td>
-                                {% if merchandise.is_out_of_stock %}
-                                <span class="badge bg-danger fs-5">{{ merchandise.stock }}</span>
-                                <small class="text-danger d-block">Out of Stock</small>
-                                {% elif merchandise.is_low_stock %}
-                                <span class="badge bg-warning text-dark fs-5">{{ merchandise.stock }}</span>
-                                <small class="text-warning d-block">Low Stock</small>
-                                {% else %}
-                                <span class="badge bg-success fs-5">{{ merchandise.stock }}</span>
-                                <small class="text-success d-block">In Stock</small>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Created By:</th>
-                            <td>{{ merchandise.created_by.full_name|default:"Unknown" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Created:</th>
-                            <td>{{ merchandise.created_at|date:"d M Y, H:i" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Last Updated:</th>
-                            <td>{{ merchandise.updated_at|date:"d M Y, H:i" }}</td>
-                        </tr>
-                    </table>
+                <div class="info-row">
+                    <span class="info-label">Current Stock</span>
+                    <span class="info-value">{{ merchandise.stock }} units</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">
+                        {% if merchandise.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <h5 class="mb-4 mt-5">
+                <i class="bi bi-clock"></i> Timeline
+            </h5>
+            
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">Created By</span>
+                    <span class="info-value">{{ merchandise.created_by.full_name|default:"Unknown" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Created Date</span>
+                    <span class="info-value">{{ merchandise.created_at|date:"d M Y" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Last Updated</span>
+                    <span class="info-value">{{ merchandise.updated_at|date:"d M Y, H:i" }}</span>
                 </div>
             </div>
         </div>
         
         <!-- Stock History -->
         <div class="col-md-8">
+            <h5 class="mb-4">
+                <i class="bi bi-clock-history"></i> Stock History
+            </h5>
+            
             <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Stock History</h5>
-                </div>
                 <div class="card-body">
                     {% if stock_history %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Adjustment</th>
-                                    <th>Before</th>
-                                    <th>After</th>
-                                    <th>Reason</th>
-                                    <th>Adjusted By</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for history in stock_history %}
-                                <tr>
-                                    <td>{{ history.created_at|date:"d M Y, H:i" }}</td>
-                                    <td>
+                    <div class="timeline">
+                        {% for history in stock_history %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot {% if history.adjustment > 0 %}positive{% else %}negative{% endif %}"></div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="fw-medium">
                                         {% if history.adjustment > 0 %}
-                                        <span class="badge bg-success">+{{ history.adjustment }}</span>
+                                        <span class="badge bg-success me-2">+{{ history.adjustment }}</span>
                                         {% else %}
-                                        <span class="badge bg-danger">{{ history.adjustment }}</span>
+                                        <span class="badge bg-danger me-2">{{ history.adjustment }}</span>
                                         {% endif %}
-                                    </td>
-                                    <td>{{ history.stock_before }}</td>
-                                    <td>{{ history.stock_after }}</td>
-                                    <td>{{ history.reason }}</td>
-                                    <td>{{ history.adjusted_by.full_name|default:"System" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                        {{ history.reason }}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ history.stock_before }} → {{ history.stock_after }} units
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">{{ history.created_at|date:"d M Y, H:i" }}</small>
+                                    <small class="text-muted">by {{ history.adjusted_by.full_name|default:"System" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    <p class="text-muted small mb-0">Showing last 10 adjustments</p>
+                    <p class="text-muted small mb-0 mt-4">Showing last 10 adjustments</p>
                     {% else %}
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
-                        <p class="mt-2">No stock adjustments yet</p>
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--color-gray-300);"></i>
+                        <p class="text-muted mt-3 mb-0">No stock adjustments yet</p>
+                        <p class="text-muted small">History will appear here when stock is adjusted</p>
                     </div>
                     {% endif %}
                 </div>
