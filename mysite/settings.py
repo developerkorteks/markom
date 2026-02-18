@@ -25,9 +25,15 @@ SECRET_KEY = 'django-insecure--ih#trwi%@*+nurqzf^q@fv9)#+-b*v4mg8&m+xv((r9-$j2p@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "*",
+    "markom.humanmade.my.id",
+]
 
+CSRF_TRUSTED_ORIGINS = [
 
+    "https://markom.humanmade.my.id",
+]
 # Application definition
 
 INSTALLED_APPS = [
