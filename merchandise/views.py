@@ -57,8 +57,8 @@ def category_create(request):
     
     return render(request, 'merchandise/category_form.html', {
         'form': form,
-        'title': 'Create New Category',
-        'button_text': 'Create Category'
+        'title': 'Tambah Kategori',
+        'button_text': 'Simpan Kategori'
     })
 
 @admin_required
@@ -83,8 +83,8 @@ def category_edit(request, pk):
     return render(request, 'merchandise/category_form.html', {
         'form': form,
         'category': category,
-        'title': f'Edit Category: {category.name}',
-        'button_text': 'Update Category'
+        'title': f'Edit Kategori: {category.name}',
+        'button_text': 'Simpan Perubahan'
     })
 
 @admin_required
@@ -195,19 +195,19 @@ def merchandise_create(request):
                 merchandise = form.save(commit=False)
                 merchandise.created_by = request.user
                 merchandise.save()
-                messages.success(request, f'Merchandise "{merchandise.name}" created successfully.')
+                messages.success(request, f'Merchandise "{merchandise.name}" berhasil ditambahkan.')
                 return redirect('merchandise:merchandise_list')
             except Exception as e:
-                messages.error(request, f'Error creating merchandise: {str(e)}')
+                messages.error(request, f'Gagal menambahkan merchandise: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, 'Harap perbaiki kesalahan di bawah ini.')
     else:
         form = MerchandiseForm()
     
     return render(request, 'merchandise/merchandise_form.html', {
         'form': form,
-        'title': 'Create New Merchandise',
-        'button_text': 'Create Merchandise'
+        'title': 'Tambah Merchandise Baru',
+        'button_text': 'Simpan Merchandise'
     })
 
 @admin_required
@@ -220,20 +220,20 @@ def merchandise_edit(request, pk):
         if form.is_valid():
             try:
                 merchandise = form.save()
-                messages.success(request, f'Merchandise "{merchandise.name}" updated successfully.')
+                messages.success(request, f'Merchandise "{merchandise.name}" berhasil diperbarui.')
                 return redirect('merchandise:merchandise_list')
             except Exception as e:
-                messages.error(request, f'Error updating merchandise: {str(e)}')
+                messages.error(request, f'Gagal memperbarui merchandise: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, 'Harap perbaiki kesalahan di bawah ini.')
     else:
         form = MerchandiseForm(instance=merchandise)
     
     return render(request, 'merchandise/merchandise_form.html', {
         'form': form,
         'merchandise': merchandise,
-        'title': f'Edit Merchandise: {merchandise.name}',
-        'button_text': 'Update Merchandise'
+        'title': f'Ubah Merchandise: {merchandise.name}',
+        'button_text': 'Perbarui Merchandise'
     })
 
 @admin_or_sales_required

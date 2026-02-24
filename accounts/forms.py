@@ -1,64 +1,68 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from .models import User
 
+
 class LoginForm(AuthenticationForm):
-    """Custom login form with Bootstrap styling"""
-    
+    """Form login kustom dengan styling Bootstrap"""
+
     username = forms.CharField(
+        label='Nama Pengguna',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Username',
+            'placeholder': 'Masukkan nama pengguna',
             'autofocus': True
         })
     )
     password = forms.CharField(
+        label='Kata Sandi',
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Password'
+            'placeholder': 'Masukkan kata sandi'
         })
     )
 
+
 class UserForm(forms.ModelForm):
-    """Form for creating and updating users"""
-    
+    """Form untuk membuat dan mengubah pengguna"""
+
     password1 = forms.CharField(
-        label='Password',
+        label='Kata Sandi',
         required=False,
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter password (leave empty to keep current)'
+            'placeholder': 'Masukkan kata sandi (kosongkan untuk tidak mengubah)'
         })
     )
     password2 = forms.CharField(
-        label='Confirm Password',
+        label='Konfirmasi Kata Sandi',
         required=False,
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Confirm password'
+            'placeholder': 'Ulangi kata sandi'
         })
     )
-    
+
     class Meta:
         model = User
         fields = ['username', 'email', 'full_name', 'phone', 'role', 'is_active']
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Username'
+                'placeholder': 'Nama pengguna untuk login'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Email address'
+                'placeholder': 'Alamat email'
             }),
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Full name'
+                'placeholder': 'Nama lengkap pengguna'
             }),
             'phone': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Phone number (optional)'
+                'placeholder': 'Nomor telepon (opsional)'
             }),
             'role': forms.Select(attrs={
                 'class': 'form-select'
@@ -67,75 +71,70 @@ class UserForm(forms.ModelForm):
                 'class': 'form-check-input'
             })
         }
-    
+
     def __init__(self, *args, **kwargs):
         self.is_edit = kwargs.pop('is_edit', False)
         super().__init__(*args, **kwargs)
-        
-        # Make password required for new users
+
+        # Wajib isi password untuk pengguna baru
         if not self.is_edit:
             self.fields['password1'].required = True
             self.fields['password2'].required = True
-            self.fields['password1'].widget.attrs['placeholder'] = 'Enter password'
-    
+            self.fields['password1'].widget.attrs['placeholder'] = 'Buat kata sandi baru'
+
     def clean_username(self):
-        """Validate username uniqueness"""
+        """Validasi keunikan nama pengguna"""
         username = self.cleaned_data.get('username')
-        
-        # Check if username exists (excluding current instance in edit mode)
+
         if self.instance.pk:
             if User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
-                raise ValidationError('Username already exists.')
+                raise ValidationError('Nama pengguna sudah digunakan.')
         else:
             if User.objects.filter(username=username).exists():
-                raise ValidationError('Username already exists.')
-        
+                raise ValidationError('Nama pengguna sudah digunakan.')
+
         return username
-    
+
     def clean_email(self):
-        """Validate email"""
+        """Validasi email"""
         email = self.cleaned_data.get('email')
-        
+
         if not email:
-            raise ValidationError('Email is required.')
-        
-        # Check if email exists (excluding current instance in edit mode)
+            raise ValidationError('Email wajib diisi.')
+
         if self.instance.pk:
             if User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
-                raise ValidationError('Email already exists.')
+                raise ValidationError('Email sudah digunakan.')
         else:
             if User.objects.filter(email=email).exists():
-                raise ValidationError('Email already exists.')
-        
+                raise ValidationError('Email sudah digunakan.')
+
         return email
-    
+
     def clean(self):
-        """Validate passwords match"""
+        """Validasi kata sandi cocok"""
         cleaned_data = super().clean()
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
-        
-        # Only validate if passwords are provided
+
         if password1 or password2:
             if password1 != password2:
-                raise ValidationError({'password2': 'Passwords do not match.'})
-            
-            # Minimum length validation
+                raise ValidationError({'password2': 'Kata sandi tidak cocok.'})
+
             if len(password1) < 6:
-                raise ValidationError({'password1': 'Password must be at least 6 characters long.'})
-        
+                raise ValidationError({'password1': 'Kata sandi minimal 6 karakter.'})
+
         return cleaned_data
-    
+
     def save(self, commit=True):
-        """Save user with password"""
+        """Simpan pengguna dengan kata sandi"""
         user = super().save(commit=False)
-        
-        # Set password if provided
+
         password = self.cleaned_data.get('password1')
         if password:
             user.set_password(password)
-        
+
         if commit:
             user.save()
-        
+
         return user

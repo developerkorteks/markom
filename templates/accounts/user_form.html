@@ -9,21 +9,21 @@
             <h2><i class="bi bi-person"></i> {{ title }}</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'accounts:user_list' %}">Users</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:user_list' %}">Pengguna</a></li>
                     <li class="breadcrumb-item active">{{ title }}</li>
                 </ol>
             </nav>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
                     <form method="post" novalidate>
                         {% csrf_token %}
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.username.id_for_label }}" class="form-label">Username *</label>
@@ -34,7 +34,7 @@
                                 </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.email.id_for_label }}" class="form-label">Email *</label>
                                 {{ form.email }}
@@ -45,10 +45,10 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name *</label>
+                                <label for="{{ form.full_name.id_for_label }}" class="form-label">Nama Lengkap *</label>
                                 {{ form.full_name }}
                                 {% if form.full_name.errors %}
                                 <div class="invalid-feedback d-block">
@@ -56,9 +56,9 @@
                                 </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">Nomor Telepon</label>
                                 {{ form.phone }}
                                 {% if form.phone.errors %}
                                 <div class="invalid-feedback d-block">
@@ -67,10 +67,10 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.role.id_for_label }}" class="form-label">Role *</label>
+                                <label for="{{ form.role.id_for_label }}" class="form-label">Peran *</label>
                                 {{ form.role }}
                                 {% if form.role.errors %}
                                 <div class="invalid-feedback d-block">
@@ -78,24 +78,24 @@
                                 </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status</label>
                                 <div class="form-check">
                                     {{ form.is_active }}
                                     <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                        Active
+                                        Aktif
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <hr>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.password1.id_for_label }}" class="form-label">
-                                    Password {% if not user %}*{% endif %}
+                                    Kata Sandi {% if not user %}*{% endif %}
                                 </label>
                                 {{ form.password1 }}
                                 {% if form.password1.errors %}
@@ -103,11 +103,14 @@
                                     {{ form.password1.errors.0 }}
                                 </div>
                                 {% endif %}
+                                {% if user %}
+                                <small class="text-muted">Kosongkan jika tidak ingin mengubah password</small>
+                                {% endif %}
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.password2.id_for_label }}" class="form-label">
-                                    Confirm Password {% if not user %}*{% endif %}
+                                    Konfirmasi Kata Sandi {% if not user %}*{% endif %}
                                 </label>
                                 {{ form.password2 }}
                                 {% if form.password2.errors %}
@@ -115,26 +118,92 @@
                                     {{ form.password2.errors.0 }}
                                 </div>
                                 {% endif %}
+                                {% if user %}
+                                <small class="text-muted">Kosongkan jika tidak ingin mengubah password</small>
+                                {% endif %}
                             </div>
                         </div>
-                        
+
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {{ form.non_field_errors.0 }}
                         </div>
                         {% endif %}
-                        
+
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle"></i> {{ button_text }}
                             </button>
                             <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">
-                                <i class="bi bi-x-circle"></i> Cancel
+                                <i class="bi bi-x-circle"></i> Batal
                             </a>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
+
+        <div class="col-md-4">
+            {% if not user %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-lightbulb"></i> Tips Membuat Pengguna Baru</h5>
+                    <ul class="list-unstyled mt-3 mb-0">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>Username</strong> harus unik dan tidak mengandung spasi.
+                        </li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>Email</strong> yang valid diperlukan untuk notifikasi sistem.
+                        </li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>Nama Lengkap</strong> akan ditampilkan di seluruh aplikasi.
+                        </li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>Peran</strong> menentukan hak akses pengguna di dalam sistem.
+                        </li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>Password</strong> minimal 8 karakter dan disarankan menggunakan kombinasi huruf, angka, dan simbol.
+                        </li>
+                        <li class="mb-0"><i class="bi bi-info-circle-fill text-info me-2"></i>
+                            Kolom bertanda <strong>*</strong> wajib diisi.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-person-circle"></i> Info Pengguna</h5>
+                    <ul class="list-unstyled mt-3 mb-0">
+                        <li class="mb-2">
+                            <span class="text-muted"><i class="bi bi-person me-2"></i>Username:</span><br>
+                            <strong>{{ user.username }}</strong>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-muted"><i class="bi bi-shield me-2"></i>Peran:</span><br>
+                            <strong>{{ user.get_role_display|default:user.role }}</strong>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-muted"><i class="bi bi-toggle-on me-2"></i>Status:</span><br>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Tidak Aktif</span>
+                            {% endif %}
+                        </li>
+                        <li class="mb-0">
+                            <span class="text-muted"><i class="bi bi-calendar me-2"></i>Dibuat:</span><br>
+                            <strong>{{ user.date_joined|date:"d M Y" }}</strong>
+                        </li>
+                    </ul>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Kosongkan kolom password jika tidak ingin mengubah password saat ini.
+                    </small>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

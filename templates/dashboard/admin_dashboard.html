@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Dasbor Admin{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -9,14 +9,14 @@
     <div class="row mb-4">
         <div class="col">
             <h2 class="mb-1">
-                <i class="bi bi-speedometer2 me-2" style="color: var(--color-accent);"></i>Admin Dashboard
+                <i class="bi bi-speedometer2 me-2" style="color: var(--color-accent);"></i>Dasbor Admin
             </h2>
             <p class="text-muted mb-0">
-                Welcome back, <strong>{{ user.full_name }}</strong>!
+                Selamat datang, <strong>{{ user.full_name }}</strong>!
                 &nbsp;·&nbsp;
                 <span style="font-size: var(--text-xs); color: var(--color-text-light);">
                     <i class="bi bi-clock"></i>
-                    Data as of {% now "d M Y, H:i" %}
+                    Data per {% now "d M Y, H:i" %}
                 </span>
             </p>
         </div>
@@ -34,7 +34,7 @@
                             <i class="bi bi-receipt"></i>
                         </div>
                         <div class="stat-value">{{ total_orders|default:"0" }}</div>
-                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-label">Total Pesanan</div>
                         <div class="stat-sublabel mt-1">
                             <span class="text-muted" style="font-size: var(--text-xs);">
                                 <i class="bi bi-calendar-day"></i>
@@ -58,11 +58,11 @@
                             <i class="bi bi-box-seam"></i>
                         </div>
                         <div class="stat-value">{{ total_merchandise|default:"0" }}</div>
-                        <div class="stat-label">Active Merchandise</div>
+                        <div class="stat-label">Merchandise Aktif</div>
                         <div class="stat-sublabel mt-1">
                             <span class="text-muted" style="font-size: var(--text-xs);">
                                 <i class="bi bi-exclamation-circle"></i>
-                                {{ low_stock_count|default:"0" }} low stock
+                                {{ low_stock_count|default:"0" }} stok menipis
                                 &nbsp;·&nbsp;
                                 <i class="bi bi-x-circle"></i>
                                 {{ out_of_stock_count|default:"0" }} habis
@@ -82,11 +82,11 @@
                             <i class="bi bi-people"></i>
                         </div>
                         <div class="stat-value">{{ total_sales_users|default:"0" }}</div>
-                        <div class="stat-label">Sales Users</div>
+                        <div class="stat-label">Pengguna Sales</div>
                         <div class="stat-sublabel mt-1">
                             <span class="text-muted" style="font-size: var(--text-xs);">
                                 <i class="bi bi-person-badge"></i>
-                                Klik untuk kelola users
+                                Klik untuk kelola pengguna
                             </span>
                         </div>
                     </div>
@@ -102,32 +102,32 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center gap-2">
                     <i class="bi bi-lightning-charge" style="color: var(--color-accent);"></i>
-                    <span>Quick Actions</span>
+                    <span>Aksi Cepat</span>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3 col-sm-6">
                             <a href="{% url 'accounts:user_list' %}" class="action-card-btn">
                                 <i class="bi bi-people"></i>
-                                <span>Manage Users</span>
+                                <span>Kelola Pengguna</span>
                             </a>
                         </div>
                         <div class="col-md-3 col-sm-6">
                             <a href="{% url 'merchandise:category_list' %}" class="action-card-btn">
                                 <i class="bi bi-tags"></i>
-                                <span>Manage Categories</span>
+                                <span>Kelola Kategori</span>
                             </a>
                         </div>
                         <div class="col-md-3 col-sm-6">
                             <a href="{% url 'merchandise:merchandise_list' %}" class="action-card-btn">
                                 <i class="bi bi-box-seam"></i>
-                                <span>Manage Merchandise</span>
+                                <span>Kelola Merchandise</span>
                             </a>
                         </div>
                         <div class="col-md-3 col-sm-6">
                             <a href="{% url 'orders:order_list' %}" class="action-card-btn">
                                 <i class="bi bi-receipt"></i>
-                                <span>View All Orders</span>
+                                <span>Lihat Semua Pesanan</span>
                             </a>
                         </div>
                     </div>
@@ -143,10 +143,10 @@
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-clock-history" style="color: var(--color-accent);"></i>
-                        <span>Recent Orders</span>
+                        <span>Pesanan Terbaru</span>
                     </div>
                     <a href="{% url 'orders:order_list' %}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-arrow-right"></i> View All
+                        <i class="bi bi-arrow-right"></i> Lihat Semua
                     </a>
                 </div>
                 <div class="card-body p-0">
@@ -155,12 +155,12 @@
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>Order #</th>
-                                    <th>Customer</th>
+                                    <th>No. Pesanan</th>
+                                    <th>Pelanggan</th>
                                     <th class="d-none d-md-table-cell">Sales</th>
-                                    <th>Items</th>
+                                    <th>Item</th>
                                     <th class="d-none d-sm-table-cell">Total Qty</th>
-                                    <th>Date</th>
+                                    <th>Tanggal</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -189,7 +189,7 @@
                                     <td>
                                         <a href="{% url 'orders:order_detail' order.pk %}"
                                            class="btn btn-sm btn-secondary"
-                                           title="View Detail">
+                                           title="Lihat Detail">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                     </td>
@@ -201,9 +201,9 @@
                     {% else %}
                     <div class="text-center py-5">
                         <i class="bi bi-inbox" style="font-size: 2.5rem; color: var(--color-text-light); display: block; margin-bottom: var(--space-3);"></i>
-                        <p class="text-muted mb-0">Belum ada order.</p>
+                        <p class="text-muted mb-0">Belum ada pesanan.</p>
                         <a href="{% url 'orders:order_create' %}" class="btn btn-primary btn-sm mt-3">
-                            <i class="bi bi-plus-lg"></i> Buat Order Pertama
+                            <i class="bi bi-plus-lg"></i> Buat Pesanan Pertama
                         </a>
                     </div>
                     {% endif %}
@@ -221,12 +221,12 @@
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-exclamation-triangle" style="color: var(--color-warning);"></i>
-                        <span>Low Stock Items</span>
+                        <span>Item Stok Menipis</span>
                         <span class="badge bg-warning ms-1">{{ low_stock_count|default:"0" }}</span>
                     </div>
                     <a href="{% url 'merchandise:merchandise_list' %}?stock=low_stock"
                        class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-arrow-right"></i> View All
+                        <i class="bi bi-arrow-right"></i> Lihat Semua
                     </a>
                 </div>
                 <div class="card-body p-0">
@@ -235,9 +235,9 @@
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>Item</th>
-                                    <th class="d-none d-sm-table-cell">Category</th>
-                                    <th>Stock</th>
+                                    <th>Nama Item</th>
+                                    <th class="d-none d-sm-table-cell">Kategori</th>
+                                    <th>Stok</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -258,7 +258,7 @@
                                     <td>
                                         <a href="{% url 'merchandise:merchandise_adjust_stock' item.pk %}"
                                            class="btn btn-sm btn-secondary"
-                                           title="Adjust Stock">
+                                           title="Sesuaikan Stok">
                                             <i class="bi bi-plus-slash-minus"></i>
                                         </a>
                                     </td>
@@ -282,7 +282,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center gap-2">
                     <i class="bi bi-bar-chart-line" style="color: var(--color-accent);"></i>
-                    <span>Sales Performance</span>
+                    <span>Performa Sales</span>
                 </div>
                 <div class="card-body p-0">
                     {% if sales_performance %}
@@ -292,7 +292,7 @@
                                 <tr>
                                     <th class="d-none d-sm-table-cell">#</th>
                                     <th>Sales</th>
-                                    <th>Orders</th>
+                                    <th>Pesanan</th>
                                     <th>Total Qty</th>
                                 </tr>
                             </thead>
@@ -334,10 +334,10 @@
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-activity" style="color: var(--color-accent);"></i>
-                        <span>Stock Activity Feed</span>
+                        <span>Riwayat Perubahan Stok</span>
                     </div>
                     <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-arrow-right"></i> Merchandise
+                        <i class="bi bi-arrow-right"></i> Lihat Merchandise
                     </a>
                 </div>
                 <div class="card-body p-0">
@@ -346,12 +346,12 @@
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>Item</th>
-                                    <th>Adj.</th>
-                                    <th class="d-none d-md-table-cell">Stock</th>
-                                    <th class="d-none d-sm-table-cell">Reason</th>
-                                    <th class="d-none d-md-table-cell">By</th>
-                                    <th>Date</th>
+                                    <th>Nama Item</th>
+                                    <th>Perubahan</th>
+                                    <th class="d-none d-md-table-cell">Stok</th>
+                                    <th class="d-none d-sm-table-cell">Alasan</th>
+                                    <th class="d-none d-md-table-cell">Oleh</th>
+                                    <th>Tanggal</th>
                                 </tr>
                             </thead>
                             <tbody>

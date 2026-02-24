@@ -1,92 +1,102 @@
 {% extends 'base.html' %}
 
-{% block title %}Categories{% endblock %}
+{% block title %}Daftar Kategori{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
+    <!-- Page Header -->
+    <div class="row mb-4 align-items-center">
         <div class="col">
-            <h2><i class="bi bi-tags"></i> Categories</h2>
+            <h2 class="mb-1"><i class="bi bi-tags me-2" style="color: var(--color-accent);"></i>Kategori</h2>
             <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Categories</li>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item active">Kategori</li>
                 </ol>
             </nav>
         </div>
-        <div class="col-auto">
-            <a href="{% url 'merchandise:category_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Create New Category
+        <div class="col-12 col-md-auto mt-3 mt-md-0">
+            <a href="{% url 'merchandise:category_create' %}" class="btn btn-primary w-100 w-md-auto">
+                <i class="bi bi-plus-circle"></i> Tambah Kategori
             </a>
         </div>
     </div>
-    
-    <!-- Filters -->
+
+    <!-- Filter -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-8">
-                    <label class="form-label">Search</label>
-                    <input type="text" name="search" class="form-control" placeholder="Search by name or description..." value="{{ search_query }}">
+                    <label class="form-label">Cari</label>
+                    <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama atau deskripsi..." value="{{ search_query }}">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
-                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="">Semua Status</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Aktif</option>
+                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Nonaktif</option>
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
                         <i class="bi bi-search"></i> Filter
                     </button>
+                    {% if search_query or status_filter %}
+                    <a href="{% url 'merchandise:category_list' %}" class="btn btn-secondary" title="Reset filter">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                    {% endif %}
                 </div>
             </form>
         </div>
     </div>
-    
-    <!-- Categories Table -->
+
+    <!-- Tabel Kategori -->
     <div class="card">
-        <div class="card-body">
+        <div class="card-body p-0">
             {% if categories %}
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Merchandise Count</th>
+                            <th>Nama</th>
+                            <th class="d-none d-md-table-cell">Deskripsi</th>
+                            <th>Jumlah Produk</th>
                             <th>Status</th>
-                            <th>Created</th>
-                            <th width="180">Actions</th>
+                            <th class="d-none d-sm-table-cell">Dibuat</th>
+                            <th style="width: 140px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for category in categories %}
                         <tr>
                             <td><strong>{{ category.name }}</strong></td>
-                            <td>{{ category.description|truncatewords:10|default:"-" }}</td>
+                            <td class="d-none d-md-table-cell">{{ category.description|truncatewords:10|default:"-" }}</td>
                             <td>
-                                <span class="badge bg-info">{{ category.merchandise_count }} items</span>
+                                <span class="badge bg-info">{{ category.merchandise_count }} produk</span>
                             </td>
                             <td>
                                 {% if category.is_active %}
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-success">Aktif</span>
                                 {% else %}
-                                <span class="badge bg-secondary">Inactive</span>
+                                <span class="badge bg-secondary">Nonaktif</span>
                                 {% endif %}
                             </td>
-                            <td>{{ category.created_at|date:"d M Y" }}</td>
+                            <td class="d-none d-sm-table-cell">{{ category.created_at|date:"d M Y" }}</td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'merchandise:category_edit' category.pk %}" class="btn btn-outline-primary" title="Edit">
+                                    <a href="{% url 'merchandise:category_edit' category.pk %}" 
+                                       class="btn btn-outline-primary" title="Edit Kategori">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'merchandise:category_toggle_active' category.pk %}" class="btn btn-outline-warning" title="Toggle Active">
-                                        <i class="bi bi-toggle-on"></i>
+                                    <a href="{% url 'merchandise:category_toggle_active' category.pk %}" 
+                                       class="btn {% if category.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                                       title="{% if category.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}">
+                                        <i class="bi {% if category.is_active %}bi-toggle-on{% else %}bi-toggle-off{% endif %}"></i>
                                     </a>
-                                    <a href="{% url 'merchandise:category_delete' category.pk %}" class="btn btn-outline-danger" title="Delete">
+                                    <a href="{% url 'merchandise:category_delete' category.pk %}" 
+                                       class="btn btn-outline-danger" title="Hapus Kategori">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
@@ -96,15 +106,15 @@
                     </tbody>
                 </table>
             </div>
-            <div class="text-muted mt-2">
-                Total: {{ categories.count }} category(ies)
+            <div class="text-muted px-3 py-2" style="font-size: var(--text-xs);">
+                Total: {{ categories.count }} kategori
             </div>
             {% else %}
             <div class="text-center py-5">
                 <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted mt-3">No categories found.</p>
+                <p class="text-muted mt-3">Belum ada kategori ditemukan.</p>
                 <a href="{% url 'merchandise:category_create' %}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Create First Category
+                    <i class="bi bi-plus-circle"></i> Tambah Kategori Pertama
                 </a>
             </div>
             {% endif %}

@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Order {{ order.order_number }}{% endblock %}
+{% block title %}Pesanan {{ order.order_number }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
 
-    <!-- Page Header -->
+    <!-- Header Halaman -->
     <div class="row mb-4 align-items-start">
         <div class="col">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">Orders</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">Pesanan</a></li>
                     <li class="breadcrumb-item active">{{ order.order_number }}</li>
                 </ol>
             </nav>
@@ -29,27 +29,27 @@
             <a href="https://wa.me/{{ order.customer_phone|cut:'+' }}"
                target="_blank"
                class="btn btn-secondary"
-               title="Chat WhatsApp">
+               title="Hubungi via WhatsApp">
                 <i class="bi bi-whatsapp"></i> WhatsApp
             </a>
             <a href="{% url 'orders:order_print' order.pk %}"
                class="btn btn-primary"
                target="_blank">
-                <i class="bi bi-printer"></i> Print
+                <i class="bi bi-printer"></i> Cetak
             </a>
         </div>
     </div>
 
     <div class="row">
 
-        <!-- LEFT COLUMN -->
+        <!-- KOLOM KIRI -->
         <div class="col-md-4">
 
-            <!-- Order Information -->
+            <!-- Informasi Pesanan -->
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="bi bi-info-circle me-2" style="color: var(--color-accent);"></i>Order Information
+                        <i class="bi bi-info-circle me-2" style="color: var(--color-accent);"></i>Informasi Pesanan
                     </h6>
                 </div>
                 <div class="card-body p-0">
@@ -58,7 +58,7 @@
                         <tbody>
                             <tr>
                                 <td class="text-muted ps-3" style="font-size: var(--text-xs); width: 38%;">
-                                    <i class="bi bi-hash me-1"></i>Order No.
+                                    <i class="bi bi-hash me-1"></i>No. Pesanan
                                 </td>
                                 <td style="font-weight: var(--font-semibold); font-size: var(--text-sm);">
                                     {{ order.order_number }}
@@ -66,7 +66,7 @@
                             </tr>
                             <tr>
                                 <td class="text-muted ps-3" style="font-size: var(--text-xs);">
-                                    <i class="bi bi-calendar me-1"></i>Date
+                                    <i class="bi bi-calendar me-1"></i>Tanggal
                                 </td>
                                 <td style="font-size: var(--text-sm);">
                                     {{ order.created_at|date:"d M Y" }}<br>
@@ -87,11 +87,11 @@
                 </div>
             </div>
 
-            <!-- Customer Information -->
+            <!-- Informasi Pelanggan -->
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="bi bi-person me-2" style="color: var(--color-accent);"></i>Customer Information
+                        <i class="bi bi-person me-2" style="color: var(--color-accent);"></i>Informasi Pelanggan
                     </h6>
                 </div>
                 <div class="card-body p-0">
@@ -100,7 +100,7 @@
                         <tbody>
                             <tr>
                                 <td class="text-muted ps-3" style="font-size: var(--text-xs); width: 38%;">
-                                    <i class="bi bi-person me-1"></i>Name
+                                    <i class="bi bi-person me-1"></i>Nama
                                 </td>
                                 <td style="font-size: var(--text-sm); font-weight: var(--font-semibold);">
                                     {{ order.customer_name }}
@@ -126,12 +126,12 @@
                 </div>
             </div>
 
-            <!-- Notes (only if exists) -->
+            <!-- Catatan (hanya jika ada) -->
             {% if order.notes %}
             <div class="card" style="border-left: 3px solid var(--color-accent);">
                 <div class="card-body py-3">
                     <p class="mb-1" style="font-size: var(--text-xs); font-weight: var(--font-semibold); color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.05em;">
-                        <i class="bi bi-chat-left-text me-1"></i>Notes
+                        <i class="bi bi-chat-left-text me-1"></i>Catatan
                     </p>
                     <p class="mb-0" style="font-size: var(--text-sm); color: var(--color-text);">
                         {{ order.notes }}
@@ -142,15 +142,15 @@
 
         </div>
 
-        <!-- RIGHT COLUMN — Order Items -->
+        <!-- KOLOM KANAN — Item Pesanan -->
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="bi bi-cart me-2" style="color: var(--color-accent);"></i>Order Items
+                        <i class="bi bi-cart me-2" style="color: var(--color-accent);"></i>Item Pesanan
                     </h6>
                     <span style="font-size: var(--text-xs); color: var(--color-text-light);">
-                        {{ order.items.count }} item type{{ order.items.count|pluralize }}
+                        {{ order.items.count }} jenis item
                     </span>
                 </div>
                 <div class="card-body p-0">
@@ -159,10 +159,10 @@
                             <thead>
                                 <tr>
                                     <th style="width: 40px;">#</th>
-                                    <th style="width: 80px;">Image</th>
+                                    <th style="width: 80px;">Gambar</th>
                                     <th>Merchandise</th>
-                                    <th>Category</th>
-                                    <th class="text-center" style="width: 100px;">Qty</th>
+                                    <th>Kategori</th>
+                                    <th class="text-center" style="width: 100px;">Jumlah</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -189,7 +189,7 @@
                                         {% if not item.merchandise.is_active %}
                                         <br>
                                         <span style="font-size: var(--text-xs); color: var(--color-danger);">
-                                            <i class="bi bi-exclamation-triangle me-1"></i>Item no longer available
+                                            <i class="bi bi-exclamation-triangle me-1"></i>Item tidak tersedia lagi
                                         </span>
                                         {% endif %}
                                     </td>
@@ -210,7 +210,7 @@
                             <tfoot>
                                 <tr>
                                     <td colspan="4" class="text-end pe-3">
-                                        Total Quantity:
+                                        Total Kuantitas:
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-success"
@@ -224,15 +224,15 @@
                     </div>
                 </div>
 
-                <!-- Card Footer — Back button -->
+                <!-- Footer Card -->
                 <div class="card-footer d-flex justify-content-between align-items-center">
                     <a href="{% url 'orders:order_list' %}" class="btn btn-secondary btn-sm">
-                        <i class="bi bi-arrow-left me-1"></i>Back to Orders
+                        <i class="bi bi-arrow-left me-1"></i>Kembali ke Pesanan
                     </a>
                     <a href="{% url 'orders:order_print' order.pk %}"
                        class="btn btn-primary btn-sm"
                        target="_blank">
-                        <i class="bi bi-printer me-1"></i>Print Order
+                        <i class="bi bi-printer me-1"></i>Cetak Pesanan
                     </a>
                 </div>
             </div>

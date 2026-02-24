@@ -28,25 +28,25 @@
             <a class="navbar-brand" href="{% url 'dashboard:home' %}">
                 <i class="bi bi-box-seam me-1" style="color: var(--color-accent);"></i>Merchandise System
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Buka/tutup navigasi">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <!-- Dashboard — always visible -->
+                    <!-- Dasbor — selalu tampil -->
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}"
                            href="{% url 'dashboard:home' %}">
-                            <i class="bi bi-house-door"></i> Dashboard
+                            <i class="bi bi-house-door"></i> Dasbor
                         </a>
                     </li>
 
                     {% if user.is_admin %}
-                    <!-- Admin Menu -->
+                    <!-- Menu Admin -->
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.app_name == 'accounts' %}active{% endif %}"
                            href="{% url 'accounts:user_list' %}">
-                            <i class="bi bi-people"></i> Users
+                            <i class="bi bi-people"></i> Pengguna
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -57,12 +57,12 @@
                         <ul class="dropdown-menu" aria-labelledby="merchandiseDropdown">
                             <li>
                                 <a class="dropdown-item" href="{% url 'merchandise:category_list' %}">
-                                    <i class="bi bi-tags"></i> Categories
+                                    <i class="bi bi-tags"></i> Kategori
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{% url 'merchandise:merchandise_list' %}">
-                                    <i class="bi bi-box"></i> Products
+                                    <i class="bi bi-box"></i> Produk
                                 </a>
                             </li>
                         </ul>
@@ -70,13 +70,13 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.app_name == 'orders' %}active{% endif %}"
                            href="{% url 'orders:order_list' %}">
-                            <i class="bi bi-receipt"></i> All Orders
+                            <i class="bi bi-receipt"></i> Semua Pesanan
                         </a>
                     </li>
                     {% endif %}
 
                     {% if user.is_sales %}
-                    <!-- Sales Menu -->
+                    <!-- Menu Sales -->
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.app_name == 'merchandise' %}active{% endif %}"
                            href="{% url 'merchandise:merchandise_list' %}">
@@ -86,19 +86,19 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'order_create' %}active{% endif %}"
                            href="{% url 'orders:order_create' %}">
-                            <i class="bi bi-plus-circle"></i> Create Order
+                            <i class="bi bi-plus-circle"></i> Buat Pesanan
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.app_name == 'orders' %}active{% endif %}"
+                        <a class="nav-link {% if request.resolver_match.app_name == 'orders' and request.resolver_match.url_name != 'order_create' %}active{% endif %}"
                            href="{% url 'orders:order_list' %}">
-                            <i class="bi bi-receipt"></i> My Orders
+                            <i class="bi bi-receipt"></i> Pesanan Saya
                         </a>
                     </li>
                     {% endif %}
                 </ul>
 
-                <!-- User Menu -->
+                <!-- Menu Pengguna -->
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown"
@@ -114,13 +114,13 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li>
                                 <span class="dropdown-item-text text-muted" style="font-size: var(--text-xs);">
-                                    Logged in as <strong>{{ user.username }}</strong>
+                                    Masuk sebagai <strong>{{ user.username }}</strong>
                                 </span>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                    <i class="bi bi-box-arrow-right"></i> Keluar
                                 </a>
                             </li>
                         </ul>
@@ -131,9 +131,9 @@
     </nav>
     {% endif %}
     
-    <!-- Main Content -->
+    <!-- Konten Utama -->
     <main class="{% if user.is_authenticated %}container-fluid py-4{% endif %}">
-        <!-- Messages -->
+        <!-- Pesan Flash -->
         {% if messages %}
         <div class="container">
             {% for message in messages %}
@@ -148,7 +148,7 @@
                     <i class="bi bi-info-circle-fill"></i>
                 {% endif %}
                 {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
             </div>
             {% endfor %}
         </div>
@@ -161,7 +161,7 @@
     {% if user.is_authenticated %}
     <footer>
         <div class="container-fluid">
-            <p class="mb-0">&copy; {% now "Y" %} Merchandise System. All rights reserved.</p>
+            <p class="mb-0">&copy; {% now "Y" %} Merchandise System. Hak cipta dilindungi.</p>
         </div>
     </footer>
     {% endif %}

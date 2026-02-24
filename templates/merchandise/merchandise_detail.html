@@ -5,18 +5,18 @@
 {% block extra_css %}
 <style>
 .product-detail-hero {
-    background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-white) 100%);
-    border-radius: var(--radius-lg);
+    background: var(--neu-bg);
+    border-radius: var(--neu-radius);
+    box-shadow: var(--neu-shadow-raised);
     padding: var(--space-8);
     margin-bottom: var(--space-6);
 }
 
 .product-image-container {
     position: relative;
-    border-radius: var(--radius-lg);
+    border-radius: var(--neu-radius);
     overflow: hidden;
-    background: var(--color-white);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--neu-shadow-raised);
     transition: transform var(--transition-normal);
 }
 
@@ -26,28 +26,30 @@
 
 .product-image-container img {
     width: 100%;
-    height: 400px;
+    height: 380px;
     object-fit: cover;
     display: block;
 }
 
 .product-image-placeholder {
     width: 100%;
-    height: 400px;
+    height: 380px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-gray-100);
+    background: var(--neu-bg);
+    box-shadow: var(--neu-shadow-inset-subtle);
 }
 
 .stock-badge-large {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-3);
     padding: var(--space-4) var(--space-6);
-    border-radius: var(--radius-lg);
+    border-radius: var(--neu-radius);
     font-size: var(--text-2xl);
     font-weight: var(--font-bold);
+    box-shadow: var(--neu-shadow-raised);
 }
 
 .stock-badge-large i {
@@ -55,10 +57,10 @@
 }
 
 .info-card {
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-lg);
-    padding: var(--space-6);
+    background: var(--neu-bg);
+    border-radius: var(--neu-radius);
+    box-shadow: var(--neu-shadow-raised);
+    padding: var(--space-5);
     margin-bottom: var(--space-4);
 }
 
@@ -66,24 +68,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-4) 0;
-    border-bottom: 1px solid var(--color-gray-100);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid rgba(184, 190, 199, 0.3);
 }
 
 .info-row:last-child {
     border-bottom: none;
+    padding-bottom: 0;
 }
 
 .info-label {
     font-size: var(--text-sm);
-    color: var(--color-gray-600);
+    color: var(--color-text-muted);
     font-weight: var(--font-medium);
 }
 
 .info-value {
-    font-size: var(--text-base);
-    color: var(--color-gray-900);
-    font-weight: var(--font-medium);
+    font-size: var(--text-sm);
+    color: var(--color-text-dark);
+    font-weight: var(--font-semibold);
     text-align: right;
 }
 
@@ -91,7 +94,7 @@
     position: relative;
     padding-left: var(--space-8);
     padding-bottom: var(--space-6);
-    border-left: 2px solid var(--color-gray-200);
+    border-left: 2px solid rgba(184, 190, 199, 0.4);
 }
 
 .timeline-item:last-child {
@@ -106,120 +109,50 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: var(--color-gray-400);
+    background: var(--color-text-light);
 }
 
-.timeline-dot.positive {
-    background: var(--color-success);
-}
+.timeline-dot.positive { background: var(--color-success); }
+.timeline-dot.negative { background: var(--color-danger); }
 
-.timeline-dot.negative {
-    background: var(--color-danger);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-}
-
-.stat-card {
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-lg);
-    padding: var(--space-6);
-    text-align: center;
-    transition: all var(--transition-normal);
-}
-
-.stat-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
-
-.stat-value {
-    font-size: var(--text-3xl);
-    font-weight: var(--font-bold);
-    color: var(--color-gray-900);
-    margin-bottom: var(--space-2);
-}
-
-.stat-label {
-    font-size: var(--text-sm);
-    color: var(--color-gray-600);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* Mobile Responsive */
 @media (max-width: 768px) {
-    .product-detail-hero {
-        padding: var(--space-4);
-    }
-    
+    .product-detail-hero { padding: var(--space-4); }
+
     .product-image-container img,
-    .product-image-placeholder {
-        height: 300px;
-    }
-    
+    .product-image-placeholder { height: 280px; }
+
     .stock-badge-large {
         font-size: var(--text-xl);
         padding: var(--space-3) var(--space-4);
     }
-    
-    .stock-badge-large i {
-        font-size: var(--text-2xl);
-    }
-    
+
+    .stock-badge-large i { font-size: var(--text-2xl); }
+
     .info-card {
         padding: var(--space-4);
         margin-bottom: var(--space-3);
     }
-    
+
     .info-row {
-        padding: var(--space-3) 0;
         flex-direction: column;
         align-items: flex-start;
         gap: var(--space-1);
     }
-    
-    .info-value {
-        text-align: left;
-    }
-    
-    .timeline-item {
-        padding-left: var(--space-6);
-        padding-bottom: var(--space-4);
-    }
-    
-    .timeline-dot {
-        left: -5px;
-        width: 10px;
-        height: 10px;
-    }
-    
-    /* Stack timeline content on mobile */
+
+    .info-value { text-align: left; }
+
     .timeline-item .d-flex {
         flex-direction: column;
         gap: var(--space-2);
     }
-    
-    .timeline-item .text-end {
-        text-align: left !important;
-    }
+
+    .timeline-item .text-end { text-align: left !important; }
 }
 
 @media (max-width: 375px) {
-    .product-detail-hero {
-        padding: var(--space-3);
-    }
-    
     .product-image-container img,
-    .product-image-placeholder {
-        height: 250px;
-    }
-    
+    .product-image-placeholder { height: 220px; }
+
     .stock-badge-large {
         font-size: var(--text-lg);
         padding: var(--space-2) var(--space-3);
@@ -230,28 +163,31 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Breadcrumb & Actions -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_list' %}">Merchandise</a></li>
-                <li class="breadcrumb-item active">{{ merchandise.name }}</li>
-            </ol>
-        </nav>
+
+    <!-- Breadcrumb & Aksi -->
+    <div class="row mb-4 align-items-start">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_list' %}">Merchandise</a></li>
+                    <li class="breadcrumb-item active">{{ merchandise.name }}</li>
+                </ol>
+            </nav>
+        </div>
         {% if user.is_admin %}
-        <div class="d-flex gap-2">
+        <div class="col-12 col-md-auto d-flex flex-wrap gap-2 mt-3 mt-md-0">
             <a href="{% url 'merchandise:merchandise_edit' merchandise.pk %}" class="btn btn-primary">
                 <i class="bi bi-pencil"></i> Edit
             </a>
-            <a href="{% url 'merchandise:merchandise_adjust_stock' merchandise.pk %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-repeat"></i> Adjust Stock
+            <a href="{% url 'merchandise:merchandise_adjust_stock' merchandise.pk %}" class="btn btn-warning">
+                <i class="bi bi-arrow-repeat"></i> Sesuaikan Stok
             </a>
         </div>
         {% endif %}
     </div>
 
-    <!-- Product Hero Section -->
+    <!-- Hero Section -->
     <div class="product-detail-hero">
         <div class="row g-5 align-items-center">
             <div class="col-md-5">
@@ -260,7 +196,7 @@
                     <img src="{{ merchandise.image.url }}" alt="{{ merchandise.name }}">
                     {% else %}
                     <div class="product-image-placeholder">
-                        <i class="bi bi-image" style="font-size: 6rem; color: var(--color-gray-400);"></i>
+                        <i class="bi bi-image" style="font-size: 6rem; color: var(--color-text-light);"></i>
                     </div>
                     {% endif %}
                 </div>
@@ -273,11 +209,11 @@
                     </span>
                     {% if merchandise.is_active %}
                     <span class="badge bg-success ms-2" style="font-size: var(--text-sm);">
-                        <i class="bi bi-check-circle"></i> Active
+                        <i class="bi bi-check-circle"></i> Aktif
                     </span>
                     {% else %}
                     <span class="badge bg-secondary ms-2" style="font-size: var(--text-sm);">
-                        Inactive
+                        Tidak Aktif
                     </span>
                     {% endif %}
                 </div>
@@ -285,17 +221,17 @@
                 <h1 class="display-5 fw-semibold mb-4">{{ merchandise.name }}</h1>
                 
                 <p class="lead text-muted mb-4">
-                    {{ merchandise.description|default:"No description available for this item." }}
+                    {{ merchandise.description|default:"Tidak ada deskripsi untuk item ini." }}
                 </p>
                 
-                <!-- Stock Status (Large) -->
+                <!-- Status Stok -->
                 <div class="mb-4">
                     {% if merchandise.is_out_of_stock %}
                     <div class="stock-badge-large" style="background: var(--color-danger-bg); color: var(--color-danger);">
                         <i class="bi bi-x-circle-fill"></i>
                         <div>
                             <div>{{ merchandise.stock }}</div>
-                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Out of Stock</div>
+                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Stok Habis</div>
                         </div>
                     </div>
                     {% elif merchandise.is_low_stock %}
@@ -303,7 +239,7 @@
                         <i class="bi bi-exclamation-triangle-fill"></i>
                         <div>
                             <div>{{ merchandise.stock }}</div>
-                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Low Stock</div>
+                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Stok Menipis</div>
                         </div>
                     </div>
                     {% else %}
@@ -311,7 +247,7 @@
                         <i class="bi bi-check-circle-fill"></i>
                         <div>
                             <div>{{ merchandise.stock }}</div>
-                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">In Stock</div>
+                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Stok Tersedia</div>
                         </div>
                     </div>
                     {% endif %}
@@ -320,59 +256,64 @@
         </div>
     </div>
 
-    <!-- Info & History Grid -->
+    <!-- Info & Riwayat -->
     <div class="row g-4">
-        <!-- Product Information -->
+
+        <!-- Informasi Produk -->
         <div class="col-md-4">
-            <h5 class="mb-4">
-                <i class="bi bi-info-circle"></i> Product Information
+            <h5 class="mb-3">
+                <i class="bi bi-info-circle"></i> Informasi Produk
             </h5>
             
             <div class="info-card">
                 <div class="info-row">
-                    <span class="info-label">Category</span>
+                    <span class="info-label">Kategori</span>
                     <span class="info-value">{{ merchandise.category.name }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Current Stock</span>
-                    <span class="info-value">{{ merchandise.stock }} units</span>
+                    <span class="info-label">Stok Saat Ini</span>
+                    <span class="info-value">{{ merchandise.stock }} unit</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Status</span>
                     <span class="info-value">
                         {% if merchandise.is_active %}
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success">Aktif</span>
                         {% else %}
-                        <span class="badge bg-secondary">Inactive</span>
+                        <span class="badge bg-secondary">Tidak Aktif</span>
                         {% endif %}
                     </span>
                 </div>
             </div>
 
-            <h5 class="mb-4 mt-5">
-                <i class="bi bi-clock"></i> Timeline
+            <h5 class="mb-3 mt-4">
+                <i class="bi bi-clock"></i> Informasi Waktu
             </h5>
             
             <div class="info-card">
                 <div class="info-row">
-                    <span class="info-label">Created By</span>
-                    <span class="info-value">{{ merchandise.created_by.full_name|default:"Unknown" }}</span>
+                    <span class="info-label">Dibuat Oleh</span>
+                    <span class="info-value">{{ merchandise.created_by.full_name|default:"Tidak Diketahui" }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Created Date</span>
+                    <span class="info-label">Tanggal Dibuat</span>
                     <span class="info-value">{{ merchandise.created_at|date:"d M Y" }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Last Updated</span>
+                    <span class="info-label">Terakhir Diperbarui</span>
                     <span class="info-value">{{ merchandise.updated_at|date:"d M Y, H:i" }}</span>
                 </div>
             </div>
+
+            <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-secondary w-100 mt-2">
+                <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
+            </a>
         </div>
         
-        <!-- Stock History -->
+        <!-- Riwayat Stok -->
         <div class="col-md-8">
-            <h5 class="mb-4">
-                <i class="bi bi-clock-history"></i> Stock History
+            <h5 class="mb-3">
+                <i class="bi bi-clock-history"></i> Riwayat Stok
             </h5>
             
             <div class="card">
@@ -393,28 +334,32 @@
                                         {{ history.reason }}
                                     </div>
                                     <small class="text-muted">
-                                        {{ history.stock_before }} → {{ history.stock_after }} units
+                                        {{ history.stock_before }} &rarr; {{ history.stock_after }} unit
                                     </small>
                                 </div>
                                 <div class="text-end">
                                     <small class="text-muted d-block">{{ history.created_at|date:"d M Y, H:i" }}</small>
-                                    <small class="text-muted">by {{ history.adjusted_by.full_name|default:"System" }}</small>
+                                    <small class="text-muted">oleh {{ history.adjusted_by.full_name|default:"Sistem" }}</small>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
-                    <p class="text-muted small mb-0 mt-4">Showing last 10 adjustments</p>
+                    <p class="text-muted small mb-0 mt-4">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Menampilkan 10 penyesuaian terakhir
+                    </p>
                     {% else %}
                     <div class="text-center py-5">
-                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--color-gray-300);"></i>
-                        <p class="text-muted mt-3 mb-0">No stock adjustments yet</p>
-                        <p class="text-muted small">History will appear here when stock is adjusted</p>
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--color-text-light); display: block; margin-bottom: var(--space-4);"></i>
+                        <p class="text-muted mb-1">Belum ada penyesuaian stok</p>
+                        <p class="text-muted small mb-0">Riwayat akan muncul saat stok disesuaikan</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 {% endblock %}

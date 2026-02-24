@@ -1,102 +1,123 @@
 {% extends 'base.html' %}
 
-{% block title %}User Management{% endblock %}
+{% block title %}Manajemen Pengguna{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
+    <div class="row mb-4 align-items-center">
         <div class="col">
-            <h2><i class="bi bi-people"></i> User Management</h2>
+            <h2 class="mb-1"><i class="bi bi-people me-2" style="color: var(--color-accent);"></i>Manajemen Pengguna</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Users</li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item active">Pengguna</li>
                 </ol>
             </nav>
         </div>
-        <div class="col-auto">
-            <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Create New User
+        <div class="col-12 col-md-auto mt-3 mt-md-0">
+            <a href="{% url 'accounts:user_create' %}" class="btn btn-primary w-100 w-md-auto">
+                <i class="bi bi-plus-circle"></i> Tambah Pengguna
             </a>
         </div>
     </div>
-    
-    <!-- Filters -->
+
+    <!-- Filter -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Search</label>
-                    <input type="text" name="search" class="form-control" placeholder="Search by username, name, or email..." value="{{ search_query }}">
+                <div class="col-12 col-sm-6 col-md-5">
+                    <label class="form-label fw-semibold">Cari Pengguna</label>
+                    <input type="text" name="search" class="form-control"
+                           placeholder="Cari username, nama, atau email..."
+                           value="{{ search_query }}">
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">Role</label>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <label class="form-label fw-semibold">Peran</label>
                     <select name="role" class="form-select">
-                        <option value="">All Roles</option>
+                        <option value="">Semua Peran</option>
                         {% for value, label in roles %}
                         <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search"></i> Filter
+                <div class="col-12 col-sm-12 col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="bi bi-search"></i> Cari
                     </button>
+                    {% if search_query or role_filter %}
+                    <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary flex-fill">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                    {% endif %}
                 </div>
             </form>
         </div>
     </div>
-    
-    <!-- Users Table -->
+
+    <!-- Tabel Pengguna -->
     <div class="card">
-        <div class="card-body">
+        <div class="card-body p-0">
             {% if users %}
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover mb-0">
                     <thead>
                         <tr>
                             <th>Username</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
+                            <th>Nama Lengkap</th>
+                            <th class="d-none d-md-table-cell">Email</th>
+                            <th class="d-none d-lg-table-cell">Telepon</th>
                             <th>Role</th>
                             <th>Status</th>
-                            <th>Joined</th>
-                            <th width="200">Actions</th>
+                            <th class="d-none d-sm-table-cell">Bergabung</th>
+                            <th style="width: 160px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for user_item in users %}
                         <tr>
-                            <td>{{ user_item.username }}</td>
+                            <td class="fw-medium">{{ user_item.username }}</td>
                             <td>{{ user_item.full_name }}</td>
-                            <td>{{ user_item.email }}</td>
-                            <td>{{ user_item.phone|default:"-" }}</td>
+                            <td class="d-none d-md-table-cell">
+                                <span class="text-muted" style="font-size: var(--text-sm);">{{ user_item.email|default:"-" }}</span>
+                            </td>
+                            <td class="d-none d-lg-table-cell">
+                                <span class="text-muted" style="font-size: var(--text-sm);">{{ user_item.phone|default:"-" }}</span>
+                            </td>
                             <td>
                                 {% if user_item.role == 'ADMIN' %}
                                 <span class="badge bg-danger">{{ user_item.get_role_display }}</span>
                                 {% else %}
-                                <span class="badge bg-info">{{ user_item.get_role_display }}</span>
+                                <span class="badge bg-info text-white">{{ user_item.get_role_display }}</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if user_item.is_active %}
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-success">Aktif</span>
                                 {% else %}
-                                <span class="badge bg-secondary">Inactive</span>
+                                <span class="badge bg-secondary">Nonaktif</span>
                                 {% endif %}
                             </td>
-                            <td>{{ user_item.date_joined|date:"d M Y" }}</td>
+                            <td class="d-none d-sm-table-cell">
+                                <span style="font-size: var(--text-xs); color: var(--color-text-muted);">
+                                    {{ user_item.date_joined|date:"d M Y" }}
+                                </span>
+                            </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'accounts:user_edit' user_item.pk %}" class="btn btn-outline-primary" title="Edit">
+                                    <a href="{% url 'accounts:user_edit' user_item.pk %}"
+                                       class="btn btn-outline-primary"
+                                       title="Edit pengguna">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'accounts:user_toggle_active' user_item.pk %}" class="btn btn-outline-warning" title="Toggle Active">
-                                        <i class="bi bi-toggle-on"></i>
+                                    <a href="{% url 'accounts:user_toggle_active' user_item.pk %}"
+                                       class="btn {% if user_item.is_active %}btn-outline-success{% else %}btn-outline-secondary{% endif %}"
+                                       title="{% if user_item.is_active %}Nonaktifkan pengguna{% else %}Aktifkan pengguna{% endif %}">
+                                        <i class="bi {% if user_item.is_active %}bi-toggle-on{% else %}bi-toggle-off{% endif %}"></i>
                                     </a>
                                     {% if user_item.pk != user.pk %}
-                                    <a href="{% url 'accounts:user_delete' user_item.pk %}" class="btn btn-outline-danger" title="Delete">
+                                    <a href="{% url 'accounts:user_delete' user_item.pk %}"
+                                       class="btn btn-outline-danger"
+                                       title="Hapus pengguna">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                     {% endif %}
@@ -107,13 +128,16 @@
                     </tbody>
                 </table>
             </div>
-            <div class="text-muted mt-2">
-                Total: {{ users.count }} user(s)
+            <div class="px-4 py-3 text-muted" style="font-size: var(--text-sm); border-top: 1px solid rgba(184,190,199,0.3);">
+                Total: <strong>{{ users.count }}</strong> pengguna
             </div>
             {% else %}
             <div class="text-center py-5">
-                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted mt-3">No users found.</p>
+                <i class="bi bi-people" style="font-size: 3rem; color: var(--color-text-light);"></i>
+                <p class="text-muted mt-3 mb-3">Belum ada pengguna ditemukan.</p>
+                <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Tambah Pengguna Pertama
+                </a>
             </div>
             {% endif %}
         </div>

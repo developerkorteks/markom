@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Order{% endblock %}
+{% block title %}Buat Pesanan Baru{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h2><i class="bi bi-plus-circle"></i> Create New Order</h2>
+            <h2><i class="bi bi-plus-circle"></i> Buat Pesanan Baru</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">Orders</a></li>
-                    <li class="breadcrumb-item active">Create Order</li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">Pesanan</a></li>
+                    <li class="breadcrumb-item active">Buat Pesanan</li>
                 </ol>
             </nav>
         </div>
@@ -21,15 +21,17 @@
         {% csrf_token %}
         
         <div class="row">
-            <!-- Customer Information -->
+            <!-- Informasi Pelanggan -->
             <div class="col-md-4">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-person"></i> Customer Information</h5>
+                        <h5 class="mb-0"><i class="bi bi-person"></i> Informasi Pelanggan</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="{{ order_form.customer_name.id_for_label }}" class="form-label">Customer Name *</label>
+                            <label for="{{ order_form.customer_name.id_for_label }}" class="form-label">
+                                Nama Pelanggan *
+                            </label>
                             {{ order_form.customer_name }}
                             {% if order_form.customer_name.errors %}
                             <div class="invalid-feedback d-block">
@@ -39,8 +41,11 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="{{ order_form.customer_phone.id_for_label }}" class="form-label">WhatsApp Number *</label>
+                            <label for="{{ order_form.customer_phone.id_for_label }}" class="form-label">
+                                Nomor WhatsApp *
+                            </label>
                             {{ order_form.customer_phone }}
+                            <div class="form-text">Contoh: 628123456789</div>
                             {% if order_form.customer_phone.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ order_form.customer_phone.errors.0 }}
@@ -49,8 +54,11 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="{{ order_form.notes.id_for_label }}" class="form-label">Notes</label>
+                            <label for="{{ order_form.notes.id_for_label }}" class="form-label">
+                                Catatan
+                            </label>
                             {{ order_form.notes }}
+                            <div class="form-text">Opsional. Misal: pesanan mendesak, titipan, dll.</div>
                             {% if order_form.notes.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ order_form.notes.errors.0 }}
@@ -61,13 +69,13 @@
                 </div>
             </div>
             
-            <!-- Order Items -->
+            <!-- Item Pesanan -->
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-cart"></i> Order Items</h5>
+                        <h5 class="mb-0"><i class="bi bi-cart"></i> Item Pesanan</h5>
                         <button type="button" class="btn btn-primary btn-sm" id="addItemBtn">
-                            <i class="bi bi-plus-circle"></i> Add Item
+                            <i class="bi bi-plus-circle"></i> Tambah Item
                         </button>
                     </div>
                     <div class="card-body">
@@ -78,6 +86,11 @@
                             {{ item_formset.non_form_errors.0 }}
                         </div>
                         {% endif %}
+                        
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle"></i>
+                            Pilih merchandise dan masukkan jumlah. Stok akan otomatis berkurang saat pesanan dibuat.
+                        </div>
                         
                         <div id="itemsContainer">
                             {% for form in item_formset %}
@@ -93,7 +106,7 @@
                                     <small class="text-muted stock-info"></small>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Quantity *</label>
+                                    <label class="form-label">Jumlah *</label>
                                     {{ form.quantity }}
                                     {% if form.quantity.errors %}
                                     <div class="invalid-feedback d-block">
@@ -103,25 +116,21 @@
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
                                     <button type="button" class="btn btn-danger btn-sm remove-item w-100">
-                                        <i class="bi bi-trash"></i> Remove
+                                        <i class="bi bi-trash"></i> Hapus
                                     </button>
                                 </div>
                             </div>
                             {% endfor %}
-                        </div>
-                        
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Select merchandise and enter quantity. Stock will be automatically deducted upon order creation.
                         </div>
                     </div>
                 </div>
                 
                 <div class="d-flex gap-2 mt-4">
                     <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="bi bi-check-circle"></i> Create Order
+                        <i class="bi bi-check-circle"></i> Buat Pesanan
                     </button>
                     <a href="{% url 'orders:order_list' %}" class="btn btn-secondary btn-lg">
-                        <i class="bi bi-x-circle"></i> Cancel
+                        <i class="bi bi-x-circle"></i> Batal
                     </a>
                 </div>
             </div>
@@ -137,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const addItemBtn = document.getElementById('addItemBtn');
     const totalForms = document.querySelector('#id_form-TOTAL_FORMS');
     
-    // Function to update form indices
+    // Fungsi untuk update indeks form
     function updateFormIndices() {
         const forms = itemsContainer.querySelectorAll('.item-row');
         forms.forEach((form, index) => {
@@ -151,26 +160,27 @@ document.addEventListener('DOMContentLoaded', function() {
         totalForms.value = forms.length;
     }
     
-    // Add item button
+    // Tombol tambah item
     addItemBtn.addEventListener('click', function() {
         const emptyForm = itemsContainer.querySelector('.item-row').cloneNode(true);
         
-        // Clear values
+        // Kosongkan nilai
         emptyForm.querySelectorAll('select, input').forEach(field => {
             if (field.type !== 'hidden') {
                 field.value = '';
             }
         });
         
-        // Clear error messages
+        // Hapus pesan error
         emptyForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        emptyForm.querySelectorAll('.stock-info').forEach(el => el.innerHTML = '');
         
         itemsContainer.appendChild(emptyForm);
         updateFormIndices();
         attachStockCheck(emptyForm.querySelector('select'));
     });
     
-    // Remove item buttons
+    // Tombol hapus item
     itemsContainer.addEventListener('click', function(e) {
         if (e.target.closest('.remove-item')) {
             const forms = itemsContainer.querySelectorAll('.item-row');
@@ -178,31 +188,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.target.closest('.item-row').remove();
                 updateFormIndices();
             } else {
-                alert('At least one item is required!');
+                alert('Minimal satu item harus ditambahkan!');
             }
         }
     });
     
-    // Stock check function
+    // Fungsi cek stok
     function attachStockCheck(select) {
+        if (!select) return;
         select.addEventListener('change', function() {
-            const merchandiseId = this.value;
             const stockInfo = this.closest('.item-row').querySelector('.stock-info');
             
-            if (merchandiseId) {
+            if (this.value) {
                 const option = this.options[this.selectedIndex];
                 const text = option.text;
                 
-                // Extract stock from option text (assuming format: "Name (Stock: X)")
+                // Ekstrak stok dari teks opsi (format: "Nama (Stock: X)")
                 const match = text.match(/Stock:\s*(\d+)/i);
                 if (match) {
                     const stock = parseInt(match[1]);
                     if (stock === 0) {
-                        stockInfo.innerHTML = '<span class="text-danger">⚠ Out of stock!</span>';
+                        stockInfo.innerHTML = '<span class="text-danger">⚠ Stok habis!</span>';
                     } else if (stock < 10) {
-                        stockInfo.innerHTML = `<span class="text-warning">⚠ Low stock: ${stock} available</span>`;
+                        stockInfo.innerHTML = `<span class="text-warning">⚠ Stok menipis: ${stock} tersisa</span>`;
                     } else {
-                        stockInfo.innerHTML = `<span class="text-success">✓ Stock: ${stock} available</span>`;
+                        stockInfo.innerHTML = `<span class="text-success">✓ Stok: ${stock} tersedia</span>`;
                     }
                 } else {
                     stockInfo.innerHTML = '';
@@ -213,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Attach to initial forms
+    // Pasang ke form awal
     document.querySelectorAll('.merchandise-select').forEach(select => {
         attachStockCheck(select);
     });

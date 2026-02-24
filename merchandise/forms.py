@@ -2,61 +2,67 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import Category, Merchandise, StockHistory
 
+
 class CategoryForm(forms.ModelForm):
-    """Form for creating and updating categories"""
-    
+    """Form untuk membuat dan mengubah kategori"""
+
     class Meta:
         model = Category
         fields = ['name', 'description', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter category name'
+                'placeholder': 'Masukkan nama kategori'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter category description (optional)',
+                'placeholder': 'Masukkan deskripsi kategori (opsional)',
                 'rows': 3
             }),
             'is_active': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             })
         }
-    
+        labels = {
+            'name': 'Nama Kategori',
+            'description': 'Deskripsi',
+            'is_active': 'Aktif',
+        }
+
     def clean_name(self):
-        """Validate category name"""
+        """Validasi nama kategori"""
         name = self.cleaned_data.get('name')
-        
+
         if not name or not name.strip():
-            raise ValidationError('Category name is required.')
-        
+            raise ValidationError('Nama kategori wajib diisi.')
+
         name = name.strip()
-        
-        # Check for duplicate (case-insensitive)
+
+        # Cek duplikat (case-insensitive)
         qs = Category.objects.filter(name__iexact=name)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
-        
+
         if qs.exists():
-            raise ValidationError('Category with this name already exists.')
-        
+            raise ValidationError('Kategori dengan nama ini sudah ada.')
+
         return name
 
 
 class MerchandiseForm(forms.ModelForm):
-    """Form for creating and updating merchandise"""
-    
+    """Form untuk membuat dan mengubah merchandise"""
+
     class Meta:
         model = Merchandise
         fields = ['name', 'description', 'category', 'stock', 'image', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter merchandise name'
+                'placeholder': 'Masukkan nama merchandise'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter merchandise description (optional)',
+                'placeholder': 'Masukkan deskripsi merchandise (opsional)',
                 'rows': 3
             }),
             'category': forms.Select(attrs={
@@ -64,7 +70,7 @@ class MerchandiseForm(forms.ModelForm):
             }),
             'stock': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter initial stock',
+                'placeholder': 'Masukkan stok awal',
                 'min': 0
             }),
             'image': forms.FileInput(attrs={
@@ -75,85 +81,94 @@ class MerchandiseForm(forms.ModelForm):
                 'class': 'form-check-input'
             })
         }
-    
+        labels = {
+            'name': 'Nama Merchandise',
+            'description': 'Deskripsi',
+            'category': 'Kategori',
+            'stock': 'Stok',
+            'image': 'Gambar',
+            'is_active': 'Aktif',
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Only show active categories
+        # Hanya tampilkan kategori yang aktif
         self.fields['category'].queryset = Category.objects.filter(is_active=True)
-    
+        self.fields['category'].empty_label = '-- Pilih Kategori --'
+
     def clean_name(self):
-        """Validate merchandise name"""
+        """Validasi nama merchandise"""
         name = self.cleaned_data.get('name')
-        
+
         if not name or not name.strip():
-            raise ValidationError('Merchandise name is required.')
-        
+            raise ValidationError('Nama merchandise wajib diisi.')
+
         return name.strip()
-    
+
     def clean_stock(self):
-        """Validate stock"""
+        """Validasi stok"""
         stock = self.cleaned_data.get('stock')
-        
+
         if stock is None:
-            raise ValidationError('Stock is required.')
-        
+            raise ValidationError('Stok wajib diisi.')
+
         if stock < 0:
-            raise ValidationError('Stock cannot be negative.')
-        
+            raise ValidationError('Stok tidak boleh negatif.')
+
         return stock
-    
+
     def clean_image(self):
-        """Validate image"""
+        """Validasi gambar"""
         image = self.cleaned_data.get('image')
-        
+
         if image:
-            # Check file size (max 2MB)
+            # Cek ukuran file (maks 2MB)
             if image.size > 2 * 1024 * 1024:
-                raise ValidationError('Image size must be less than 2MB.')
-            
-            # Check file extension
+                raise ValidationError('Ukuran gambar tidak boleh lebih dari 2MB.')
+
+            # Cek ekstensi file
             ext = image.name.split('.')[-1].lower()
             if ext not in ['jpg', 'jpeg', 'png']:
-                raise ValidationError('Only JPG and PNG images are allowed.')
-        
+                raise ValidationError('Hanya file JPG dan PNG yang diperbolehkan.')
+
         return image
 
 
 class StockAdjustmentForm(forms.Form):
-    """Form for manual stock adjustment"""
-    
+    """Form untuk penyesuaian stok manual"""
+
     adjustment = forms.IntegerField(
-        label='Adjustment',
-        help_text='Enter positive number to add stock, negative to reduce (e.g., +50 or -20)',
+        label='Jumlah Penyesuaian',
+        help_text='Masukkan angka positif untuk menambah stok, negatif untuk mengurangi (mis. +10 atau -5)',
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'e.g., +50 or -20'
+            'class': 'form-control form-control-lg',
+            'placeholder': 'mis. +10 atau -5',
         })
     )
     reason = forms.CharField(
-        label='Reason',
+        label='Alasan Penyesuaian',
         max_length=200,
-        help_text='Reason for this adjustment',
+        help_text='Jelaskan alasan penyesuaian stok ini',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'e.g., Restock from supplier, Damaged items'
+            'placeholder': 'mis. Restock dari supplier, Barang rusak, dll.'
         })
     )
-    
+
     def clean_adjustment(self):
-        """Validate adjustment"""
+        """Validasi penyesuaian"""
         adjustment = self.cleaned_data.get('adjustment')
-        
+
         if adjustment == 0:
-            raise ValidationError('Adjustment cannot be zero.')
-        
+            raise ValidationError('Jumlah penyesuaian tidak boleh nol.')
+
         return adjustment
-    
+
     def clean_reason(self):
-        """Validate reason"""
+        """Validasi alasan"""
         reason = self.cleaned_data.get('reason')
-        
+
         if not reason or not reason.strip():
-            raise ValidationError('Reason is required.')
-        
+            raise ValidationError('Alasan penyesuaian wajib diisi.')
+
         return reason.strip()

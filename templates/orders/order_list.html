@@ -4,40 +4,42 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
+    <div class="row mb-4 align-items-start">
         <div class="col">
             <h2><i class="bi bi-receipt"></i> {{ title }}</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Orders</li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item active">Pesanan</li>
                 </ol>
             </nav>
         </div>
         <div class="col-12 col-md-auto d-flex flex-wrap gap-2 mt-3 mt-md-0">
             <a href="{% url 'orders:order_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Create New Order
+                <i class="bi bi-plus-circle"></i> Buat Pesanan Baru
             </a>
             <button type="button" class="btn btn-secondary" onclick="exportExcel()" id="exportBtn">
-                <i class="bi bi-file-earmark-excel"></i> Export Excel
+                <i class="bi bi-file-earmark-excel"></i> Ekspor Excel
             </button>
         </div>
     </div>
     
-    <!-- Filters -->
+    <!-- Filter -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">Search</label>
-                    <input type="text" name="search" class="form-control" placeholder="Search by order number, customer name, or phone..." value="{{ search_query }}">
+                    <label class="form-label">Cari</label>
+                    <input type="text" name="search" class="form-control"
+                           placeholder="Cari berdasarkan nomor pesanan, nama pelanggan, atau telepon..."
+                           value="{{ search_query }}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">From Date</label>
+                    <label class="form-label">Dari Tanggal</label>
                     <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">To Date</label>
+                    <label class="form-label">Sampai Tanggal</label>
                     <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
                 </div>
                 <div class="col-md-12">
@@ -45,14 +47,14 @@
                         <i class="bi bi-search"></i> Filter
                     </button>
                     <a href="{% url 'orders:order_list' %}" class="btn btn-secondary">
-                        <i class="bi bi-x-circle"></i> Clear
+                        <i class="bi bi-x-circle"></i> Reset
                     </a>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- Orders Table -->
+    <!-- Tabel Pesanan -->
     <div class="card">
         <div class="card-body">
             {% if orders %}
@@ -60,16 +62,16 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Order Number</th>
-                            <th>Customer</th>
-                            <th>Phone</th>
+                            <th>No. Pesanan</th>
+                            <th>Pelanggan</th>
+                            <th>Telepon</th>
                             {% if user.is_admin %}
                             <th>Sales</th>
                             {% endif %}
-                            <th>Items</th>
+                            <th>Jml. Item</th>
                             <th>Total Qty</th>
-                            <th>Date</th>
-                            <th style="width: 150px;">Actions</th>
+                            <th>Tanggal</th>
+                            <th style="width: 120px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -82,7 +84,8 @@
                             </td>
                             <td>{{ order.customer_name }}</td>
                             <td>
-                                <a href="https://wa.me/{{ order.customer_phone|cut:'+' }}" target="_blank" class="text-decoration-none">
+                                <a href="https://wa.me/{{ order.customer_phone|cut:'+' }}" target="_blank"
+                                   class="text-decoration-none">
                                     <i class="bi bi-whatsapp text-success"></i> {{ order.customer_phone }}
                                 </a>
                             </td>
@@ -90,21 +93,27 @@
                             <td>{{ order.sales_user.full_name }}</td>
                             {% endif %}
                             <td>
-                                <span class="badge bg-info">{{ order.item_count }} item(s)</span>
+                                <span class="badge bg-info">{{ order.item_count }} item</span>
                             </td>
                             <td>
                                 <span class="badge bg-secondary">{{ order.total_quantity }} pcs</span>
                             </td>
-                            <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                            <td style="font-size: var(--text-xs);">
+                                {{ order.created_at|date:"d M Y" }}<br>
+                                <span class="text-muted">{{ order.created_at|date:"H:i" }}</span>
+                            </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-outline-info" title="View">
+                                    <a href="{% url 'orders:order_detail' order.pk %}"
+                                       class="btn btn-outline-primary" title="Lihat Detail">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{% url 'orders:order_print' order.pk %}" class="btn btn-outline-primary" title="Print" target="_blank">
+                                    <a href="{% url 'orders:order_print' order.pk %}"
+                                       class="btn btn-outline-secondary" title="Cetak" target="_blank">
                                         <i class="bi bi-printer"></i>
                                     </a>
-                                    <a href="{% url 'orders:order_export_detail_excel' order.pk %}" class="btn btn-outline-success" title="Export">
+                                    <a href="{% url 'orders:order_export_detail_excel' order.pk %}"
+                                       class="btn btn-outline-success" title="Ekspor Excel">
                                         <i class="bi bi-file-earmark-excel"></i>
                                     </a>
                                 </div>
@@ -114,15 +123,15 @@
                     </tbody>
                 </table>
             </div>
-            <div class="text-muted mt-2">
-                Total: {{ orders.count }} order(s)
+            <div class="text-muted mt-2" style="font-size: var(--text-sm);">
+                Total: {{ orders.count }} pesanan
             </div>
             {% else %}
             <div class="text-center py-5">
-                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted mt-3">No orders found.</p>
+                <i class="bi bi-inbox" style="font-size: 3rem; color: var(--color-text-light); display: block; margin-bottom: var(--space-4);"></i>
+                <p class="text-muted mt-3">Tidak ada pesanan ditemukan.</p>
                 <a href="{% url 'orders:order_create' %}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Create First Order
+                    <i class="bi bi-plus-circle"></i> Buat Pesanan Pertama
                 </a>
             </div>
             {% endif %}
@@ -134,12 +143,10 @@
 {% block extra_js %}
 <script>
 function exportExcel() {
-    // Get current filter values
     const search = document.querySelector('input[name="search"]')?.value || '';
     const dateFrom = document.querySelector('input[name="date_from"]')?.value || '';
     const dateTo = document.querySelector('input[name="date_to"]')?.value || '';
     
-    // Build URL with query parameters
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     if (dateFrom) params.append('date_from', dateFrom);
@@ -147,16 +154,13 @@ function exportExcel() {
     
     const exportUrl = "{% url 'orders:order_export_excel' %}?" + params.toString();
     
-    // Show loading state
     const exportBtn = document.getElementById('exportBtn');
     const originalHTML = exportBtn.innerHTML;
-    exportBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Exporting...';
+    exportBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Mengekspor...';
     exportBtn.disabled = true;
     
-    // Download file
     window.location.href = exportUrl;
     
-    // Reset button after short delay
     setTimeout(() => {
         exportBtn.innerHTML = originalHTML;
         exportBtn.disabled = false;

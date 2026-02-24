@@ -9,24 +9,27 @@
             <h2><i class="bi bi-box-seam"></i> {{ title }}</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Beranda</a></li>
                     <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_list' %}">Merchandise</a></li>
                     <li class="breadcrumb-item active">{{ title }}</li>
                 </ol>
             </nav>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col-md-8">
             <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-box-seam me-2"></i>Informasi Merchandise</h6>
+                </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
-                        
+
                         <div class="row">
                             <div class="col-md-8 mb-3">
-                                <label for="{{ form.name.id_for_label }}" class="form-label">Merchandise Name *</label>
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Nama Merchandise *</label>
                                 {{ form.name }}
                                 {% if form.name.errors %}
                                 <div class="invalid-feedback d-block">
@@ -34,9 +37,9 @@
                                 </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-4 mb-3">
-                                <label for="{{ form.category.id_for_label }}" class="form-label">Category *</label>
+                                <label for="{{ form.category.id_for_label }}" class="form-label">Kategori *</label>
                                 {{ form.category }}
                                 {% if form.category.errors %}
                                 <div class="invalid-feedback d-block">
@@ -45,14 +48,14 @@
                                 {% endif %}
                                 <small class="text-muted">
                                     <a href="{% url 'merchandise:category_create' %}" target="_blank">
-                                        <i class="bi bi-plus-circle"></i> Add new category
+                                        <i class="bi bi-plus-circle"></i> Tambah kategori baru
                                     </a>
                                 </small>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Deskripsi (opsional)</label>
                             {{ form.description }}
                             {% if form.description.errors %}
                             <div class="invalid-feedback d-block">
@@ -60,22 +63,24 @@
                             </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
+                            {% if not merchandise %}
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.stock.id_for_label }}" class="form-label">Initial Stock *</label>
+                                <label for="{{ form.stock.id_for_label }}" class="form-label">Stok Awal *</label>
                                 {{ form.stock }}
                                 {% if form.stock.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.stock.errors.0 }}
                                 </div>
                                 {% endif %}
-                                <small class="text-muted">Enter the initial stock quantity</small>
+                                <small class="text-muted">Stok awal tidak bisa diubah setelah disimpan — gunakan fitur Sesuaikan Stok untuk perubahan stok berikutnya.</small>
                             </div>
-                            
-                            <div class="col-md-6 mb-3">
+                            {% endif %}
+
+                            <div class="{% if not merchandise %}col-md-6{% else %}col-md-12{% endif %} mb-3">
                                 <label for="{{ form.image.id_for_label }}" class="form-label">
-                                    {% if merchandise %}Replace Image{% else %}Image{% endif %}
+                                    {% if merchandise %}Ganti Gambar{% else %}Gambar Produk{% endif %}
                                 </label>
                                 {{ form.image }}
                                 {% if form.image.errors %}
@@ -83,47 +88,47 @@
                                     {{ form.image.errors.0 }}
                                 </div>
                                 {% endif %}
-                                <small class="text-muted">Max 2MB, JPG/PNG only</small>
+                                <small class="text-muted">Maks. 2MB, format JPG/PNG</small>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <div class="form-check">
                                 {{ form.is_active }}
                                 <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                    Active (visible to sales)
+                                    Aktif (tersedia untuk pemesanan)
                                 </label>
                             </div>
                         </div>
-                        
+
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {{ form.non_field_errors.0 }}
                         </div>
                         {% endif %}
-                        
+
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle"></i> {{ button_text }}
                             </button>
                             <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-secondary">
-                                <i class="bi bi-x-circle"></i> Cancel
+                                <i class="bi bi-x-circle"></i> Batal
                             </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4">
             {% if merchandise %}
-            <!-- EDIT MODE: Product Info + Current Image Preview -->
+            <!-- MODE EDIT: Pratinjau Produk Saat Ini + Info Produk -->
             <div class="card mb-3">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Current Product</h6>
+                    <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Produk Saat Ini</h6>
                 </div>
                 <div class="card-body text-center">
-                    <!-- Current Image -->
+                    <!-- Gambar Saat Ini -->
                     {% if merchandise.image %}
                     <div id="currentImageWrapper">
                         <img src="{{ merchandise.image.url }}"
@@ -131,56 +136,57 @@
                              class="img-fluid rounded mb-2"
                              style="max-height: 220px; width: 100%; object-fit: cover; border-radius: var(--radius-xl) !important;">
                         <p class="text-muted mb-0" style="font-size: var(--text-xs);">
-                            <i class="bi bi-image me-1"></i>Current image
+                            <i class="bi bi-image me-1"></i>Gambar saat ini
                         </p>
                     </div>
                     {% else %}
                     <div id="currentImageWrapper"
                          style="height: 160px; background: var(--neu-bg); border-radius: var(--radius-xl); display:flex; align-items:center; justify-content:center; flex-direction:column; margin-bottom: 0.5rem;">
                         <i class="bi bi-image" style="font-size: 3rem; color: var(--color-text-light);"></i>
-                        <span style="font-size: var(--text-xs); color: var(--color-text-light);">No image</span>
+                        <span style="font-size: var(--text-xs); color: var(--color-text-light);">Belum ada gambar</span>
                     </div>
                     {% endif %}
 
-                    <!-- New Image Live Preview (hidden until file picked) -->
+                    <!-- Pratinjau Gambar Baru (tersembunyi sampai file dipilih) -->
                     <div id="newImagePreviewWrapper" style="display:none;" class="mt-2">
+                        <p class="mb-1" style="font-size: var(--text-xs); font-weight: var(--font-semibold);">Preview Gambar Baru:</p>
                         <img id="newImagePreview"
                              src=""
-                             alt="New image preview"
+                             alt="Pratinjau gambar baru"
                              class="img-fluid rounded mb-1"
                              style="max-height: 220px; width: 100%; object-fit: cover; border-radius: var(--radius-xl) !important;">
                         <p class="mb-0" style="font-size: var(--text-xs); color: var(--color-accent);">
-                            <i class="bi bi-arrow-up-circle me-1"></i>New image (not saved yet)
+                            <i class="bi bi-arrow-up-circle me-1"></i>Akan menggantikan gambar saat ini
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Product Meta Info -->
+            <!-- Info Produk -->
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Product Info</h6>
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informasi Produk</h6>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0">
                         <tbody>
                             <tr>
-                                <td class="text-muted" style="font-size: var(--text-xs); width: 40%;">Name</td>
+                                <td class="text-muted" style="font-size: var(--text-xs); width: 40%;">Nama</td>
                                 <td style="font-size: var(--text-sm); font-weight: var(--font-semibold);">{{ merchandise.name }}</td>
                             </tr>
                             <tr>
-                                <td class="text-muted" style="font-size: var(--text-xs);">Category</td>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Kategori</td>
                                 <td style="font-size: var(--text-sm);">{{ merchandise.category.name }}</td>
                             </tr>
                             <tr>
-                                <td class="text-muted" style="font-size: var(--text-xs);">Stock</td>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Stok Saat Ini</td>
                                 <td>
-                                    {% if merchandise.is_out_of_stock %}
-                                    <span class="badge bg-danger">Out of Stock</span>
-                                    {% elif merchandise.is_low_stock %}
-                                    <span class="badge bg-warning text-dark">Low: {{ merchandise.stock }}</span>
-                                    {% else %}
+                                    {% if merchandise.stock > 20 %}
                                     <span class="badge bg-success">{{ merchandise.stock }} pcs</span>
+                                    {% elif merchandise.stock >= 10 %}
+                                    <span class="badge bg-warning text-dark">{{ merchandise.stock }} pcs</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{{ merchandise.stock }} pcs</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -188,14 +194,14 @@
                                 <td class="text-muted" style="font-size: var(--text-xs);">Status</td>
                                 <td>
                                     {% if merchandise.is_active %}
-                                    <span class="badge bg-success">Active</span>
+                                    <span class="badge bg-success">Aktif</span>
                                     {% else %}
-                                    <span class="badge bg-secondary">Inactive</span>
+                                    <span class="badge bg-secondary">Tidak Aktif</span>
                                     {% endif %}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-muted" style="font-size: var(--text-xs);">Created</td>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Ditambahkan</td>
                                 <td style="font-size: var(--text-xs);">{{ merchandise.created_at|date:"d M Y" }}</td>
                             </tr>
                         </tbody>
@@ -204,35 +210,35 @@
             </div>
 
             {% else %}
-            <!-- CREATE MODE: Tips -->
+            <!-- MODE TAMBAH: Panduan Pengisian -->
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+                    <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Panduan Pengisian</h6>
                 </div>
                 <div class="card-body">
                     <ul class="small mb-0 ps-3">
-                        <li class="mb-1">Use clear, descriptive names</li>
-                        <li class="mb-1">Upload high-quality images</li>
-                        <li class="mb-1">Keep descriptions concise</li>
-                        <li class="mb-1">Set accurate initial stock</li>
-                        <li>Choose appropriate category</li>
+                        <li class="mb-1">Gunakan nama yang jelas dan mudah dikenali</li>
+                        <li class="mb-1">Unggah gambar berkualitas tinggi agar terlihat menarik</li>
+                        <li class="mb-1">Tulis deskripsi singkat namun informatif</li>
+                        <li class="mb-1">Pastikan stok awal sesuai dengan jumlah fisik yang tersedia</li>
+                        <li>Pilih kategori yang paling tepat untuk produk ini</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Live Preview for Create mode -->
+            <!-- Pratinjau Langsung untuk Mode Tambah -->
             <div class="card mt-3" id="createPreviewCard" style="display:none;">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-image me-2"></i>Image Preview</h6>
+                    <h6 class="mb-0"><i class="bi bi-image me-2"></i>Preview Gambar Baru:</h6>
                 </div>
                 <div class="card-body text-center p-2">
                     <img id="createImagePreview"
                          src=""
-                         alt="Preview"
+                         alt="Pratinjau"
                          class="img-fluid rounded"
                          style="max-height: 220px; width: 100%; object-fit: cover; border-radius: var(--radius-xl) !important;">
                     <p class="mt-1 mb-0" style="font-size: var(--text-xs); color: var(--color-accent);">
-                        <i class="bi bi-check-circle me-1"></i>Image selected (not saved yet)
+                        <i class="bi bi-check-circle me-1"></i>⚠️ Akan menggantikan gambar saat ini
                     </p>
                 </div>
             </div>
@@ -250,14 +256,17 @@
 
     imageInput.addEventListener('change', function () {
         var file = this.files[0];
-        if (!file) return;
+        if (!file) {
+            alert('Pilih file gambar terlebih dahulu');
+            return;
+        }
 
         var reader = new FileReader();
         reader.onload = function (e) {
             var src = e.target.result;
 
             {% if merchandise %}
-            // EDIT MODE — show new preview, dim current image
+            // MODE EDIT — tampilkan pratinjau baru, redup gambar saat ini
             var newWrapper = document.getElementById('newImagePreviewWrapper');
             var newImg = document.getElementById('newImagePreview');
             var currentWrapper = document.getElementById('currentImageWrapper');
@@ -269,7 +278,7 @@
                 currentWrapper.style.transition = 'opacity 0.3s ease';
             }
             {% else %}
-            // CREATE MODE — show preview card
+            // MODE TAMBAH — tampilkan kartu pratinjau
             var previewCard = document.getElementById('createPreviewCard');
             var previewImg = document.getElementById('createImagePreview');
             previewImg.src = src;
