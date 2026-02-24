@@ -4,82 +4,130 @@
 
 {% block content %}
 <div class="container-fluid">
+
+    <!-- Page Header -->
     <div class="row mb-4">
         <div class="col">
-            <h2><i class="bi bi-speedometer2"></i> Admin Dashboard</h2>
-            <p class="text-muted">Welcome back, {{ user.full_name }}!</p>
+            <h2 class="mb-1">
+                <i class="bi bi-speedometer2 me-2" style="color: var(--color-accent);"></i>Admin Dashboard
+            </h2>
+            <p class="text-muted mb-0">
+                Welcome back, <strong>{{ user.full_name }}</strong>!
+                &nbsp;·&nbsp;
+                <span style="font-size: var(--text-xs); color: var(--color-text-light);">
+                    <i class="bi bi-clock"></i>
+                    Data as of {% now "d M Y, H:i" %}
+                </span>
+            </p>
         </div>
     </div>
-    
-    <div class="row g-4">
-        <!-- Statistics Cards -->
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">Total Orders</h6>
-                    <h2 class="mb-0">0</h2>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+
+        <!-- Total Orders -->
+        <div class="col-12 col-sm-4 col-md-4">
+            <a href="{% url 'orders:order_list' %}" class="text-decoration-none">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="stat-icon icon-blue">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <div class="stat-value">{{ total_orders|default:"0" }}</div>
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-sublabel mt-1">
+                            <span class="text-muted" style="font-size: var(--text-xs);">
+                                <i class="bi bi-calendar-day"></i>
+                                {{ orders_today|default:"0" }} hari ini
+                                &nbsp;·&nbsp;
+                                <i class="bi bi-calendar-month"></i>
+                                {{ orders_this_month|default:"0" }} bulan ini
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
-        
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">Merchandise</h6>
-                    <h2 class="mb-0">0</h2>
+
+        <!-- Merchandise Items -->
+        <div class="col-12 col-sm-4 col-md-4">
+            <a href="{% url 'merchandise:merchandise_list' %}" class="text-decoration-none">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="stat-icon icon-green">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div class="stat-value">{{ total_merchandise|default:"0" }}</div>
+                        <div class="stat-label">Active Merchandise</div>
+                        <div class="stat-sublabel mt-1">
+                            <span class="text-muted" style="font-size: var(--text-xs);">
+                                <i class="bi bi-exclamation-circle"></i>
+                                {{ low_stock_count|default:"0" }} low stock
+                                &nbsp;·&nbsp;
+                                <i class="bi bi-x-circle"></i>
+                                {{ out_of_stock_count|default:"0" }} habis
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
-        
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">Sales Users</h6>
-                    <h2 class="mb-0">0</h2>
+
+        <!-- Sales Users -->
+        <div class="col-12 col-sm-4 col-md-4">
+            <a href="{% url 'accounts:user_list' %}" class="text-decoration-none">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="stat-icon icon-orange">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="stat-value">{{ total_sales_users|default:"0" }}</div>
+                        <div class="stat-label">Sales Users</div>
+                        <div class="stat-sublabel mt-1">
+                            <span class="text-muted" style="font-size: var(--text-xs);">
+                                <i class="bi bi-person-badge"></i>
+                                Klik untuk kelola users
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
-        
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="text-muted mb-2">Low Stock</h6>
-                    <h2 class="mb-0">0</h2>
-                </div>
-            </div>
-        </div>
+
     </div>
-    
-    <div class="row mt-4">
-        <div class="col-md-12">
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h5><i class="bi bi-graph-up"></i> Quick Actions</h5>
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-lightning-charge" style="color: var(--color-accent);"></i>
+                    <span>Quick Actions</span>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-3">
-                            <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary w-100 py-3">
-                                <i class="bi bi-people" style="font-size: 2rem;"></i><br>
-                                Manage Users
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'accounts:user_list' %}" class="action-card-btn">
+                                <i class="bi bi-people"></i>
+                                <span>Manage Users</span>
                             </a>
                         </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'merchandise:category_list' %}" class="btn btn-secondary w-100 py-3">
-                                <i class="bi bi-tags" style="font-size: 2rem;"></i><br>
-                                Manage Categories
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'merchandise:category_list' %}" class="action-card-btn">
+                                <i class="bi bi-tags"></i>
+                                <span>Manage Categories</span>
                             </a>
                         </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-secondary w-100 py-3">
-                                <i class="bi bi-box-seam" style="font-size: 2rem;"></i><br>
-                                Manage Merchandise
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'merchandise:merchandise_list' %}" class="action-card-btn">
+                                <i class="bi bi-box-seam"></i>
+                                <span>Manage Merchandise</span>
                             </a>
                         </div>
-                        <div class="col-md-3">
-                            <a href="{% url 'orders:order_list' %}" class="btn btn-secondary w-100 py-3">
-                                <i class="bi bi-receipt" style="font-size: 2rem;"></i><br>
-                                View Orders
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'orders:order_list' %}" class="action-card-btn">
+                                <i class="bi bi-receipt"></i>
+                                <span>View All Orders</span>
                             </a>
                         </div>
                     </div>
@@ -87,5 +135,273 @@
             </div>
         </div>
     </div>
+
+    <!-- Recent Orders -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-clock-history" style="color: var(--color-accent);"></i>
+                        <span>Recent Orders</span>
+                    </div>
+                    <a href="{% url 'orders:order_list' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-right"></i> View All
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th class="d-none d-md-table-cell">Sales</th>
+                                    <th>Items</th>
+                                    <th class="d-none d-sm-table-cell">Total Qty</th>
+                                    <th>Date</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'orders:order_detail' order.pk %}"
+                                           class="fw-semibold"
+                                           style="color: var(--color-accent);">
+                                            {{ order.order_number }}
+                                        </a>
+                                    </td>
+                                    <td>{{ order.customer_name }}</td>
+                                    <td class="d-none d-md-table-cell">{{ order.sales_user.full_name }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ order.item_count }}</span>
+                                    </td>
+                                    <td class="d-none d-sm-table-cell">
+                                        <span class="badge bg-secondary">{{ order.total_qty|default:"0" }}</span>
+                                    </td>
+                                    <td class="text-muted" style="font-size: var(--text-xs);">
+                                        {{ order.created_at|date:"d M Y" }}<br>
+                                        <span>{{ order.created_at|date:"H:i" }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'orders:order_detail' order.pk %}"
+                                           class="btn btn-sm btn-secondary"
+                                           title="View Detail">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 2.5rem; color: var(--color-text-light); display: block; margin-bottom: var(--space-3);"></i>
+                        <p class="text-muted mb-0">Belum ada order.</p>
+                        <a href="{% url 'orders:order_create' %}" class="btn btn-primary btn-sm mt-3">
+                            <i class="bi bi-plus-lg"></i> Buat Order Pertama
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two-column: Low Stock + Sales Performance -->
+    <div class="row g-4 mb-4">
+
+        <!-- Low Stock Items -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-triangle" style="color: var(--color-warning);"></i>
+                        <span>Low Stock Items</span>
+                        <span class="badge bg-warning ms-1">{{ low_stock_count|default:"0" }}</span>
+                    </div>
+                    <a href="{% url 'merchandise:merchandise_list' %}?stock=low_stock"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-right"></i> View All
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if low_stock_items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="d-none d-sm-table-cell">Category</th>
+                                    <th>Stock</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in low_stock_items %}
+                                <tr>
+                                    <td class="fw-medium">{{ item.name }}</td>
+                                    <td class="d-none d-sm-table-cell">
+                                        <span class="badge bg-secondary">{{ item.category.name }}</span>
+                                    </td>
+                                    <td>
+                                        {% if item.stock == 0 %}
+                                            <span class="badge bg-danger">Habis</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">{{ item.stock }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'merchandise:merchandise_adjust_stock' item.pk %}"
+                                           class="btn btn-sm btn-secondary"
+                                           title="Adjust Stock">
+                                            <i class="bi bi-plus-slash-minus"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-check-circle" style="font-size: 2.5rem; color: var(--color-success); display: block; margin-bottom: var(--space-3);"></i>
+                        <p class="text-muted mb-0">Semua item stok aman!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Performance -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-bar-chart-line" style="color: var(--color-accent);"></i>
+                    <span>Sales Performance</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if sales_performance %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="d-none d-sm-table-cell">#</th>
+                                    <th>Sales</th>
+                                    <th>Orders</th>
+                                    <th>Total Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user_perf in sales_performance %}
+                                <tr>
+                                    <td class="text-muted d-none d-sm-table-cell" style="font-size: var(--text-xs);">
+                                        {{ forloop.counter }}
+                                    </td>
+                                    <td class="fw-medium">{{ user_perf.full_name }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ user_perf.order_count }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ user_perf.total_qty|default:"0" }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-people" style="font-size: 2.5rem; color: var(--color-text-light); display: block; margin-bottom: var(--space-3);"></i>
+                        <p class="text-muted mb-0">Belum ada data sales.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Activity Feed: Recent Stock Changes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-activity" style="color: var(--color-accent);"></i>
+                        <span>Stock Activity Feed</span>
+                    </div>
+                    <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-right"></i> Merchandise
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_stock_changes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Adj.</th>
+                                    <th class="d-none d-md-table-cell">Stock</th>
+                                    <th class="d-none d-sm-table-cell">Reason</th>
+                                    <th class="d-none d-md-table-cell">By</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for change in recent_stock_changes %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'merchandise:merchandise_detail' change.merchandise.pk %}"
+                                           style="color: var(--color-accent); font-weight: var(--font-semibold);">
+                                            {{ change.merchandise.name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if change.adjustment > 0 %}
+                                            <span class="badge bg-success">+{{ change.adjustment }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{{ change.adjustment }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="d-none d-md-table-cell" style="font-size: var(--text-xs); color: var(--color-text-muted);">
+                                        {{ change.stock_before }} &rarr; {{ change.stock_after }}
+                                    </td>
+                                    <td class="d-none d-sm-table-cell" style="font-size: var(--text-xs);">
+                                        {{ change.reason|truncatechars:30 }}
+                                    </td>
+                                    <td class="d-none d-md-table-cell" style="font-size: var(--text-xs); color: var(--color-text-muted);">
+                                        {% if change.adjusted_by %}
+                                            {{ change.adjusted_by.full_name }}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted" style="font-size: var(--text-xs);">
+                                        {{ change.created_at|date:"d M Y" }}<br>
+                                        <span>{{ change.created_at|date:"H:i" }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-clock-history" style="font-size: 2.5rem; color: var(--color-text-light); display: block; margin-bottom: var(--space-3);"></i>
+                        <p class="text-muted mb-0">Belum ada aktivitas perubahan stok.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

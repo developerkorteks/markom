@@ -74,7 +74,9 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
+                                <label for="{{ form.image.id_for_label }}" class="form-label">
+                                    {% if merchandise %}Replace Image{% else %}Image{% endif %}
+                                </label>
                                 {{ form.image }}
                                 {% if form.image.errors %}
                                 <div class="invalid-feedback d-block">
@@ -82,13 +84,6 @@
                                 </div>
                                 {% endif %}
                                 <small class="text-muted">Max 2MB, JPG/PNG only</small>
-                                
-                                {% if merchandise.image %}
-                                <div class="mt-2">
-                                    <img src="{{ merchandise.image.url }}" alt="{{ merchandise.name }}" style="max-width: 200px; border-radius: 5px;">
-                                    <p class="small text-muted mb-0">Current image</p>
-                                </div>
-                                {% endif %}
                             </div>
                         </div>
                         
@@ -121,19 +116,168 @@
         </div>
         
         <div class="col-md-4">
-            <div class="card bg-light">
+            {% if merchandise %}
+            <!-- EDIT MODE: Product Info + Current Image Preview -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Current Product</h6>
+                </div>
+                <div class="card-body text-center">
+                    <!-- Current Image -->
+                    {% if merchandise.image %}
+                    <div id="currentImageWrapper">
+                        <img src="{{ merchandise.image.url }}"
+                             alt="{{ merchandise.name }}"
+                             class="img-fluid rounded mb-2"
+                             style="max-height: 220px; width: 100%; object-fit: cover; border-radius: var(--radius-xl) !important;">
+                        <p class="text-muted mb-0" style="font-size: var(--text-xs);">
+                            <i class="bi bi-image me-1"></i>Current image
+                        </p>
+                    </div>
+                    {% else %}
+                    <div id="currentImageWrapper"
+                         style="height: 160px; background: var(--neu-bg); border-radius: var(--radius-xl); display:flex; align-items:center; justify-content:center; flex-direction:column; margin-bottom: 0.5rem;">
+                        <i class="bi bi-image" style="font-size: 3rem; color: var(--color-text-light);"></i>
+                        <span style="font-size: var(--text-xs); color: var(--color-text-light);">No image</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- New Image Live Preview (hidden until file picked) -->
+                    <div id="newImagePreviewWrapper" style="display:none;" class="mt-2">
+                        <img id="newImagePreview"
+                             src=""
+                             alt="New image preview"
+                             class="img-fluid rounded mb-1"
+                             style="max-height: 220px; width: 100%; object-fit: cover; border-radius: var(--radius-xl) !important;">
+                        <p class="mb-0" style="font-size: var(--text-xs); color: var(--color-accent);">
+                            <i class="bi bi-arrow-up-circle me-1"></i>New image (not saved yet)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Meta Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Product Info</h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs); width: 40%;">Name</td>
+                                <td style="font-size: var(--text-sm); font-weight: var(--font-semibold);">{{ merchandise.name }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Category</td>
+                                <td style="font-size: var(--text-sm);">{{ merchandise.category.name }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Stock</td>
+                                <td>
+                                    {% if merchandise.is_out_of_stock %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                    {% elif merchandise.is_low_stock %}
+                                    <span class="badge bg-warning text-dark">Low: {{ merchandise.stock }}</span>
+                                    {% else %}
+                                    <span class="badge bg-success">{{ merchandise.stock }} pcs</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Status</td>
+                                <td>
+                                    {% if merchandise.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Created</td>
+                                <td style="font-size: var(--text-xs);">{{ merchandise.created_at|date:"d M Y" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- CREATE MODE: Tips -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+                </div>
                 <div class="card-body">
-                    <h5><i class="bi bi-info-circle"></i> Tips</h5>
-                    <ul class="small">
-                        <li>Use clear, descriptive names</li>
-                        <li>Upload high-quality images</li>
-                        <li>Keep descriptions concise</li>
-                        <li>Set accurate initial stock</li>
+                    <ul class="small mb-0 ps-3">
+                        <li class="mb-1">Use clear, descriptive names</li>
+                        <li class="mb-1">Upload high-quality images</li>
+                        <li class="mb-1">Keep descriptions concise</li>
+                        <li class="mb-1">Set accurate initial stock</li>
                         <li>Choose appropriate category</li>
                     </ul>
                 </div>
             </div>
+
+            <!-- Live Preview for Create mode -->
+            <div class="card mt-3" id="createPreviewCard" style="display:none;">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-image me-2"></i>Image Preview</h6>
+                </div>
+                <div class="card-body text-center p-2">
+                    <img id="createImagePreview"
+                         src=""
+                         alt="Preview"
+                         class="img-fluid rounded"
+                         style="max-height: 220px; width: 100%; object-fit: cover; border-radius: var(--radius-xl) !important;">
+                    <p class="mt-1 mb-0" style="font-size: var(--text-xs); color: var(--color-accent);">
+                        <i class="bi bi-check-circle me-1"></i>Image selected (not saved yet)
+                    </p>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var imageInput = document.getElementById('{{ form.image.id_for_label }}');
+    if (!imageInput) return;
+
+    imageInput.addEventListener('change', function () {
+        var file = this.files[0];
+        if (!file) return;
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var src = e.target.result;
+
+            {% if merchandise %}
+            // EDIT MODE — show new preview, dim current image
+            var newWrapper = document.getElementById('newImagePreviewWrapper');
+            var newImg = document.getElementById('newImagePreview');
+            var currentWrapper = document.getElementById('currentImageWrapper');
+
+            newImg.src = src;
+            newWrapper.style.display = 'block';
+            if (currentWrapper) {
+                currentWrapper.style.opacity = '0.35';
+                currentWrapper.style.transition = 'opacity 0.3s ease';
+            }
+            {% else %}
+            // CREATE MODE — show preview card
+            var previewCard = document.getElementById('createPreviewCard');
+            var previewImg = document.getElementById('createImagePreview');
+            previewImg.src = src;
+            previewCard.style.display = 'block';
+            {% endif %}
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>
 {% endblock %}
