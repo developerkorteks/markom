@@ -17,20 +17,6 @@
                     Ada <strong>{{ cart_total }} item</strong> di keranjang.
                     {% endif %}
                 </div>
-                <div class="hero-actions flex-wrap">
-                    <a href="{% url 'orders:shop' %}" class="hero-btn">
-                        <i class="bi bi-shop"></i>Lihat Katalog
-                    </a>
-                    {% if cart_total > 0 %}
-                    <a href="{% url 'orders:cart_detail' %}" class="hero-btn hero-btn-outline">
-                        <i class="bi bi-cart3"></i>Keranjang ({{ cart_total }})
-                    </a>
-                    {% else %}
-                    <a href="{% url 'orders:my_orders' %}" class="hero-btn hero-btn-outline">
-                        <i class="bi bi-clock-history"></i>Riwayat Pesanan
-                    </a>
-                    {% endif %}
-                </div>
             </div>
             <div class="col-md-4 d-none d-md-flex justify-content-end align-items-center">
                 <i class="bi bi-bag-heart-fill hero-decoration-icon"></i>
@@ -38,24 +24,21 @@
         </div>
     </div>
 
-    <!-- Stats Row -->
-    <div class="row g-4 mb-4">
+    <!-- Quick Stats Row — compact icon app style -->
+    <div class="row g-3 mb-4">
 
         <!-- Total Pesanan -->
-        <div class="col-12 col-sm-4">
+        <div class="col-6 col-md-3">
             <a href="{% url 'orders:my_orders' %}" class="text-decoration-none">
-                <div class="card stat-card h-100">
-                    <div class="card-body p-4">
-                        <div class="stat-icon mb-3">
-                            <i class="bi bi-receipt stat-icon-accent"></i>
+                <div class="card mini-stat-card h-100">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="mini-stat-icon-wrap mini-stat-accent">
+                            <i class="bi bi-receipt"></i>
                         </div>
-                        <div class="stat-value">{{ total_orders|default:"0" }}</div>
-                        <div class="stat-label">Total Pesanan Saya</div>
-                        <div class="stat-sublabel mt-1">
-                            <span class="text-muted stat-sublabel-text">
-                                <i class="bi bi-calendar-day"></i>
-                                {{ orders_today|default:"0" }} hari ini
-                            </span>
+                        <div>
+                            <div class="mini-stat-value">{{ total_orders|default:"0" }}</div>
+                            <div class="mini-stat-label">Pesanan Saya</div>
+                            <div class="mini-stat-sub">{{ orders_today|default:"0" }} hari ini</div>
                         </div>
                     </div>
                 </div>
@@ -63,41 +46,17 @@
         </div>
 
         <!-- Keranjang -->
-        <div class="col-12 col-sm-4">
+        <div class="col-6 col-md-3">
             <a href="{% url 'orders:cart_detail' %}" class="text-decoration-none">
-                <div class="card stat-card h-100">
-                    <div class="card-body p-4">
-                        <div class="stat-icon mb-3">
-                            <i class="bi bi-cart3 stat-icon-warning"></i>
+                <div class="card mini-stat-card h-100">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="mini-stat-icon-wrap mini-stat-warning">
+                            <i class="bi bi-cart3"></i>
                         </div>
-                        <div class="stat-value">{{ cart_total|default:"0" }}</div>
-                        <div class="stat-label">Item di Keranjang</div>
-                        <div class="stat-sublabel mt-1">
-                            <span class="text-muted stat-sublabel-text">
-                                <i class="bi bi-bag-check"></i>
-                                Klik untuk checkout
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Katalog -->
-        <div class="col-12 col-sm-4">
-            <a href="{% url 'orders:shop' %}" class="text-decoration-none">
-                <div class="card stat-card h-100">
-                    <div class="card-body p-4">
-                        <div class="stat-icon mb-3">
-                            <i class="bi bi-shop stat-icon-success"></i>
-                        </div>
-                        <div class="stat-value">{{ available_count|default:"0" }}</div>
-                        <div class="stat-label">Produk Tersedia</div>
-                        <div class="stat-sublabel mt-1">
-                            <span class="text-muted stat-sublabel-text">
-                                <i class="bi bi-arrow-right-circle"></i>
-                                Lihat semua produk
-                            </span>
+                        <div>
+                            <div class="mini-stat-value">{{ cart_total|default:"0" }}</div>
+                            <div class="mini-stat-label">Di Keranjang</div>
+                            <div class="mini-stat-sub">Klik checkout</div>
                         </div>
                     </div>
                 </div>
@@ -112,34 +71,39 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h6 class="mb-0 fw-semibold">
-                        <i class="bi bi-stars me-2 text-accent"></i>Produk Unggulan
+                        <i class="bi bi-grid me-2 text-accent"></i>Produk Tersedia
+                        <span class="badge bg-secondary ms-1" id="products-count-badge">
+                            {{ products_page.paginator.count }}
+                        </span>
                     </h6>
                     <a href="{% url 'orders:shop' %}" class="btn btn-secondary btn-sm">
-                        Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
+                        Katalog Lengkap <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
                 <div class="card-body">
-                    {% if featured_products %}
-                    <div class="row g-3">
-                        {% for product in featured_products %}
+                    <div id="products-grid">
+                    {% if products_page %}
+                    <div class="row g-3" id="products-row">
+                        {% for product in products_page %}
                         <div class="col-6 col-sm-4 col-md-3 col-lg-2">
                             <div class="card shop-card h-100 shop-card-clickable"
                                  onclick="window.location='{% url 'orders:shop_detail' product.pk %}'">
 
-                                {% if product.image %}
-                                <img src="{{ product.image.url }}" alt="{{ product.name }}"
-                                     class="shop-card-img featured-card-img">
-                                {% else %}
-                                <div class="shop-card-img-placeholder featured-card-img">
-                                    <i class="bi bi-image"></i>
+                                <div class="position-relative">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                         class="shop-card-img featured-card-img">
+                                    {% else %}
+                                    <div class="shop-card-img-placeholder featured-card-img">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                    {% endif %}
+                                    {% if product.is_low_stock %}
+                                    <div class="shop-card-badge-overlay">
+                                        <span class="badge bg-warning text-dark shop-badge-mini">Menipis</span>
+                                    </div>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
-
-                                {% if product.is_low_stock %}
-                                <div class="shop-card-badge-overlay">
-                                    <span class="badge bg-warning text-dark shop-badge-mini">Menipis</span>
-                                </div>
-                                {% endif %}
 
                                 <div class="card-body p-2">
                                     <div class="featured-product-name">
@@ -148,30 +112,51 @@
                                     <div class="featured-product-stock">
                                         Stok: {{ product.stock }}
                                     </div>
-                                    <form method="post"
-                                          action="{% url 'orders:cart_add' product.pk %}"
-                                          onclick="event.stopPropagation();"
-                                          class="mt-2 quick-add-form">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="quantity" value="1">
-                                        <input type="hidden" name="next" value="{% url 'dashboard:home' %}">
-                                        <button type="submit"
-                                                class="btn btn-primary w-100 quick-add-btn"
-                                                data-merchandise-id="{{ product.pk }}">
-                                            <i class="bi bi-cart-plus"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                            class="btn btn-primary w-100 quick-add-btn mt-2"
+                                            data-merchandise-id="{{ product.pk }}"
+                                            onclick="event.stopPropagation(); quickAdd({{ product.pk }}, this);">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
+
+                    <!-- Pagination AJAX -->
+                    {% if products_page.paginator.num_pages > 1 %}
+                    <div class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap" id="products-pagination">
+                        <button class="btn btn-secondary btn-sm" id="prev-page-btn"
+                                {% if products_page.has_previous %}onclick="loadProductsPage({{ products_page.previous_page_number }})"{% endif %}
+                                {% if not products_page.has_previous %}disabled{% endif %}>
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <div id="page-numbers" class="d-flex gap-1 flex-wrap justify-content-center">
+                            {% for i in products_page.paginator.page_range %}
+                            <button class="btn btn-sm {% if i == products_page.number %}btn-primary{% else %}btn-secondary{% endif %} page-num-btn"
+                                    onclick="loadProductsPage({{ i }})"
+                                    data-page="{{ i }}">{{ i }}</button>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-secondary btn-sm" id="next-page-btn"
+                                {% if products_page.has_next %}onclick="loadProductsPage({{ products_page.next_page_number }})"{% endif %}
+                                {% if not products_page.has_next %}disabled{% endif %}>
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                    <p class="text-center text-muted mt-2 mb-0" id="page-info" style="font-size: var(--text-xs);">
+                        Halaman {{ products_page.number }} dari {{ products_page.paginator.num_pages }}
+                    </p>
+                    {% endif %}
+
                     {% else %}
                     <div class="text-center py-4 text-muted">
                         <i class="bi bi-bag-x" style="font-size: 2rem;"></i>
                         <p class="mt-2 mb-0">Belum ada produk tersedia</p>
                     </div>
                     {% endif %}
+                    </div><!-- end #products-grid -->
                 </div>
             </div>
         </div>
@@ -243,56 +228,163 @@
 <script>
 const csrfToken = '{{ csrf_token }}';
 
-// Quick add to cart dari dashboard
-document.querySelectorAll('.quick-add-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const btn = this.querySelector('.quick-add-btn');
-        const merchandiseId = btn.dataset.merchandiseId;
+// ─── Quick Add to Cart ─────────────────────────────────────────────────────
+function quickAdd(merchandiseId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    fetch(`/orders/keranjang/tambah/${merchandiseId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'quantity=1'
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            btn.innerHTML = '<i class="bi bi-check-circle"></i>';
+            btn.classList.replace('btn-primary', 'btn-success');
 
-        fetch(`/orders/keranjang/tambah/${merchandiseId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'quantity=1'
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                btn.innerHTML = '<i class="bi bi-check-circle"></i>';
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-success');
-
-                // Update cart badge navbar
-                const navBadge = document.getElementById('navbar-cart-badge');
-                if (navBadge) {
-                    navBadge.textContent = data.cart_total_quantity;
-                    navBadge.style.display = 'inline-flex';
+            // Update cart badge — desktop & mobile
+            ['navbar-cart-badge', 'mobile-cart-badge'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = data.cart_total_quantity;
+                    el.style.display = 'inline-flex';
                 }
+            });
 
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
-                    btn.classList.remove('btn-success');
-                    btn.classList.add('btn-primary');
-                    btn.disabled = false;
-                }, 1500);
-            } else {
+            setTimeout(() => {
                 btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                btn.classList.replace('btn-success', 'btn-primary');
                 btn.disabled = false;
-                alert(data.error || 'Gagal menambahkan ke keranjang');
-            }
-        })
-        .catch(() => {
+            }, 1500);
+        } else {
             btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
             btn.disabled = false;
-        });
+        }
+    })
+    .catch(() => {
+        btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
+        btn.disabled = false;
     });
-});
+}
+
+// ─── AJAX Pagination Produk ────────────────────────────────────────────────
+function loadProductsPage(page) {
+    const grid = document.getElementById('products-row');
+    const pagination = document.getElementById('products-pagination');
+    const pageInfo = document.getElementById('page-info');
+
+    // Loading state
+    if (grid) {
+        grid.style.opacity = '0.5';
+        grid.style.pointerEvents = 'none';
+    }
+
+    fetch(`/orders/api/produk/?page=${page}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.products) return;
+
+        // Render product cards
+        let html = '';
+        data.products.forEach(p => {
+            const imgHtml = p.image_url
+                ? `<img src="${p.image_url}" alt="${p.name}" class="shop-card-img featured-card-img">`
+                : `<div class="shop-card-img-placeholder featured-card-img"><i class="bi bi-image"></i></div>`;
+
+            const lowStockBadge = p.is_low_stock
+                ? `<div class="shop-card-badge-overlay"><span class="badge bg-warning text-dark shop-badge-mini">Menipis</span></div>`
+                : '';
+
+            html += `
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                <div class="card shop-card h-100 shop-card-clickable"
+                     onclick="window.location='${p.detail_url}'">
+                    <div class="position-relative">
+                        ${imgHtml}
+                        ${lowStockBadge}
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="featured-product-name">${p.name}</div>
+                        <div class="featured-product-stock">Stok: ${p.stock}</div>
+                        <button type="button"
+                                class="btn btn-primary w-100 quick-add-btn mt-2"
+                                data-merchandise-id="${p.id}"
+                                onclick="event.stopPropagation(); quickAdd(${p.id}, this);">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        if (grid) {
+            grid.innerHTML = html;
+            grid.style.opacity = '1';
+            grid.style.pointerEvents = 'auto';
+        }
+
+        // Update page info
+        if (pageInfo) {
+            pageInfo.textContent = `Halaman ${data.page} dari ${data.num_pages}`;
+        }
+
+        // Update pagination buttons
+        updatePagination(data);
+
+        // Scroll ke atas section produk
+        const section = document.getElementById('products-grid');
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    })
+    .catch(err => {
+        if (grid) {
+            grid.style.opacity = '1';
+            grid.style.pointerEvents = 'auto';
+        }
+        console.error('Error loading products:', err);
+    });
+}
+
+function updatePagination(data) {
+    // Prev button
+    const prevBtn = document.getElementById('prev-page-btn');
+    if (prevBtn) {
+        prevBtn.disabled = !data.has_previous;
+        prevBtn.onclick = data.has_previous
+            ? () => loadProductsPage(data.previous_page)
+            : null;
+    }
+
+    // Next button
+    const nextBtn = document.getElementById('next-page-btn');
+    if (nextBtn) {
+        nextBtn.disabled = !data.has_next;
+        nextBtn.onclick = data.has_next
+            ? () => loadProductsPage(data.next_page)
+            : null;
+    }
+
+    // Page number buttons
+    const pageNumbers = document.getElementById('page-numbers');
+    if (pageNumbers) {
+        let btns = '';
+        for (let i = 1; i <= data.num_pages; i++) {
+            const active = i === data.page ? 'btn-primary' : 'btn-secondary';
+            btns += `<button class="btn btn-sm ${active} page-num-btn"
+                             onclick="loadProductsPage(${i})"
+                             data-page="${i}">${i}</button>`;
+        }
+        pageNumbers.innerHTML = btns;
+    }
+}
 </script>
 {% endblock %}

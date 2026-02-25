@@ -32,4 +32,7 @@ urlpatterns = [
 
     # Sales order history (card-based)
     path('riwayat/', cart_views.my_orders, name='my_orders'),
+
+    # AJAX: products JSON untuk pagination di dashboard
+    path('api/produk/', cart_views.products_json, name='products_json'),
 ]

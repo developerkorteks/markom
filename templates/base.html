@@ -28,9 +28,22 @@
             <a class="navbar-brand" href="{% url 'dashboard:home' %}">
                 <i class="bi bi-box-seam me-1" style="color: var(--color-accent);"></i>Merchandise System
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Buka/tutup navigasi">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="d-flex align-items-center d-lg-none ms-auto gap-2">
+                {% if user.is_authenticated and user.is_sales %}
+                <a href="{% url 'orders:cart_detail' %}"
+                   class="mobile-cart-btn"
+                   id="mobile-cart-btn">
+                    <i class="bi bi-cart3"></i>
+                    <span class="mobile-cart-badge" id="mobile-cart-badge"
+                          {% if navbar_cart_total == 0 %}style="display:none;"{% endif %}>
+                        {{ navbar_cart_total }}
+                    </span>
+                </a>
+                {% endif %}
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Buka/tutup navigasi">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <!-- Dasbor — selalu tampil -->

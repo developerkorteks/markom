@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Count, Sum
+from django.core.paginator import Paginator
+from django.http import JsonResponse
 from orders.models import Order
 from merchandise.models import Merchandise
 from accounts.models import User
@@ -96,13 +98,16 @@ def home(request):
         orders_today = my_orders.filter(created_at__date=today).count()
         total_orders = my_orders.count()
 
-        # Featured products (stok tersedia, urut by stok terbanyak, max 8)
-        featured_products = (
+        # Semua produk tersedia — dengan pagination 8 per halaman
+        all_products = (
             Merchandise.objects
             .filter(is_active=True, stock__gt=0)
             .select_related('category')
-            .order_by('-stock')[:8]
+            .order_by('category__name', 'name')
         )
+        paginator = Paginator(all_products, 4)
+        page_number = request.GET.get('page', 1)
+        products_page = paginator.get_page(page_number)
 
         # Recent orders (5 terakhir)
         recent_orders = (
@@ -114,7 +119,7 @@ def home(request):
         context = {
             'total_orders': total_orders,
             'orders_today': orders_today,
-            'featured_products': featured_products,
+            'products_page': products_page,
             'recent_orders': recent_orders,
             'cart': cart,
             'cart_total': cart.get_total_quantity(),

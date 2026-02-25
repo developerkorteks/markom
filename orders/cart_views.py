@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator
 from accounts.decorators import sales_required
 from merchandise.models import Merchandise
 from .cart import Cart
@@ -342,3 +343,46 @@ def checkout(request):
         'total_unique': cart.get_total_unique(),
     }
     return render(request, 'orders/checkout.html', context)
+
+
+@sales_required
+def products_json(request):
+    """
+    AJAX endpoint: kembalikan JSON produk tersedia untuk pagination di dashboard.
+    GET params: page (int), per_page (int, default 8)
+    """
+    all_products = (
+        Merchandise.objects
+        .filter(is_active=True, stock__gt=0)
+        .select_related('category')
+        .order_by('category__name', 'name')
+    )
+
+    per_page = 4
+    paginator = Paginator(all_products, per_page)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    products_data = []
+    for p in page_obj:
+        products_data.append({
+            'id': p.pk,
+            'name': p.name,
+            'category': p.category.name if p.category else '',
+            'stock': p.stock,
+            'is_low_stock': p.is_low_stock,
+            'image_url': p.image.url if p.image else '',
+            'detail_url': f'/orders/katalog/{p.pk}/',
+            'add_cart_url': f'/orders/keranjang/tambah/{p.pk}/',
+        })
+
+    return JsonResponse({
+        'products': products_data,
+        'page': page_obj.number,
+        'num_pages': paginator.num_pages,
+        'has_previous': page_obj.has_previous(),
+        'has_next': page_obj.has_next(),
+        'previous_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+        'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+        'total_count': paginator.count,
+    })
