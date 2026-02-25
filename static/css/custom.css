@@ -815,10 +815,27 @@ textarea.form-control {
     border-radius: 0;
 }
 
-/* Table responsive */
+/* Table responsive — overflow-x: auto untuk horizontal scroll */
 .table-responsive {
     border-radius: var(--neu-radius);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar styling untuk table-responsive */
+.table-responsive::-webkit-scrollbar {
+    height: 4px;
+}
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--neu-bg);
+}
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--neu-border);
+    border-radius: 2px;
+}
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
 }
 
 
@@ -1747,13 +1764,14 @@ main.container-fluid {
 }
 
 .shop-card-img {
-    height: 180px;
+    height: 160px;
     object-fit: cover;
     border-radius: var(--neu-radius) var(--neu-radius) 0 0;
+    width: 100%;
 }
 
 .shop-card-img-placeholder {
-    height: 180px;
+    height: 160px;
     background: var(--neu-bg);
     box-shadow: var(--neu-shadow-inset-subtle);
     border-radius: var(--neu-radius) var(--neu-radius) 0 0;
@@ -1761,7 +1779,45 @@ main.container-fluid {
     align-items: center;
     justify-content: center;
     color: var(--color-text-light);
-    font-size: 3rem;
+    font-size: 2.5rem;
+}
+
+@media (max-width: 576px) {
+    .shop-card-img {
+        height: 110px;
+    }
+    .shop-card-img-placeholder {
+        height: 110px;
+        font-size: 1.8rem;
+    }
+    /* Hide description pada layar sangat kecil */
+    .shop-card .card-body .shop-card-desc {
+        display: none;
+    }
+    /* Compact card body */
+    .shop-card .card-body {
+        padding: var(--space-2) !important;
+    }
+    /* Compact badge */
+    .shop-card .badge {
+        font-size: 9px !important;
+        padding: 2px 5px;
+    }
+    /* Compact button */
+    .shop-card .btn {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+    /* Compact h6 */
+    .shop-card h6 {
+        font-size: 11px !important;
+        margin-bottom: 4px !important;
+    }
+    /* Compact stock */
+    .shop-card .stock-bar {
+        height: 3px;
+        margin-top: 4px;
+    }
 }
 
 /* Featured product card image — responsive height for small grid columns */

@@ -24,14 +24,6 @@
                 {% if category_id %}&nbsp;·&nbsp;Filter aktif{% endif %}
             </p>
         </div>
-        <div class="col-12 col-md-auto mt-3 mt-md-0">
-            <a href="{% url 'orders:cart_detail' %}" class="btn btn-primary position-relative cart-nav-link">
-                <i class="bi bi-cart3 me-2"></i>Keranjang
-                {% if navbar_cart_total > 0 %}
-                <span class="cart-badge" id="cart-badge-header">{{ navbar_cart_total }}</span>
-                {% endif %}
-            </a>
-        </div>
     </div>
 
     <!-- Filter & Search Bar -->
@@ -135,10 +127,10 @@
                         {{ product.name }}
                     </h6>
 
-                    <!-- Description -->
+                    <!-- Description (hidden on mobile) -->
                     {% if product.description %}
-                    <p class="text-muted mb-2" style="font-size: var(--text-xs); line-height: 1.4; flex-grow: 1;">
-                        {{ product.description|truncatewords:10 }}
+                    <p class="text-muted mb-2 shop-card-desc" style="font-size: var(--text-xs); line-height: 1.4; flex-grow: 1;">
+                        {{ product.description|truncatewords:8 }}
                     </p>
                     {% else %}
                     <div class="flex-grow-1"></div>
@@ -272,26 +264,14 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
 });
 
 function updateAllCartBadges(count) {
-    // Navbar badge
-    const navBadge = document.getElementById('navbar-cart-badge');
-    if (navBadge) {
-        navBadge.textContent = count;
-        navBadge.style.display = count > 0 ? 'inline-flex' : 'none';
-    }
-    // Header badge
-    let headerBadge = document.getElementById('cart-badge-header');
-    if (count > 0) {
-        if (headerBadge) {
-            headerBadge.textContent = count;
-        } else {
-            headerBadge = document.createElement('span');
-            headerBadge.className = 'cart-badge';
-            headerBadge.id = 'cart-badge-header';
-            headerBadge.textContent = count;
-            const cartLink = document.querySelector('.cart-nav-link');
-            if (cartLink) cartLink.appendChild(headerBadge);
+    // Update navbar badge (desktop + mobile)
+    ['navbar-cart-badge', 'mobile-cart-badge'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = count;
+            el.style.display = count > 0 ? 'inline-flex' : 'none';
         }
-    }
+    });
 }
 
 function showToast(message, type) {
