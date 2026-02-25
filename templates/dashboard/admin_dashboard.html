@@ -84,38 +84,42 @@
     <!-- Quick Actions -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex align-items-center gap-2">
-                    <i class="bi bi-lightning-charge" style="color: var(--color-accent);"></i>
-                    <span>Aksi Cepat</span>
+            <div class="quick-actions-bar">
+                <div class="quick-actions-label">
+                    <i class="bi bi-lightning-charge"></i> Aksi Cepat
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-3 col-sm-6">
-                            <a href="{% url 'accounts:user_list' %}" class="action-card-btn">
-                                <i class="bi bi-people"></i>
-                                <span>Kelola Pengguna</span>
-                            </a>
+                <div class="quick-actions-divider"></div>
+                <div class="quick-actions-icons">
+                    <a href="{% url 'accounts:user_list' %}" class="app-icon-btn">
+                        <div class="app-icon-wrap app-icon-blue">
+                            <i class="bi bi-people-fill"></i>
                         </div>
-                        <div class="col-md-3 col-sm-6">
-                            <a href="{% url 'merchandise:category_list' %}" class="action-card-btn">
-                                <i class="bi bi-tags"></i>
-                                <span>Kelola Kategori</span>
-                            </a>
+                        <span class="app-icon-label">Pengguna</span>
+                    </a>
+                    <a href="{% url 'merchandise:category_list' %}" class="app-icon-btn">
+                        <div class="app-icon-wrap app-icon-green">
+                            <i class="bi bi-tags-fill"></i>
                         </div>
-                        <div class="col-md-3 col-sm-6">
-                            <a href="{% url 'merchandise:merchandise_list' %}" class="action-card-btn">
-                                <i class="bi bi-box-seam"></i>
-                                <span>Kelola Merchandise</span>
-                            </a>
+                        <span class="app-icon-label">Kategori</span>
+                    </a>
+                    <a href="{% url 'merchandise:merchandise_list' %}" class="app-icon-btn">
+                        <div class="app-icon-wrap app-icon-orange">
+                            <i class="bi bi-box-seam-fill"></i>
                         </div>
-                        <div class="col-md-3 col-sm-6">
-                            <a href="{% url 'orders:order_list' %}" class="action-card-btn">
-                                <i class="bi bi-receipt"></i>
-                                <span>Lihat Semua Pesanan</span>
-                            </a>
+                        <span class="app-icon-label">Merchandise</span>
+                    </a>
+                    <a href="{% url 'orders:order_list' %}" class="app-icon-btn">
+                        <div class="app-icon-wrap app-icon-purple">
+                            <i class="bi bi-receipt-cutoff"></i>
                         </div>
-                    </div>
+                        <span class="app-icon-label">Pesanan</span>
+                    </a>
+                    <a href="{% url 'orders:order_create' %}" class="app-icon-btn">
+                        <div class="app-icon-wrap app-icon-teal">
+                            <i class="bi bi-plus-circle-fill"></i>
+                        </div>
+                        <span class="app-icon-label">Buat Order</span>
+                    </a>
                 </div>
             </div>
         </div>

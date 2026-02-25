@@ -21,37 +21,35 @@
         </div>
     </div>
 
-    <!-- Filter -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-12 col-sm-6 col-md-5">
-                    <label class="form-label fw-semibold">Cari Pengguna</label>
-                    <input type="text" name="search" class="form-control"
-                           placeholder="Cari username, nama, atau email..."
-                           value="{{ search_query }}">
-                </div>
-                <div class="col-12 col-sm-6 col-md-4">
-                    <label class="form-label fw-semibold">Peran</label>
-                    <select name="role" class="form-select">
-                        <option value="">Semua Peran</option>
-                        {% for value, label in roles %}
-                        <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-sm-12 col-md-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary flex-fill">
-                        <i class="bi bi-search"></i> Cari
-                    </button>
-                    {% if search_query or role_filter %}
-                    <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary flex-fill">
-                        <i class="bi bi-x-circle"></i> Reset
-                    </a>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
+    <!-- Filter Bar — compact inline -->
+    <div class="compact-filter-bar mb-4">
+        <form method="get" class="compact-filter-form">
+            <div class="compact-filter-field compact-filter-search">
+                <i class="bi bi-search compact-filter-icon"></i>
+                <input type="text" name="search" class="compact-filter-input"
+                       placeholder="Cari username, nama, atau email..."
+                       value="{{ search_query }}">
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-field compact-filter-select-wrap">
+                <i class="bi bi-person-badge compact-filter-icon"></i>
+                <select name="role" class="compact-filter-select">
+                    <option value="">Semua Peran</option>
+                    {% for value, label in roles %}
+                    <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-actions">
+                <button type="submit" class="compact-filter-btn compact-filter-btn-primary" title="Terapkan Filter">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <a href="{% url 'accounts:user_list' %}" class="compact-filter-btn compact-filter-btn-reset" title="Reset Filter">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
     </div>
 
     <!-- Tabel Pengguna -->

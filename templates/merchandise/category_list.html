@@ -22,34 +22,34 @@
         </div>
     </div>
 
-    <!-- Filter -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-8">
-                    <label class="form-label">Cari</label>
-                    <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama atau deskripsi..." value="{{ search_query }}">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="">Semua Status</option>
-                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Aktif</option>
-                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Nonaktif</option>
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary flex-fill">
-                        <i class="bi bi-search"></i> Filter
-                    </button>
-                    {% if search_query or status_filter %}
-                    <a href="{% url 'merchandise:category_list' %}" class="btn btn-secondary" title="Reset filter">
-                        <i class="bi bi-x-circle"></i>
-                    </a>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
+    <!-- Filter Bar — compact inline -->
+    <div class="compact-filter-bar mb-4">
+        <form method="get" class="compact-filter-form">
+            <div class="compact-filter-field compact-filter-search">
+                <i class="bi bi-search compact-filter-icon"></i>
+                <input type="text" name="search" class="compact-filter-input"
+                       placeholder="Cari nama kategori..."
+                       value="{{ search_query }}">
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-field compact-filter-select-wrap">
+                <i class="bi bi-toggle-on compact-filter-icon"></i>
+                <select name="status" class="compact-filter-select">
+                    <option value="">Semua Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Aktif</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Nonaktif</option>
+                </select>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-actions">
+                <button type="submit" class="compact-filter-btn compact-filter-btn-primary" title="Terapkan Filter">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <a href="{% url 'merchandise:category_list' %}" class="compact-filter-btn compact-filter-btn-reset" title="Reset Filter">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
     </div>
 
     <!-- Tabel Kategori -->
