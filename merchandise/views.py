@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
 from accounts.decorators import admin_required, admin_or_sales_required
 from .models import Category, Merchandise, StockHistory
@@ -295,15 +296,16 @@ def merchandise_adjust_stock(request, pk):
             try:
                 adjustment = form.cleaned_data['adjustment']
                 reason = form.cleaned_data['reason']
-                
-                # Create stock adjustment
-                StockHistory.create_adjustment(
-                    merchandise=merchandise,
-                    adjustment=adjustment,
-                    reason=reason,
-                    adjusted_by=request.user
-                )
-                
+
+                # Create stock adjustment dalam atomic block untuk konsistensi
+                with transaction.atomic():
+                    StockHistory.create_adjustment(
+                        merchandise=merchandise,
+                        adjustment=adjustment,
+                        reason=reason,
+                        adjusted_by=request.user
+                    )
+
                 sign = '+' if adjustment >= 0 else ''
                 messages.success(
                     request,

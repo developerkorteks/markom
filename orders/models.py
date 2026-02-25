@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.utils import timezone
@@ -119,6 +119,26 @@ class Order(models.Model):
         """Get count of unique merchandise items"""
         return self.items.count()
 
+    def restore_stock_from_order(self, restored_by=None):
+        """
+        Restore stock for all items in this order.
+        Used when an order needs to be cancelled/reversed.
+        Each item's stock is restored using add_stock() with select_for_update()
+        to prevent race conditions.
+        Must be called inside a transaction.atomic() block.
+
+        Args:
+            restored_by: User who triggered the restoration (for logging)
+
+        Returns:
+            list of (merchandise_name, quantity_restored) tuples
+        """
+        restored = []
+        for item in self.items.select_related('merchandise').all():
+            item.merchandise.add_stock(item.quantity)
+            restored.append((item.merchandise_name, item.quantity))
+        return restored
+
 
 class OrderItem(models.Model):
     """
@@ -170,16 +190,26 @@ class OrderItem(models.Model):
                 })
     
     def save(self, *args, **kwargs):
-        """Override save to capture merchandise name and validate"""
+        """
+        Override save to capture merchandise name, validate, and deduct stock.
+        Stock deduction and record save are wrapped in a single atomic block
+        so that if save() fails after deduct_stock(), the stock is rolled back.
+        deduct_stock() uses select_for_update() internally, so this atomic
+        block also serves as the transaction boundary for row locking.
+        """
         # Capture merchandise name as snapshot
         if self.merchandise and not self.merchandise_name:
             self.merchandise_name = self.merchandise.name
-        
-        # Validate
+
+        # Validate data (quantity, stock availability, etc.)
         self.full_clean()
-        
-        # Deduct stock automatically
-        if not self.pk:  # Only on creation
-            self.merchandise.deduct_stock(self.quantity)
-        
-        super().save(*args, **kwargs)
+
+        if not self.pk:
+            # New OrderItem — deduct stock dan save dalam satu atomic block
+            with transaction.atomic():
+                self.merchandise.deduct_stock(self.quantity)
+                super().save(*args, **kwargs)
+        else:
+            # Update existing OrderItem — tidak boleh ubah quantity/merchandise
+            # (immutable by design), hanya save biasa
+            super().save(*args, **kwargs)

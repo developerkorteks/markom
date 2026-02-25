@@ -198,27 +198,52 @@ class Merchandise(models.Model):
     
     def deduct_stock(self, quantity):
         """
-        Deduct stock by quantity
-        Raises ValidationError if insufficient stock
+        Deduct stock by quantity — race-condition safe.
+        Must be called inside a transaction.atomic() block.
+        Uses select_for_update() to lock the row and re-fetch
+        the latest stock value before deducting.
+        Raises ValidationError if insufficient stock.
         """
+        from django.db import transaction
+
         if quantity <= 0:
             raise ValidationError('Quantity must be greater than 0.')
-        
-        if self.stock < quantity:
+
+        # Lock row dan re-fetch stok terkini dari DB untuk mencegah race condition
+        fresh = Merchandise.objects.select_for_update().get(pk=self.pk)
+
+        if fresh.stock < quantity:
             raise ValidationError(
-                f'Insufficient stock. Available: {self.stock}, Requested: {quantity}'
+                f'Stok tidak mencukupi untuk "{fresh.name}". '
+                f'Tersedia: {fresh.stock}, Diminta: {quantity}'
             )
-        
-        self.stock -= quantity
-        self.save()
-    
+
+        fresh.stock -= quantity
+        # Bypass full_clean() agar tidak re-validate image size saat update stok
+        Merchandise.objects.filter(pk=self.pk).update(stock=fresh.stock)
+
+        # Sync nilai self.stock agar caller memiliki data terkini
+        self.stock = fresh.stock
+
     def add_stock(self, quantity):
-        """Add stock by quantity"""
+        """
+        Add stock by quantity — race-condition safe.
+        Must be called inside a transaction.atomic() block.
+        Uses select_for_update() to lock the row and re-fetch
+        the latest stock value before adding.
+        """
+        from django.db import transaction
+
         if quantity <= 0:
             raise ValidationError('Quantity must be greater than 0.')
-        
-        self.stock += quantity
-        self.save()
+
+        # Lock row dan re-fetch stok terkini dari DB
+        fresh = Merchandise.objects.select_for_update().get(pk=self.pk)
+        fresh.stock += quantity
+        Merchandise.objects.filter(pk=self.pk).update(stock=fresh.stock)
+
+        # Sync nilai self.stock agar caller memiliki data terkini
+        self.stock = fresh.stock
 
 
 class StockHistory(models.Model):
@@ -266,24 +291,31 @@ class StockHistory(models.Model):
     @staticmethod
     def create_adjustment(merchandise, adjustment, reason, adjusted_by):
         """
-        Create stock adjustment record
+        Create stock adjustment record — race-condition safe.
+        Uses select_for_update() to lock the row and re-fetch
+        the latest stock value before adjusting.
+        Must be called inside a transaction.atomic() block.
         """
         if adjustment == 0:
             raise ValidationError('Adjustment cannot be zero.')
-        
-        stock_before = merchandise.stock
+
+        # Lock row dan re-fetch stok terkini dari DB
+        fresh = Merchandise.objects.select_for_update().get(pk=merchandise.pk)
+        stock_before = fresh.stock
         new_stock = stock_before + adjustment
-        
+
         if new_stock < 0:
             raise ValidationError(
                 f'Adjustment would result in negative stock. '
                 f'Current: {stock_before}, Adjustment: {adjustment}'
             )
-        
-        # Update merchandise stock
+
+        # Update merchandise stock langsung via queryset (bypass full_clean image check)
+        Merchandise.objects.filter(pk=merchandise.pk).update(stock=new_stock)
+
+        # Sync self.stock ke caller
         merchandise.stock = new_stock
-        merchandise.save()
-        
+
         # Create history record
         history = StockHistory.objects.create(
             merchandise=merchandise,
@@ -293,5 +325,5 @@ class StockHistory(models.Model):
             reason=reason,
             adjusted_by=adjusted_by
         )
-        
+
         return history
