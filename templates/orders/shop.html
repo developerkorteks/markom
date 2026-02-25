@@ -36,26 +36,50 @@
                        placeholder="Cari nama produk...">
             </div>
             <div class="compact-filter-divider"></div>
-            <div class="compact-filter-field compact-filter-select-wrap">
-                <i class="bi bi-tags compact-filter-icon"></i>
-                <select name="category" class="compact-filter-select" id="categorySelect">
-                    <option value="">Semua Kategori</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.pk }}" {% if category_id == cat.pk|stringformat:"s" %}selected{% endif %}>
-                        {{ cat.name }}
-                    </option>
-                    {% endfor %}
-                </select>
+            <div class="compact-filter-select-wrap">
+                <div class="custom-select-wrapper" data-name="category">
+                    <input type="hidden" name="category" class="custom-select-input" value="{{ category_id }}">
+                    <button type="button" class="custom-select-trigger">
+                        <i class="bi bi-tags cs-icon"></i>
+                        <span class="cs-label">Semua Kategori</span>
+                        <i class="bi bi-chevron-down cs-chevron"></i>
+                    </button>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option{% if not category_id %} is-selected{% endif %}" data-value="">
+                            <i class="bi bi-check2 cs-opt-check"></i> Semua Kategori
+                        </div>
+                        {% for cat in categories %}
+                        <div class="custom-select-option{% if category_id == cat.pk|stringformat:'s' %} is-selected{% endif %}" data-value="{{ cat.pk }}">
+                            <i class="bi bi-check2 cs-opt-check"></i> {{ cat.name }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
             <div class="compact-filter-divider"></div>
-            <div class="compact-filter-field compact-filter-select-wrap">
-                <i class="bi bi-sort-down compact-filter-icon"></i>
-                <select name="sort" class="compact-filter-select" id="sortSelect">
-                    <option value="name" {% if sort == 'name' %}selected{% endif %}>Nama A-Z</option>
-                    <option value="category" {% if sort == 'category' %}selected{% endif %}>Kategori</option>
-                    <option value="stock_desc" {% if sort == 'stock_desc' %}selected{% endif %}>Stok Terbanyak</option>
-                    <option value="stock_asc" {% if sort == 'stock_asc' %}selected{% endif %}>Stok Tersedikit</option>
-                </select>
+            <div class="compact-filter-select-wrap">
+                <div class="custom-select-wrapper" data-name="sort">
+                    <input type="hidden" name="sort" class="custom-select-input" value="{{ sort }}">
+                    <button type="button" class="custom-select-trigger">
+                        <i class="bi bi-sort-down cs-icon"></i>
+                        <span class="cs-label">{% if sort == 'category' %}Kategori{% elif sort == 'stock_desc' %}Stok Terbanyak{% elif sort == 'stock_asc' %}Stok Tersedikit{% else %}Nama A-Z{% endif %}</span>
+                        <i class="bi bi-chevron-down cs-chevron"></i>
+                    </button>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option{% if sort == 'name' or not sort %} is-selected{% endif %}" data-value="name">
+                            <i class="bi bi-check2 cs-opt-check"></i> Nama A-Z
+                        </div>
+                        <div class="custom-select-option{% if sort == 'category' %} is-selected{% endif %}" data-value="category">
+                            <i class="bi bi-check2 cs-opt-check"></i> Kategori
+                        </div>
+                        <div class="custom-select-option{% if sort == 'stock_desc' %} is-selected{% endif %}" data-value="stock_desc">
+                            <i class="bi bi-check2 cs-opt-check"></i> Stok Terbanyak
+                        </div>
+                        <div class="custom-select-option{% if sort == 'stock_asc' %} is-selected{% endif %}" data-value="stock_asc">
+                            <i class="bi bi-check2 cs-opt-check"></i> Stok Tersedikit
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="compact-filter-divider"></div>
             <div class="compact-filter-actions">

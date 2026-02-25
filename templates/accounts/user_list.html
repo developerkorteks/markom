@@ -31,14 +31,25 @@
                        value="{{ search_query }}">
             </div>
             <div class="compact-filter-divider"></div>
-            <div class="compact-filter-field compact-filter-select-wrap">
-                <i class="bi bi-person-badge compact-filter-icon"></i>
-                <select name="role" class="compact-filter-select">
-                    <option value="">Semua Peran</option>
-                    {% for value, label in roles %}
-                    <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
+            <div class="compact-filter-select-wrap">
+                <div class="custom-select-wrapper" data-name="role">
+                    <input type="hidden" name="role" class="custom-select-input" value="{{ role_filter }}">
+                    <button type="button" class="custom-select-trigger{% if role_filter %} is-active{% endif %}">
+                        <i class="bi bi-person-badge cs-icon"></i>
+                        <span class="cs-label">{% if role_filter == 'ADMIN' %}Admin{% elif role_filter == 'SALES' %}Sales{% else %}Semua Peran{% endif %}</span>
+                        <i class="bi bi-chevron-down cs-chevron"></i>
+                    </button>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option{% if not role_filter %} is-selected{% endif %}" data-value="">
+                            <i class="bi bi-check2 cs-opt-check"></i> Semua Peran
+                        </div>
+                        {% for value, label in roles %}
+                        <div class="custom-select-option{% if role_filter == value %} is-selected{% endif %}" data-value="{{ value }}">
+                            <i class="bi bi-check2 cs-opt-check"></i> {{ label }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
             <div class="compact-filter-divider"></div>
             <div class="compact-filter-actions">

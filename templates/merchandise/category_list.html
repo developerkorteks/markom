@@ -32,13 +32,26 @@
                        value="{{ search_query }}">
             </div>
             <div class="compact-filter-divider"></div>
-            <div class="compact-filter-field compact-filter-select-wrap">
-                <i class="bi bi-toggle-on compact-filter-icon"></i>
-                <select name="status" class="compact-filter-select">
-                    <option value="">Semua Status</option>
-                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Aktif</option>
-                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Nonaktif</option>
-                </select>
+            <div class="compact-filter-select-wrap">
+                <div class="custom-select-wrapper" data-name="status">
+                    <input type="hidden" name="status" class="custom-select-input" value="{{ status_filter }}">
+                    <button type="button" class="custom-select-trigger">
+                        <i class="bi bi-toggle-on cs-icon"></i>
+                        <span class="cs-label">{% if status_filter == 'active' %}Aktif{% elif status_filter == 'inactive' %}Nonaktif{% else %}Semua Status{% endif %}</span>
+                        <i class="bi bi-chevron-down cs-chevron"></i>
+                    </button>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option{% if not status_filter %} is-selected{% endif %}" data-value="">
+                            <i class="bi bi-check2 cs-opt-check"></i> Semua Status
+                        </div>
+                        <div class="custom-select-option{% if status_filter == 'active' %} is-selected{% endif %}" data-value="active">
+                            <i class="bi bi-check2 cs-opt-check"></i> Aktif
+                        </div>
+                        <div class="custom-select-option{% if status_filter == 'inactive' %} is-selected{% endif %}" data-value="inactive">
+                            <i class="bi bi-check2 cs-opt-check"></i> Nonaktif
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="compact-filter-divider"></div>
             <div class="compact-filter-actions">

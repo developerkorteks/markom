@@ -254,28 +254,81 @@ a:hover {
     background-color: var(--neu-bg);
     border: none;
     border-radius: var(--neu-radius);
-    box-shadow: var(--neu-shadow-raised-hover);
+    box-shadow:
+        8px 8px 20px var(--neu-shadow-dark),
+        -4px -4px 12px var(--neu-shadow-light);
     padding: var(--space-2);
     margin-top: var(--space-2) !important;
+    min-width: 180px;
+    animation: dropdown-appear 0.18s ease-out;
+    transform-origin: top center;
+}
+
+@keyframes dropdown-appear {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .dropdown-item {
     color: var(--color-text);
     font-size: var(--text-sm);
+    font-weight: var(--font-medium);
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
 }
 
-.dropdown-item:hover {
+.dropdown-item:hover,
+.dropdown-item:focus {
     background-color: var(--neu-bg);
     color: var(--color-accent);
     box-shadow: var(--neu-shadow-inset-subtle);
+    outline: none;
+}
+
+.dropdown-item:active {
+    background-color: var(--neu-bg);
+    color: var(--color-accent-hover);
+    box-shadow: var(--neu-shadow-inset);
+}
+
+.dropdown-item.active {
+    background-color: var(--neu-bg);
+    color: var(--color-accent);
+    box-shadow: var(--neu-shadow-inset-subtle);
+    font-weight: var(--font-semibold);
+}
+
+/* Danger dropdown item */
+.dropdown-item.text-danger:hover {
+    color: var(--color-danger) !important;
+    background-color: var(--color-danger-bg);
+    box-shadow: none;
 }
 
 .dropdown-divider {
     border-color: var(--neu-shadow-dark);
     opacity: 0.3;
+    margin: var(--space-1) 0;
+}
+
+/* Dropdown header label */
+.dropdown-header {
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: var(--space-2) var(--space-4) var(--space-1);
 }
 
 
@@ -1495,6 +1548,164 @@ main.container-fluid {
 }
 
 /* ============================================
+   CUSTOM SELECT — Styled dropdown pengganti native select
+   ============================================ */
+
+.custom-select-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Trigger pill — sama style dengan compact-filter-select-pill */
+.custom-select-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background-color: var(--neu-bg);
+    border-radius: 20px;
+    box-shadow:
+        3px 3px 8px var(--neu-shadow-dark),
+        -2px -2px 6px var(--neu-shadow-light);
+    padding: var(--space-1) var(--space-3);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    white-space: nowrap;
+    min-width: 110px;
+    user-select: none;
+    border: none;
+    outline: none;
+}
+
+.custom-select-trigger:hover {
+    box-shadow:
+        4px 4px 10px var(--neu-shadow-dark),
+        -3px -3px 8px var(--neu-shadow-light);
+    transform: translateY(-1px);
+}
+
+.custom-select-trigger.is-open {
+    box-shadow:
+        inset 2px 2px 6px var(--neu-shadow-dark),
+        inset -2px -2px 6px var(--neu-shadow-light),
+        0 0 0 2px var(--color-accent-ring);
+    transform: translateY(0);
+}
+
+.custom-select-trigger .cs-icon {
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.custom-select-trigger .cs-label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: var(--color-text-dark);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+.custom-select-trigger .cs-chevron {
+    font-size: 10px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+    transition: transform var(--transition-fast);
+    pointer-events: none;
+}
+
+.custom-select-trigger.is-open .cs-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown list */
+.custom-select-dropdown {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    z-index: 1050;
+    background-color: var(--neu-bg);
+    border-radius: var(--neu-radius);
+    box-shadow:
+        8px 8px 20px var(--neu-shadow-dark),
+        -4px -4px 12px var(--neu-shadow-light);
+    padding: var(--space-2);
+    min-width: 160px;
+    display: none;
+    animation: dropdown-appear 0.18s ease-out;
+    transform-origin: top left;
+}
+
+.custom-select-dropdown.is-open {
+    display: block;
+}
+
+/* Option item */
+.custom-select-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.custom-select-option:hover {
+    background-color: var(--neu-bg);
+    color: var(--color-accent);
+    box-shadow: var(--neu-shadow-inset-subtle);
+}
+
+.custom-select-option.is-selected {
+    color: var(--color-accent);
+    font-weight: var(--font-semibold);
+    box-shadow: var(--neu-shadow-inset-subtle);
+}
+
+.custom-select-option .cs-opt-check {
+    font-size: 11px;
+    color: var(--color-accent);
+    opacity: 0;
+    flex-shrink: 0;
+}
+
+.custom-select-option.is-selected .cs-opt-check {
+    opacity: 1;
+}
+
+/* Hidden native input for form submit */
+.custom-select-input {
+    display: none;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .custom-select-trigger {
+        min-width: 0;
+        padding: var(--space-1) var(--space-2);
+    }
+
+    .custom-select-trigger .cs-label {
+        max-width: 72px;
+        font-size: 11px;
+    }
+
+    .custom-select-dropdown {
+        min-width: 140px;
+    }
+}
+
+/* ============================================
    COMPACT FILTER BAR — Inline single-row filter
    ============================================ */
 .compact-filter-bar {
@@ -1527,10 +1738,64 @@ main.container-fluid {
     min-width: 160px;
 }
 
-/* Select wrapper — fixed width */
+/* Select wrapper — styled as raised clickable pill (konsisten dengan date pill) */
 .compact-filter-select-wrap {
     flex: 0 0 auto;
-    min-width: 130px;
+    min-width: 0;
+    padding: 0 var(--space-2) !important;
+}
+
+/* Inner select pill — nimbul seperti date pill */
+.compact-filter-select-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background-color: var(--neu-bg);
+    border-radius: 20px;
+    box-shadow:
+        3px 3px 8px var(--neu-shadow-dark),
+        -2px -2px 6px var(--neu-shadow-light);
+    padding: var(--space-1) var(--space-3);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    white-space: nowrap;
+    min-width: 110px;
+}
+
+.compact-filter-select-pill:hover {
+    box-shadow:
+        4px 4px 10px var(--neu-shadow-dark),
+        -3px -3px 8px var(--neu-shadow-light);
+    transform: translateY(-1px);
+}
+
+.compact-filter-select-pill:focus-within {
+    box-shadow:
+        inset 2px 2px 6px var(--neu-shadow-dark),
+        inset -2px -2px 6px var(--neu-shadow-light),
+        0 0 0 2px var(--color-accent-ring);
+    transform: translateY(0);
+}
+
+.compact-filter-select-pill .compact-filter-icon {
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+/* Mobile: select pill stacks */
+@media (max-width: 768px) {
+    .compact-filter-select-wrap {
+        flex: 1 1 auto;
+        padding: var(--space-1) var(--space-1) !important;
+    }
+
+    .compact-filter-select-pill {
+        padding: var(--space-1) var(--space-2);
+        min-width: 0;
+        width: 100%;
+    }
 }
 
 /* Date input wrapper — styled as raised clickable pill */
@@ -1656,23 +1921,25 @@ main.container-fluid {
     border: none !important;
 }
 
-/* Select — no shadow, transparent (override Bootstrap) */
+/* Select — no shadow, transparent di dalam pill (override Bootstrap) */
 .compact-filter-bar .compact-filter-select,
 .compact-filter-bar select.compact-filter-select {
     border: none !important;
     background-color: transparent !important;
     box-shadow: none !important;
     outline: none !important;
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
     color: var(--color-text-dark);
     padding: 0;
     min-height: unset !important;
-    width: 100%;
+    width: auto;
+    max-width: 120px;
     cursor: pointer;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 16 16'%3E%3Cpath fill='%23a0aec0' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 16 16'%3E%3Cpath fill='%235b8dee' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: right 2px center !important;
     padding-right: var(--space-4);

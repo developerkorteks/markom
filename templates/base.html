@@ -187,6 +187,111 @@
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Custom Select Dropdown JS -->
+    <script>
+    (function() {
+        'use strict';
+
+        function initCustomSelects() {
+            document.querySelectorAll('.custom-select-wrapper').forEach(function(wrapper) {
+                // Skip jika sudah diinit
+                if (wrapper.dataset.csInit) return;
+                wrapper.dataset.csInit = '1';
+
+                var trigger  = wrapper.querySelector('.custom-select-trigger');
+                var dropdown = wrapper.querySelector('.custom-select-dropdown');
+                var input    = wrapper.querySelector('.custom-select-input');
+                var label    = wrapper.querySelector('.cs-label');
+                var options  = wrapper.querySelectorAll('.custom-select-option');
+
+                if (!trigger || !dropdown || !input) return;
+
+                // Buka/tutup dropdown
+                trigger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    var isOpen = dropdown.classList.contains('is-open');
+                    // Tutup semua dropdown lain
+                    closeAll();
+                    if (!isOpen) {
+                        dropdown.classList.add('is-open');
+                        trigger.classList.add('is-open');
+                        // Pastikan dropdown tidak terpotong viewport
+                        adjustPosition(dropdown, trigger);
+                    }
+                });
+
+                // Pilih option
+                options.forEach(function(opt) {
+                    opt.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var val     = opt.dataset.value;
+                        var text    = opt.textContent.trim();
+
+                        // Update hidden input
+                        input.value = val;
+
+                        // Update label
+                        if (label) label.textContent = text;
+
+                        // Update selected state
+                        options.forEach(function(o) { o.classList.remove('is-selected'); });
+                        opt.classList.add('is-selected');
+
+                        // Tutup dropdown
+                        dropdown.classList.remove('is-open');
+                        trigger.classList.remove('is-open');
+
+                        // Auto-submit form jika ada
+                        var form = wrapper.closest('form');
+                        if (form) form.submit();
+                    });
+                });
+            });
+
+            // Tutup semua saat klik luar
+            document.addEventListener('click', closeAll);
+
+            // Tutup saat Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeAll();
+            });
+        }
+
+        function closeAll() {
+            document.querySelectorAll('.custom-select-dropdown.is-open').forEach(function(d) {
+                d.classList.remove('is-open');
+            });
+            document.querySelectorAll('.custom-select-trigger.is-open').forEach(function(t) {
+                t.classList.remove('is-open');
+            });
+        }
+
+        function adjustPosition(dropdown, trigger) {
+            // Reset dulu
+            dropdown.style.left = '';
+            dropdown.style.right = '';
+
+            var rect = dropdown.getBoundingClientRect();
+            var viewW = window.innerWidth;
+
+            if (rect.right > viewW - 8) {
+                dropdown.style.left = 'auto';
+                dropdown.style.right = '0';
+            }
+        }
+
+        // Init saat DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCustomSelects);
+        } else {
+            initCustomSelects();
+        }
+
+        // Re-init saat konten AJAX berubah (untuk dashboard pagination)
+        window.reinitCustomSelects = initCustomSelects;
+    })();
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>
