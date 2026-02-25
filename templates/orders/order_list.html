@@ -35,16 +35,20 @@
                        value="{{ search_query }}">
             </div>
             <div class="compact-filter-divider"></div>
-            <div class="compact-filter-field compact-filter-date-wrap">
-                <i class="bi bi-calendar-event compact-filter-icon"></i>
-                <input type="date" name="date_from" class="compact-filter-input compact-filter-date"
-                       title="Dari Tanggal" value="{{ date_from }}">
+            <div class="compact-filter-date-wrap">
+                <label class="compact-filter-date-pill">
+                    <i class="bi bi-calendar-event compact-filter-icon"></i>
+                    <input type="date" name="date_from" class="compact-filter-date"
+                           title="Dari Tanggal" value="{{ date_from }}">
+                </label>
             </div>
             <div class="compact-filter-divider"></div>
-            <div class="compact-filter-field compact-filter-date-wrap">
-                <i class="bi bi-calendar-check compact-filter-icon"></i>
-                <input type="date" name="date_to" class="compact-filter-input compact-filter-date"
-                       title="Sampai Tanggal" value="{{ date_to }}">
+            <div class="compact-filter-date-wrap">
+                <label class="compact-filter-date-pill">
+                    <i class="bi bi-calendar-check compact-filter-icon"></i>
+                    <input type="date" name="date_to" class="compact-filter-date"
+                           title="Sampai Tanggal" value="{{ date_to }}">
+                </label>
             </div>
             <div class="compact-filter-divider"></div>
             <div class="compact-filter-actions">

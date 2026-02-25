@@ -29,43 +29,42 @@
         </div>
     </div>
 
-    <!-- Filter -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get">
-                <div class="row g-3 align-items-end">
-                    <div class="col-12 col-md-4">
-                        <label class="form-label fw-medium form-label-sm">
-                            <i class="bi bi-search me-1"></i>Cari Pesanan
-                        </label>
-                        <input type="text" name="search" class="form-control"
-                               value="{{ search }}"
-                               placeholder="Nomor pesanan / nama pelanggan..."
-                               maxlength="100">
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-3">
-                        <label class="form-label fw-medium form-label-sm">
-                            <i class="bi bi-calendar me-1"></i>Dari Tanggal
-                        </label>
-                        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-3">
-                        <label class="form-label fw-medium form-label-sm">
-                            <i class="bi bi-calendar me-1"></i>Sampai Tanggal
-                        </label>
-                        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
-                    </div>
-                    <div class="col-12 col-md-2 d-flex flex-wrap gap-2">
-                        <button type="submit" class="btn btn-primary flex-grow-1">
-                            <i class="bi bi-search me-1"></i>Cari
-                        </button>
-                        <a href="{% url 'orders:my_orders' %}" class="btn btn-secondary" title="Reset Filter">
-                            <i class="bi bi-x-circle"></i>
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
+    <!-- Filter Bar — compact inline -->
+    <div class="compact-filter-bar mb-4">
+        <form method="get" class="compact-filter-form">
+            <div class="compact-filter-field compact-filter-search">
+                <i class="bi bi-search compact-filter-icon"></i>
+                <input type="text" name="search" class="compact-filter-input"
+                       value="{{ search }}"
+                       placeholder="Nomor pesanan / nama pelanggan..."
+                       maxlength="100">
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-date-wrap">
+                <label class="compact-filter-date-pill">
+                    <i class="bi bi-calendar-event compact-filter-icon"></i>
+                    <input type="date" name="date_from" class="compact-filter-date"
+                           title="Dari Tanggal" value="{{ date_from }}">
+                </label>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-date-wrap">
+                <label class="compact-filter-date-pill">
+                    <i class="bi bi-calendar-check compact-filter-icon"></i>
+                    <input type="date" name="date_to" class="compact-filter-date"
+                           title="Sampai Tanggal" value="{{ date_to }}">
+                </label>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-actions">
+                <button type="submit" class="compact-filter-btn compact-filter-btn-primary" title="Terapkan Filter">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <a href="{% url 'orders:my_orders' %}" class="compact-filter-btn compact-filter-btn-reset" title="Reset Filter">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
     </div>
 
     <!-- Orders Grid -->

@@ -6,19 +6,26 @@
 <div class="container-fluid">
 
     <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col">
-            <h2 class="mb-1">
-                <i class="bi bi-speedometer2 me-2" style="color: var(--color-accent);"></i>Dasbor Admin
-            </h2>
-            <p class="text-muted mb-0">
-                Selamat datang, <strong>{{ user.full_name }}</strong>!
-                &nbsp;·&nbsp;
-                <span style="font-size: var(--text-xs); color: var(--color-text-light);">
-                    <i class="bi bi-clock"></i>
-                    Data per {% now "d M Y, H:i" %}
+    <div class="admin-page-header mb-4">
+        <div class="admin-header-avatar">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="admin-header-info">
+            <div class="admin-header-greeting">Selamat datang kembali,</div>
+            <h2 class="admin-header-name">{{ user.full_name }}</h2>
+            <div class="admin-header-meta">
+                <span class="admin-header-badge">
+                    <i class="bi bi-shield-fill-check"></i> Administrator
                 </span>
-            </p>
+                <span class="admin-header-dot">·</span>
+                <span class="admin-header-time">
+                    <i class="bi bi-clock"></i> {% now "d M Y, H:i" %}
+                </span>
+            </div>
+        </div>
+        <div class="admin-header-status">
+            <div class="admin-status-dot"></div>
+            <span>Online</span>
         </div>
     </div>
 
@@ -89,6 +96,7 @@
                     <i class="bi bi-lightning-charge"></i> Aksi Cepat
                 </div>
                 <div class="quick-actions-divider"></div>
+                <div class="quick-actions-icons-scroll">
                 <div class="quick-actions-icons">
                     <a href="{% url 'accounts:user_list' %}" class="app-icon-btn">
                         <div class="app-icon-wrap app-icon-blue">
@@ -121,6 +129,7 @@
                         <span class="app-icon-label">Buat Order</span>
                     </a>
                 </div>
+                </div><!-- end quick-actions-icons-scroll -->
             </div>
         </div>
     </div>

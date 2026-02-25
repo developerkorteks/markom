@@ -26,61 +26,47 @@
         </div>
     </div>
 
-    <!-- Filter & Search Bar -->
-    <div class="card mb-4">
-        <div class="card-body py-3">
-            <form method="get" id="filterForm">
-                <div class="row g-3 align-items-end">
-                    <!-- Search -->
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <label class="form-label fw-medium" style="font-size: var(--text-xs);">
-                            <i class="bi bi-search me-1"></i>Cari Produk
-                        </label>
-                        <input type="text" name="q" class="form-control"
-                               value="{{ search }}"
-                               placeholder="Nama produk...">
-                    </div>
-
-                    <!-- Kategori -->
-                    <div class="col-12 col-sm-6 col-md-3">
-                        <label class="form-label fw-medium" style="font-size: var(--text-xs);">
-                            <i class="bi bi-tag me-1"></i>Kategori
-                        </label>
-                        <select name="category" class="form-select">
-                            <option value="">Semua Kategori</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.pk }}" {% if category_id == cat.pk|stringformat:"s" %}selected{% endif %}>
-                                {{ cat.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Sort -->
-                    <div class="col-12 col-sm-6 col-md-3">
-                        <label class="form-label fw-medium" style="font-size: var(--text-xs);">
-                            <i class="bi bi-sort-down me-1"></i>Urutkan
-                        </label>
-                        <select name="sort" class="form-select">
-                            <option value="name" {% if sort == 'name' %}selected{% endif %}>Nama A-Z</option>
-                            <option value="category" {% if sort == 'category' %}selected{% endif %}>Kategori</option>
-                            <option value="stock_desc" {% if sort == 'stock_desc' %}selected{% endif %}>Stok Terbanyak</option>
-                            <option value="stock_asc" {% if sort == 'stock_asc' %}selected{% endif %}>Stok Tersedikit</option>
-                        </select>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="col-12 col-sm-6 col-md-2 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary flex-grow-1">
-                            <i class="bi bi-search me-1"></i>Cari
-                        </button>
-                        <a href="{% url 'orders:shop' %}" class="btn btn-secondary" title="Reset filter">
-                            <i class="bi bi-x-circle"></i>
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
+    <!-- Filter Bar — compact inline -->
+    <div class="compact-filter-bar mb-4">
+        <form method="get" id="filterForm" class="compact-filter-form">
+            <div class="compact-filter-field compact-filter-search">
+                <i class="bi bi-search compact-filter-icon"></i>
+                <input type="text" name="q" class="compact-filter-input"
+                       value="{{ search }}"
+                       placeholder="Cari nama produk...">
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-field compact-filter-select-wrap">
+                <i class="bi bi-tags compact-filter-icon"></i>
+                <select name="category" class="compact-filter-select" id="categorySelect">
+                    <option value="">Semua Kategori</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.pk }}" {% if category_id == cat.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-field compact-filter-select-wrap">
+                <i class="bi bi-sort-down compact-filter-icon"></i>
+                <select name="sort" class="compact-filter-select" id="sortSelect">
+                    <option value="name" {% if sort == 'name' %}selected{% endif %}>Nama A-Z</option>
+                    <option value="category" {% if sort == 'category' %}selected{% endif %}>Kategori</option>
+                    <option value="stock_desc" {% if sort == 'stock_desc' %}selected{% endif %}>Stok Terbanyak</option>
+                    <option value="stock_asc" {% if sort == 'stock_asc' %}selected{% endif %}>Stok Tersedikit</option>
+                </select>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-actions">
+                <button type="submit" class="compact-filter-btn compact-filter-btn-primary" title="Cari">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <a href="{% url 'orders:shop' %}" class="compact-filter-btn compact-filter-btn-reset" title="Reset Filter">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
     </div>
 
     <!-- Products Grid -->

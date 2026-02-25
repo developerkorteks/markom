@@ -1316,19 +1316,31 @@ main.container-fluid {
     font-size: var(--text-sm);
 }
 
+.quick-actions-icons-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex: 1;
+    min-width: 0;
+    padding-bottom: 2px;
+    padding-top: 8px; /* ruang untuk badge yang keluar ke atas */
+    margin-top: -8px; /* kompensasi padding-top */
+}
+
+.quick-actions-icons-scroll::-webkit-scrollbar {
+    display: none;
+}
+
 .quick-actions-icons {
     display: flex;
     align-items: center;
     gap: var(--space-4);
     flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    overflow: visible;
     padding-bottom: 2px;
-}
-
-.quick-actions-icons::-webkit-scrollbar {
-    display: none;
+    padding-top: 8px; /* ruang badge */
+    margin-top: -8px;
 }
 
 /* Individual app icon button */
@@ -1340,6 +1352,7 @@ main.container-fluid {
     text-decoration: none;
     flex-shrink: 0;
     transition: transform var(--transition-normal);
+    overflow: visible;
 }
 
 .app-icon-btn:hover {
@@ -1365,6 +1378,7 @@ main.container-fluid {
         -3px -3px 8px var(--neu-shadow-light);
     transition: box-shadow var(--transition-normal), transform var(--transition-normal);
     position: relative;
+    overflow: visible;
 }
 
 .app-icon-btn:hover .app-icon-wrap {
@@ -1444,6 +1458,15 @@ main.container-fluid {
         display: none; /* hide label on mobile, icons speak for themselves */
     }
 
+    .quick-actions-divider {
+        display: none;
+    }
+
+    .quick-actions-icons-scroll {
+        flex: 1;
+        width: 100%;
+    }
+
     .quick-actions-icons {
         gap: var(--space-3);
         width: 100%;
@@ -1510,22 +1533,64 @@ main.container-fluid {
     min-width: 130px;
 }
 
-/* Date input wrapper */
+/* Date input wrapper — styled as raised clickable pill */
 .compact-filter-date-wrap {
     flex: 0 0 auto;
-    min-width: 140px;
+    min-width: 0;
+    padding: 0 var(--space-2) !important;
 }
 
-/* Date input — same transparent style as text input */
+/* Inner date pill — nimbul seperti button */
+.compact-filter-date-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background-color: var(--neu-bg);
+    border-radius: 20px;
+    box-shadow:
+        3px 3px 8px var(--neu-shadow-dark),
+        -2px -2px 6px var(--neu-shadow-light);
+    padding: var(--space-1) var(--space-3);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    white-space: nowrap;
+}
+
+.compact-filter-date-pill:hover {
+    box-shadow:
+        4px 4px 10px var(--neu-shadow-dark),
+        -3px -3px 8px var(--neu-shadow-light);
+    transform: translateY(-1px);
+}
+
+.compact-filter-date-pill:focus-within {
+    box-shadow:
+        inset 2px 2px 6px var(--neu-shadow-dark),
+        inset -2px -2px 6px var(--neu-shadow-light),
+        0 0 0 2px var(--color-accent-ring);
+    transform: translateY(0);
+}
+
+.compact-filter-date-pill .compact-filter-icon {
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+/* Date input — transparent di dalam pill */
 .compact-filter-bar .compact-filter-date,
 .compact-filter-bar input.compact-filter-date {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
     outline: none !important;
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
     color: var(--color-text-dark);
-    width: 100%;
+    width: auto;
+    min-width: 100px;
+    max-width: 120px;
     padding: 0;
     min-height: unset !important;
     line-height: 1.5;
@@ -1539,12 +1604,20 @@ main.container-fluid {
     border: none !important;
 }
 
-/* Mobile: date wrap full width */
+/* Mobile: date pill stacks */
 @media (max-width: 768px) {
     .compact-filter-date-wrap {
-        flex: 1 1 calc(50% - var(--space-2));
-        min-width: 0;
+        flex: 1 1 auto;
+        padding: var(--space-1) var(--space-1) !important;
+    }
+
+    .compact-filter-date-pill {
         padding: var(--space-1) var(--space-2);
+    }
+
+    .compact-filter-bar .compact-filter-date {
+        min-width: 90px;
+        font-size: 11px;
     }
 }
 
@@ -1631,59 +1704,76 @@ main.container-fluid {
 }
 
 .compact-filter-btn {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border: none;
     border-radius: var(--radius-md);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     cursor: pointer;
     transition: all var(--transition-normal);
     text-decoration: none;
     flex-shrink: 0;
+    position: relative;
 }
 
+/* Tooltip on hover via title attribute — enhanced with CSS cursor */
+.compact-filter-btn:hover {
+    cursor: pointer;
+}
+
+/* Primary — filter button: raised biru, lebih menonjol */
 .compact-filter-btn-primary {
-    background-color: var(--color-accent);
-    color: #ffffff;
-    box-shadow:
-        3px 3px 8px rgba(75, 124, 224, 0.4),
-        -2px -2px 6px rgba(255, 255, 255, 0.6);
-}
-
-.compact-filter-btn-primary:hover {
-    background-color: var(--color-accent-hover);
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
     color: #ffffff;
     box-shadow:
         4px 4px 10px rgba(75, 124, 224, 0.5),
-        -3px -3px 8px rgba(255, 255, 255, 0.7);
-    transform: translateY(-1px);
+        -2px -2px 7px rgba(255, 255, 255, 0.8),
+        0 0 0 0 rgba(91, 141, 238, 0);
+}
+
+.compact-filter-btn-primary:hover {
+    background: linear-gradient(135deg, #6b9cf0 0%, var(--color-accent) 100%);
+    color: #ffffff;
+    box-shadow:
+        5px 5px 14px rgba(75, 124, 224, 0.55),
+        -3px -3px 9px rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    text-decoration: none;
 }
 
 .compact-filter-btn-primary:active {
     box-shadow:
-        inset 2px 2px 5px rgba(40, 80, 160, 0.4),
-        inset -1px -1px 4px rgba(255, 255, 255, 0.3);
+        inset 3px 3px 6px rgba(40, 80, 160, 0.45),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.3);
     transform: translateY(0);
 }
 
+/* Reset button — neumorphic raised, merah saat hover */
 .compact-filter-btn-reset {
     background-color: var(--neu-bg);
     color: var(--color-text-muted);
-    box-shadow: var(--neu-shadow-raised);
+    box-shadow:
+        4px 4px 9px var(--neu-shadow-dark),
+        -3px -3px 7px var(--neu-shadow-light);
 }
 
 .compact-filter-btn-reset:hover {
     color: var(--color-danger);
-    box-shadow: var(--neu-shadow-raised-hover);
-    transform: translateY(-1px);
+    box-shadow:
+        5px 5px 12px var(--neu-shadow-dark),
+        -4px -4px 9px var(--neu-shadow-light);
+    transform: translateY(-2px);
+    text-decoration: none;
 }
 
 .compact-filter-btn-reset:active {
     box-shadow: var(--neu-shadow-inset);
     transform: translateY(0);
+    color: var(--color-danger);
 }
 
 /* Active filter indicator — highlight icon when filter applied */
@@ -1736,6 +1826,256 @@ main.container-fluid {
 @media (max-width: 480px) {
     .compact-filter-select-wrap {
         flex: 1 1 calc(50% - var(--space-2));
+    }
+}
+
+/* ============================================
+   ADMIN PAGE HEADER — Premium greeting header
+   ============================================ */
+
+.admin-page-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    background-color: var(--neu-bg);
+    border-radius: var(--neu-radius);
+    box-shadow: var(--neu-shadow-raised);
+    padding: var(--space-4) var(--space-6);
+}
+
+/* Avatar circle */
+.admin-header-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent) 0%, #4a7ce0 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow:
+        4px 4px 10px rgba(75, 124, 224, 0.4),
+        -2px -2px 7px rgba(255, 255, 255, 0.8);
+}
+
+/* Info section */
+.admin-header-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-header-greeting {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-medium);
+    margin-bottom: 1px;
+}
+
+.admin-header-name {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--color-text-dark);
+    margin: 0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-header-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    flex-wrap: wrap;
+}
+
+/* Role badge */
+.admin-header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: var(--font-semibold);
+    color: var(--color-accent);
+    background-color: rgba(91, 141, 238, 0.1);
+    padding: 2px var(--space-2);
+    border-radius: 20px;
+}
+
+.admin-header-dot {
+    color: var(--color-text-light);
+    font-size: var(--text-xs);
+}
+
+.admin-header-time {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Online status indicator */
+.admin-header-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-success);
+    font-weight: var(--font-semibold);
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.admin-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-success);
+    box-shadow: 0 0 0 2px rgba(72, 187, 120, 0.25);
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%   { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.4); }
+    70%  { box-shadow: 0 0 0 6px rgba(72, 187, 120, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .admin-page-header {
+        padding: var(--space-3) var(--space-4);
+        gap: var(--space-3);
+    }
+
+    .admin-header-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 1.15rem;
+    }
+
+    .admin-header-name {
+        font-size: var(--text-base);
+    }
+
+    .admin-header-status span {
+        display: none; /* hide "Online" text, keep dot */
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header-status {
+        display: none;
+    }
+}
+
+/* ============================================
+   SALES DASHBOARD — Compact stats & quick add
+   ============================================ */
+
+/* Mini stats inline dalam quick-actions-bar */
+.sales-quick-stats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-left: auto;
+    flex-shrink: 0;
+    padding-left: var(--space-4);
+    border-left: 1px solid rgba(184, 190, 199, 0.5);
+}
+
+.sales-quick-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+}
+
+.sales-quick-stat-value {
+    font-size: var(--text-base);
+    font-weight: var(--font-bold);
+    color: var(--color-text-dark);
+    line-height: 1;
+}
+
+.sales-quick-stat-label {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    font-weight: var(--font-medium);
+    white-space: nowrap;
+}
+
+.sales-quick-stat-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(184, 190, 199, 0.5);
+    flex-shrink: 0;
+}
+
+/* Badge on cart icon */
+.sales-icon-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--color-accent);
+    font-size: 9px;
+    font-weight: var(--font-bold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    pointer-events: none;
+}
+
+/* Quick add button — compact, full width */
+.sales-quick-add-btn {
+    width: 100%;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-md);
+    background-color: var(--color-accent);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-top: auto;
+    box-shadow:
+        2px 2px 6px rgba(75, 124, 224, 0.35),
+        -1px -1px 4px rgba(255, 255, 255, 0.5);
+}
+
+.sales-quick-add-btn:hover {
+    background-color: var(--color-accent-hover);
+    box-shadow:
+        3px 3px 8px rgba(75, 124, 224, 0.45),
+        -2px -2px 6px rgba(255, 255, 255, 0.6);
+    transform: translateY(-1px);
+}
+
+.sales-quick-add-btn:active {
+    box-shadow:
+        inset 2px 2px 5px rgba(40, 80, 160, 0.4),
+        inset -1px -1px 3px rgba(255, 255, 255, 0.3);
+    transform: translateY(0);
+}
+
+/* Mobile: sembunyikan stats, icons penuh */
+@media (max-width: 768px) {
+    .sales-quick-stats {
+        display: none;
     }
 }
 
@@ -3217,6 +3557,9 @@ main.container-fluid {
     color: var(--color-text);
     margin-top: 1px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .mini-stat-sub {
@@ -3224,6 +3567,16 @@ main.container-fluid {
     color: var(--color-text-muted);
     margin-top: 1px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* Text div wrapper dalam mini-stat-card harus punya min-width: 0 agar overflow bekerja dalam flex */
+.mini-stat-card .card-body > div:last-child {
+    min-width: 0;
+    overflow: hidden;
+    flex: 1;
 }
 
 @media (max-width: 400px) {
