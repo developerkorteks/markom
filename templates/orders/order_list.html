@@ -31,7 +31,8 @@
                 <div class="col-md-6">
                     <label class="form-label">Cari</label>
                     <input type="text" name="search" class="form-control"
-                           placeholder="Cari berdasarkan nomor pesanan, nama pelanggan, atau telepon..."
+                           placeholder="Cari nomor pesanan, nama, atau telepon..."
+                           maxlength="100"
                            value="{{ search_query }}">
                 </div>
                 <div class="col-md-3">
@@ -82,15 +83,16 @@
                                     <strong>{{ order.order_number }}</strong>
                                 </a>
                             </td>
-                            <td>{{ order.customer_name }}</td>
-                            <td>
+                            <td class="cell-max-md" title="{{ order.customer_name }}">{{ order.customer_name|truncatechars:22 }}</td>
+                            <td class="cell-max-sm">
                                 <a href="https://wa.me/{{ order.customer_phone|cut:'+' }}" target="_blank"
-                                   class="text-decoration-none">
-                                    <i class="bi bi-whatsapp text-success"></i> {{ order.customer_phone }}
+                                   class="text-decoration-none text-overflow-ellipsis d-block"
+                                   title="{{ order.customer_phone }}">
+                                    <i class="bi bi-whatsapp text-success"></i> {{ order.customer_phone|truncatechars:18 }}
                                 </a>
                             </td>
                             {% if user.is_admin %}
-                            <td>{{ order.sales_user.full_name }}</td>
+                            <td class="cell-max-sm" title="{{ order.sales_user.full_name }}">{{ order.sales_user.full_name|truncatechars:18 }}</td>
                             {% endif %}
                             <td>
                                 <span class="badge bg-info">{{ order.item_count }} item</span>

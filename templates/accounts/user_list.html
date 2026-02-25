@@ -75,13 +75,13 @@
                     <tbody>
                         {% for user_item in users %}
                         <tr>
-                            <td class="fw-medium">{{ user_item.username }}</td>
-                            <td>{{ user_item.full_name }}</td>
-                            <td class="d-none d-md-table-cell">
-                                <span class="text-muted" style="font-size: var(--text-sm);">{{ user_item.email|default:"-" }}</span>
+                            <td class="fw-medium cell-max-sm" title="{{ user_item.username }}">{{ user_item.username|truncatechars:20 }}</td>
+                            <td class="cell-max-md" title="{{ user_item.full_name }}">{{ user_item.full_name|truncatechars:25 }}</td>
+                            <td class="d-none d-md-table-cell cell-max-md">
+                                <span class="text-muted" style="font-size: var(--text-sm);" title="{{ user_item.email|default:'' }}">{{ user_item.email|truncatechars:25|default:"-" }}</span>
                             </td>
-                            <td class="d-none d-lg-table-cell">
-                                <span class="text-muted" style="font-size: var(--text-sm);">{{ user_item.phone|default:"-" }}</span>
+                            <td class="d-none d-lg-table-cell cell-max-sm">
+                                <span class="text-muted" style="font-size: var(--text-sm);" title="{{ user_item.phone|default:'' }}">{{ user_item.phone|truncatechars:18|default:"-" }}</span>
                             </td>
                             <td>
                                 {% if user_item.role == 'ADMIN' %}

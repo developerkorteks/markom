@@ -174,8 +174,8 @@
                                             {{ order.order_number }}
                                         </a>
                                     </td>
-                                    <td>{{ order.customer_name }}</td>
-                                    <td class="d-none d-md-table-cell">{{ order.sales_user.full_name }}</td>
+                                    <td class="cell-max-md" title="{{ order.customer_name }}">{{ order.customer_name|truncatechars:22 }}</td>
+                                    <td class="d-none d-md-table-cell cell-max-sm" title="{{ order.sales_user.full_name }}">{{ order.sales_user.full_name|truncatechars:18 }}</td>
                                     <td>
                                         <span class="badge bg-info">{{ order.item_count }}</span>
                                     </td>
@@ -244,9 +244,9 @@
                             <tbody>
                                 {% for item in low_stock_items %}
                                 <tr>
-                                    <td class="fw-medium">{{ item.name }}</td>
+                                    <td class="fw-medium cell-max-md" title="{{ item.name }}">{{ item.name|truncatechars:22 }}</td>
                                     <td class="d-none d-sm-table-cell">
-                                        <span class="badge bg-secondary">{{ item.category.name }}</span>
+                                        <span class="badge bg-secondary badge-overflow" title="{{ item.category.name }}">{{ item.category.name|truncatechars:15 }}</span>
                                     </td>
                                     <td>
                                         {% if item.stock == 0 %}
@@ -302,7 +302,7 @@
                                     <td class="text-muted d-none d-sm-table-cell" style="font-size: var(--text-xs);">
                                         {{ forloop.counter }}
                                     </td>
-                                    <td class="fw-medium">{{ user_perf.full_name }}</td>
+                                    <td class="fw-medium cell-max-md" title="{{ user_perf.full_name }}">{{ user_perf.full_name|truncatechars:20 }}</td>
                                     <td>
                                         <span class="badge bg-primary">{{ user_perf.order_count }}</span>
                                     </td>
@@ -357,10 +357,11 @@
                             <tbody>
                                 {% for change in recent_stock_changes %}
                                 <tr>
-                                    <td>
+                                    <td class="cell-max-sm">
                                         <a href="{% url 'merchandise:merchandise_detail' change.merchandise.pk %}"
-                                           style="color: var(--color-accent); font-weight: var(--font-semibold);">
-                                            {{ change.merchandise.name }}
+                                           style="color: var(--color-accent); font-weight: var(--font-semibold);"
+                                           title="{{ change.merchandise.name }}">
+                                            {{ change.merchandise.name|truncatechars:18 }}
                                         </a>
                                     </td>
                                     <td>
@@ -376,9 +377,9 @@
                                     <td class="d-none d-sm-table-cell" style="font-size: var(--text-xs);">
                                         {{ change.reason|truncatechars:30 }}
                                     </td>
-                                    <td class="d-none d-md-table-cell" style="font-size: var(--text-xs); color: var(--color-text-muted);">
+                                    <td class="d-none d-md-table-cell cell-max-xs" style="font-size: var(--text-xs); color: var(--color-text-muted);">
                                         {% if change.adjusted_by %}
-                                            {{ change.adjusted_by.full_name }}
+                                            <span title="{{ change.adjusted_by.full_name }}">{{ change.adjusted_by.full_name|truncatechars:15 }}</span>
                                         {% else %}
                                             <span class="text-muted">—</span>
                                         {% endif %}

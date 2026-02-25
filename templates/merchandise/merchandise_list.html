@@ -86,13 +86,13 @@
                 </div>
                 {% endif %}
                 <div class="card-body">
-                    <h5 class="card-title">{{ item.name }}</h5>
+                    <h5 class="card-title text-clamp-2" title="{{ item.name }}">{{ item.name }}</h5>
                     <p class="card-text text-muted small">
                         {{ item.description|truncatewords:10|default:"Tidak ada deskripsi" }}
                     </p>
                     
                     <div class="mb-2">
-                        <span class="badge bg-secondary">{{ item.category.name }}</span>
+                        <span class="badge bg-secondary badge-overflow" title="{{ item.category.name }}">{{ item.category.name|truncatechars:18 }}</span>
                         {% if item.is_active %}
                         <span class="badge bg-success">Aktif</span>
                         {% else %}

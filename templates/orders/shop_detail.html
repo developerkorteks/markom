@@ -9,7 +9,7 @@
         <ol class="breadcrumb breadcrumb-neu">
             <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Beranda</a></li>
             <li class="breadcrumb-item"><a href="{% url 'orders:shop' %}">Katalog</a></li>
-            <li class="breadcrumb-item active">{{ merchandise.name }}</li>
+            <li class="breadcrumb-item active text-overflow-ellipsis" title="{{ merchandise.name }}">{{ merchandise.name|truncatechars:40 }}</li>
         </ol>
     </nav>
 
@@ -41,7 +41,7 @@
 
                     <!-- Badge Kategori + Status Stok -->
                     <div class="d-flex flex-wrap gap-2 mb-2">
-                        <span class="badge bg-secondary">{{ merchandise.category.name }}</span>
+                        <span class="badge bg-secondary badge-overflow" title="{{ merchandise.category.name }}">{{ merchandise.category.name|truncatechars:20 }}</span>
                         {% if merchandise.is_out_of_stock %}
                         <span class="badge bg-danger">Stok Habis</span>
                         {% elif merchandise.is_low_stock %}
@@ -52,7 +52,7 @@
                     </div>
 
                     <!-- Nama Produk -->
-                    <h3 class="fw-bold mb-2 text-dark-custom">{{ merchandise.name }}</h3>
+                    <h3 class="fw-bold mb-2 text-dark-custom text-wrap-break">{{ merchandise.name }}</h3>
 
                     <!-- Info Stok -->
                     <div class="d-flex align-items-center gap-2 mb-3">
@@ -79,9 +79,7 @@
                     {% if merchandise.description %}
                     <div class="mb-4">
                         <h6 class="fw-semibold mb-2 text-dark-custom">Deskripsi Produk</h6>
-                        <p class="text-muted mb-0 text-sm" style="line-height: 1.7;">
-                            {{ merchandise.description }}
-                        </p>
+                        <div class="description-display text-muted">{{ merchandise.description }}</div>
                     </div>
                     {% endif %}
 

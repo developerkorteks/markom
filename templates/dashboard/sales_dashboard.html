@@ -8,7 +8,7 @@
     <div class="hero-banner mb-4">
         <div class="row align-items-center">
             <div class="col-12 col-md-8">
-                <div class="hero-title">
+                <div class="hero-title text-wrap-break">
                     <i class="bi bi-bag-heart me-2"></i>Selamat Datang, {{ user.full_name }}!
                 </div>
                 <div class="hero-subtitle">
@@ -191,10 +191,10 @@
                                 {% for order in recent_orders %}
                                 <tr class="table-row-clickable"
                                     onclick="window.location='{% url 'orders:order_detail' order.pk %}'">
-                                    <td class="fw-medium text-accent table-cell-sm">
+                                    <td class="fw-medium text-accent" style="white-space: nowrap; font-size: var(--text-xs);">
                                         {{ order.order_number }}
                                     </td>
-                                    <td class="table-cell-sm">{{ order.customer_name }}</td>
+                                    <td class="cell-max-md" title="{{ order.customer_name }}">{{ order.customer_name|truncatechars:22 }}</td>
                                     <td class="d-none d-sm-table-cell">
                                         <span class="badge bg-info">{{ order.items.count }} jenis</span>
                                     </td>
@@ -295,8 +295,9 @@ function loadProductsPage(page) {
         // Render product cards
         let html = '';
         data.products.forEach(p => {
+            const truncate = (str, n) => str.length > n ? str.slice(0, n - 1) + '…' : str;
             const imgHtml = p.image_url
-                ? `<img src="${p.image_url}" alt="${p.name}" class="shop-card-img featured-card-img">`
+                ? `<img src="${p.image_url}" alt="${truncate(p.name, 30)}" class="shop-card-img featured-card-img">`
                 : `<div class="shop-card-img-placeholder featured-card-img"><i class="bi bi-image"></i></div>`;
 
             const lowStockBadge = p.is_low_stock
@@ -312,7 +313,7 @@ function loadProductsPage(page) {
                         ${lowStockBadge}
                     </div>
                     <div class="card-body p-2">
-                        <div class="featured-product-name">${p.name}</div>
+                        <div class="featured-product-name" title="${p.name}">${truncate(p.name, 20)}</div>
                         <div class="featured-product-stock">Stok: ${p.stock}</div>
                         <button type="button"
                                 class="btn btn-primary w-100 quick-add-btn mt-2"

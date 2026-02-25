@@ -171,7 +171,7 @@
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
                     <li class="breadcrumb-item"><a href="{% url 'merchandise:merchandise_list' %}">Merchandise</a></li>
-                    <li class="breadcrumb-item active">{{ merchandise.name }}</li>
+                    <li class="breadcrumb-item active text-overflow-ellipsis" title="{{ merchandise.name }}">{{ merchandise.name|truncatechars:40 }}</li>
                 </ol>
             </nav>
         </div>
@@ -204,8 +204,8 @@
             
             <div class="col-md-7">
                 <div class="mb-3">
-                    <span class="badge bg-secondary" style="font-size: var(--text-sm);">
-                        {{ merchandise.category.name }}
+                    <span class="badge bg-secondary badge-overflow" style="font-size: var(--text-sm);" title="{{ merchandise.category.name }}">
+                        {{ merchandise.category.name|truncatechars:20 }}
                     </span>
                     {% if merchandise.is_active %}
                     <span class="badge bg-success ms-2" style="font-size: var(--text-sm);">
@@ -218,11 +218,11 @@
                     {% endif %}
                 </div>
                 
-                <h1 class="display-5 fw-semibold mb-4">{{ merchandise.name }}</h1>
+                <h1 class="display-5 fw-semibold mb-4 text-wrap-break">{{ merchandise.name }}</h1>
                 
-                <p class="lead text-muted mb-4">
+                <div class="description-display text-muted mb-4">
                     {{ merchandise.description|default:"Tidak ada deskripsi untuk item ini." }}
-                </p>
+                </div>
                 
                 <!-- Status Stok -->
                 <div class="mb-4">
@@ -268,7 +268,7 @@
             <div class="info-card">
                 <div class="info-row">
                     <span class="info-label">Kategori</span>
-                    <span class="info-value">{{ merchandise.category.name }}</span>
+                    <span class="info-value text-wrap-break" title="{{ merchandise.category.name }}">{{ merchandise.category.name|truncatechars:30 }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Stok Saat Ini</span>
@@ -293,7 +293,7 @@
             <div class="info-card">
                 <div class="info-row">
                     <span class="info-label">Dibuat Oleh</span>
-                    <span class="info-value">{{ merchandise.created_by.full_name|default:"Tidak Diketahui" }}</span>
+                    <span class="info-value text-wrap-break">{{ merchandise.created_by.full_name|default:"Tidak Diketahui"|truncatechars:25 }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Tanggal Dibuat</span>
@@ -331,7 +331,7 @@
                                         {% else %}
                                         <span class="badge bg-danger me-2">{{ history.adjustment }}</span>
                                         {% endif %}
-                                        {{ history.reason }}
+                                        <span class="text-wrap-break" title="{{ history.reason }}">{{ history.reason|truncatechars:50 }}</span>
                                     </div>
                                     <small class="text-muted">
                                         {{ history.stock_before }} &rarr; {{ history.stock_after }} unit
@@ -339,7 +339,7 @@
                                 </div>
                                 <div class="text-end">
                                     <small class="text-muted d-block">{{ history.created_at|date:"d M Y, H:i" }}</small>
-                                    <small class="text-muted">oleh {{ history.adjusted_by.full_name|default:"Sistem" }}</small>
+                                    <small class="text-muted">oleh {{ history.adjusted_by.full_name|default:"Sistem"|truncatechars:20 }}</small>
                                 </div>
                             </div>
                         </div>

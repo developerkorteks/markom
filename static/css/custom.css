@@ -2478,6 +2478,139 @@ main.container-fluid {
 }
 
 /* ============================================
+   17. TEXT OVERFLOW UTILITIES
+   ============================================ */
+
+/* Single line — potong dengan ellipsis */
+.text-overflow-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Break kata panjang agar tidak overflow */
+.text-wrap-break {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* Max 2 baris lalu ellipsis (line-clamp) */
+.text-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+/* Max 3 baris lalu ellipsis */
+.text-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+/* Table cell max-width constraints */
+.cell-max-xs {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cell-max-sm {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cell-max-md {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cell-max-lg {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Notes / long text display box */
+.notes-display {
+    max-height: 120px;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.6;
+    font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-3);
+    background: var(--neu-bg);
+    box-shadow: var(--neu-shadow-inset-subtle);
+    border-radius: var(--radius-md);
+}
+
+/* Description / long content display */
+.description-display {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.7;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+}
+
+/* Badge yang tidak melar — fixed max-width */
+.badge-overflow {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Product name dalam card grid */
+.product-name-card {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    color: var(--color-text-dark);
+}
+
+/* Breadcrumb item — tidak wrap panjang */
+.breadcrumb-item {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Khusus breadcrumb active item bisa lebih panjang */
+.breadcrumb-item.active {
+    max-width: 300px;
+}
+
+@media (max-width: 576px) {
+    .cell-max-sm { max-width: 90px; }
+    .cell-max-md { max-width: 130px; }
+    .cell-max-lg { max-width: 160px; }
+    .breadcrumb-item { max-width: 120px; }
+    .breadcrumb-item.active { max-width: 180px; }
+    .notes-display { max-height: 100px; }
+    .description-display { max-height: 150px; }
+}
+
+/* ============================================
    14. PRINT STYLES (Order Print — flat/clean)
    ============================================ */
 @media print {

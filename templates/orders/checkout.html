@@ -116,8 +116,8 @@
 
                             <!-- Info -->
                             <div class="flex-grow-1 min-width-0">
-                                <div class="fw-medium checkout-item-name">{{ item.name }}</div>
-                                <div class="checkout-item-category">{{ item.category }}</div>
+                                <div class="fw-medium checkout-item-name text-clamp-2" title="{{ item.name }}">{{ item.name }}</div>
+                                <div class="checkout-item-category text-overflow-ellipsis" title="{{ item.category }}" style="max-width: 140px;">{{ item.category|truncatechars:20 }}</div>
                             </div>
 
                             <!-- Quantity -->
