@@ -2667,6 +2667,177 @@ main.container-fluid {
 }
 
 /* ============================================
+   18. ADMIN PRODUCT GRID
+   ============================================ */
+
+/* Admin product card — compact grid */
+.admin-product-card {
+    background: var(--neu-bg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--neu-shadow-raised);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    overflow: hidden;
+    border: none;
+}
+
+.admin-product-card:hover {
+    box-shadow: var(--neu-shadow-raised-hover);
+    transform: translateY(-2px);
+}
+
+.admin-product-img {
+    height: 100px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.admin-product-img-placeholder {
+    height: 100px;
+    background: var(--neu-bg);
+    box-shadow: var(--neu-shadow-inset-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-light);
+    font-size: 1.8rem;
+}
+
+.admin-product-body {
+    padding: var(--space-2) var(--space-3);
+}
+
+.admin-product-name {
+    font-size: 11px;
+    font-weight: var(--font-semibold);
+    color: var(--color-text-dark);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-product-stock {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+}
+
+.admin-product-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: var(--space-2);
+}
+
+.admin-product-actions .btn {
+    flex: 1;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: var(--radius-md);
+}
+
+/* Compact list row untuk hampir habis & habis stok */
+.admin-stock-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--neu-bg);
+    box-shadow: var(--neu-shadow-raised);
+    transition: all var(--transition-normal);
+}
+
+.admin-stock-row:hover {
+    box-shadow: var(--neu-shadow-raised-hover);
+    transform: translateY(-1px);
+}
+
+.admin-stock-row-img {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+    box-shadow: var(--neu-shadow-raised);
+}
+
+.admin-stock-row-img-placeholder {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: var(--radius-lg);
+    background: var(--neu-bg);
+    box-shadow: var(--neu-shadow-inset-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-light);
+    font-size: 1rem;
+}
+
+.admin-stock-row-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-stock-row-name {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-dark);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-stock-row-meta {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin-top: 1px;
+}
+
+/* Admin pagination mini */
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.admin-pagination .btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    font-size: 11px;
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-page-info {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-top: var(--space-1);
+}
+
+@media (max-width: 576px) {
+    .admin-product-img,
+    .admin-product-img-placeholder {
+        height: 80px;
+    }
+    .admin-product-name {
+        font-size: 10px;
+    }
+    .admin-product-actions .btn {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+}
+
+/* ============================================
    14. PRINT STYLES (Order Print — flat/clean)
    ============================================ */
 @media print {

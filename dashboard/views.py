@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, Http404
 from django.utils import timezone
 from django.db.models import Count, Sum
 from django.core.paginator import Paginator
-from django.http import JsonResponse
 from orders.models import Order
 from merchandise.models import Merchandise
 from accounts.models import User
@@ -125,3 +125,61 @@ def home(request):
             'cart_total': cart.get_total_quantity(),
         }
         return render(request, 'dashboard/sales_dashboard.html', context)
+
+
+@login_required
+def admin_products_json(request):
+    """
+    AJAX endpoint untuk admin dashboard — produk dengan pagination.
+    GET params:
+      type: 'tersedia' | 'menipis' | 'habis'
+      page: int (default 1)
+    """
+    if not request.user.is_admin:
+        return JsonResponse({'error': 'Akses ditolak.'}, status=403)
+
+    product_type = request.GET.get('type', 'tersedia')
+    per_page = 6
+
+    base_qs = Merchandise.objects.select_related('category').filter(is_active=True)
+
+    if product_type == 'tersedia':
+        qs = base_qs.filter(stock__gt=0).order_by('category__name', 'name')
+    elif product_type == 'menipis':
+        qs = base_qs.filter(stock__gt=0, stock__lt=10).order_by('stock', 'name')
+        per_page = 5
+    elif product_type == 'habis':
+        qs = base_qs.filter(stock=0).order_by('name')
+        per_page = 5
+    else:
+        return JsonResponse({'error': 'Tipe tidak valid.'}, status=400)
+
+    paginator = Paginator(qs, per_page)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    products_data = []
+    for p in page_obj:
+        products_data.append({
+            'id': p.pk,
+            'name': p.name,
+            'category': p.category.name if p.category else '',
+            'stock': p.stock,
+            'is_low_stock': p.is_low_stock,
+            'image_url': p.image.url if p.image else '',
+            'detail_url': f'/merchandise/{p.pk}/',
+            'edit_url': f'/merchandise/{p.pk}/edit/',
+            'adjust_url': f'/merchandise/{p.pk}/adjust-stock/',
+        })
+
+    return JsonResponse({
+        'products': products_data,
+        'page': page_obj.number,
+        'num_pages': paginator.num_pages,
+        'has_previous': page_obj.has_previous(),
+        'has_next': page_obj.has_next(),
+        'previous_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+        'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+        'total_count': paginator.count,
+        'type': product_type,
+    })
