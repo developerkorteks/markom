@@ -86,4 +86,37 @@ def home(request):
         }
         return render(request, 'dashboard/admin_dashboard.html', context)
     else:
-        return render(request, 'dashboard/sales_dashboard.html')
+        from orders.cart import Cart
+
+        today = timezone.localdate()
+        cart = Cart(request)
+
+        # Stats untuk sales user
+        my_orders = Order.objects.filter(sales_user=request.user)
+        orders_today = my_orders.filter(created_at__date=today).count()
+        total_orders = my_orders.count()
+
+        # Featured products (stok tersedia, urut by stok terbanyak, max 8)
+        featured_products = (
+            Merchandise.objects
+            .filter(is_active=True, stock__gt=0)
+            .select_related('category')
+            .order_by('-stock')[:8]
+        )
+
+        # Recent orders (5 terakhir)
+        recent_orders = (
+            my_orders
+            .prefetch_related('items')
+            .order_by('-created_at')[:5]
+        )
+
+        context = {
+            'total_orders': total_orders,
+            'orders_today': orders_today,
+            'featured_products': featured_products,
+            'recent_orders': recent_orders,
+            'cart': cart,
+            'cart_total': cart.get_total_quantity(),
+        }
+        return render(request, 'dashboard/sales_dashboard.html', context)

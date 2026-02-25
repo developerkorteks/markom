@@ -78,21 +78,26 @@
                     {% if user.is_sales %}
                     <!-- Menu Sales -->
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.app_name == 'merchandise' %}active{% endif %}"
-                           href="{% url 'merchandise:merchandise_list' %}">
-                            <i class="bi bi-box-seam"></i> Merchandise
+                        <a class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"
+                           href="{% url 'orders:shop' %}">
+                            <i class="bi bi-shop"></i> Katalog
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'order_create' %}active{% endif %}"
-                           href="{% url 'orders:order_create' %}">
-                            <i class="bi bi-plus-circle"></i> Buat Pesanan
+                        <a class="nav-link cart-nav-link {% if request.resolver_match.url_name == 'cart_detail' %}active{% endif %}"
+                           href="{% url 'orders:cart_detail' %}">
+                            <i class="bi bi-cart3"></i> Keranjang
+                            {% if navbar_cart_total > 0 %}
+                            <span class="cart-badge" id="navbar-cart-badge">{{ navbar_cart_total }}</span>
+                            {% else %}
+                            <span class="cart-badge" id="navbar-cart-badge" style="display:none;">0</span>
+                            {% endif %}
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.app_name == 'orders' and request.resolver_match.url_name != 'order_create' %}active{% endif %}"
-                           href="{% url 'orders:order_list' %}">
-                            <i class="bi bi-receipt"></i> Pesanan Saya
+                        <a class="nav-link {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}"
+                           href="{% url 'orders:my_orders' %}">
+                            <i class="bi bi-clock-history"></i> Riwayat
                         </a>
                     </li>
                     {% endif %}

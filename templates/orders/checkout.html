@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — Konfirmasi Pesanan{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-wrapper mb-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-neu">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}"><i class="bi bi-house me-1"></i>Beranda</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'orders:shop' %}">Katalog</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'orders:cart_detail' %}">Keranjang</a></li>
+                <li class="breadcrumb-item active">Checkout</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-1">
+                <i class="bi bi-bag-check me-2 text-accent"></i>Konfirmasi Pesanan
+            </h2>
+            <p class="text-muted mb-0">Lengkapi informasi pelanggan untuk menyelesaikan pesanan</p>
+        </div>
+    </div>
+
+    <form method="post" id="checkoutForm" novalidate>
+        {% csrf_token %}
+        <div class="row g-4">
+
+            <!-- Left: Customer Info Form -->
+            <div class="col-12 col-lg-7">
+
+                <!-- Customer Info Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0 fw-semibold">
+                            <i class="bi bi-person-fill me-2 text-accent"></i>Informasi Pelanggan
+                        </h6>
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Nama Pelanggan -->
+                        <div class="mb-3">
+                            <label for="customer_name" class="form-label fw-medium">
+                                Nama Pelanggan <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="customer_name"
+                                   name="customer_name"
+                                   value="{{ customer_name|default:'' }}"
+                                   placeholder="Masukkan nama lengkap pelanggan"
+                                   required
+                                   autofocus>
+                        </div>
+
+                        <!-- Nomor WhatsApp -->
+                        <div class="mb-3">
+                            <label for="customer_phone" class="form-label fw-medium">
+                                Nomor WhatsApp <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-whatsapp text-success"></i>
+                                </span>
+                                <input type="tel"
+                                       class="form-control"
+                                       id="customer_phone"
+                                       name="customer_phone"
+                                       value="{{ customer_phone|default:'' }}"
+                                       placeholder="Contoh: 08123456789"
+                                       required>
+                            </div>
+                            <div class="form-text">Nomor WhatsApp aktif pelanggan (10-15 digit)</div>
+                        </div>
+
+                        <!-- Catatan -->
+                        <div class="mb-0">
+                            <label for="notes" class="form-label fw-medium">Catatan <span class="text-muted fw-normal">(opsional)</span></label>
+                            <textarea class="form-control"
+                                      id="notes"
+                                      name="notes"
+                                      rows="3"
+                                      placeholder="Catatan tambahan untuk pesanan ini">{{ notes|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Review Card -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-semibold">
+                            <i class="bi bi-bag me-2 text-accent"></i>Item Pesanan
+                        </h6>
+                        <span class="badge bg-accent-soft text-accent fw-semibold px-3 py-2">
+                            {{ total_unique }} jenis · {{ total_quantity }} item
+                        </span>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for item in items %}
+                        <div class="checkout-item-row {% if not forloop.last %}checkout-item-border{% endif %}">
+
+                            <!-- Image -->
+                            {% if item.image_url %}
+                            <img src="{{ item.image_url }}"
+                                 alt="{{ item.name }}"
+                                 class="checkout-item-img">
+                            {% else %}
+                            <div class="checkout-item-img-placeholder">
+                                <i class="bi bi-image"></i>
+                            </div>
+                            {% endif %}
+
+                            <!-- Info -->
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="fw-medium checkout-item-name">{{ item.name }}</div>
+                                <div class="checkout-item-category">{{ item.category }}</div>
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="text-end flex-shrink-0">
+                                <span class="badge bg-accent text-white checkout-item-qty">× {{ item.quantity }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right: Order Summary -->
+            <div class="col-12 col-lg-5">
+                <div class="card cart-summary-card checkout-sticky-summary">
+                    <div class="card-header">
+                        <h6 class="mb-0 fw-semibold">
+                            <i class="bi bi-receipt me-2 text-accent"></i>Ringkasan Pesanan
+                        </h6>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="summary-row">
+                            <span class="text-muted">Jenis Produk</span>
+                            <span class="fw-semibold">{{ total_unique }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="text-muted">Total Item</span>
+                            <span class="fw-semibold">{{ total_quantity }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="text-muted">Dibuat oleh</span>
+                            <span class="fw-semibold">{{ user.full_name }}</span>
+                        </div>
+
+                        <hr class="summary-divider">
+
+                        <!-- Info box -->
+                        <div class="neu-inset-box mb-4">
+                            <p class="mb-1" style="font-size: var(--text-xs);">
+                                <i class="bi bi-info-circle me-1 text-accent"></i>
+                                Stok akan dipotong otomatis saat pesanan dibuat.
+                            </p>
+                            <p class="mb-0" style="font-size: var(--text-xs);">
+                                <i class="bi bi-info-circle me-1 text-accent"></i>
+                                Pesanan yang sudah dibuat tidak dapat diubah.
+                            </p>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="btn btn-primary w-100 py-3 mb-2"
+                                id="submitBtn"
+                                onclick="handleSubmit(this)">
+                            <i class="bi bi-check-circle me-2"></i>Buat Pesanan
+                        </button>
+                        <a href="{% url 'orders:cart_detail' %}" class="btn btn-secondary w-100">
+                            <i class="bi bi-arrow-left me-2"></i>Kembali ke Keranjang
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function handleSubmit(btn) {
+    const name = document.getElementById('customer_name').value.trim();
+    const phone = document.getElementById('customer_phone').value.trim();
+    if (!name || !phone) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+    setTimeout(() => document.getElementById('checkoutForm').submit(), 100);
+}
+
+window.addEventListener('pageshow', function() {
+    const btn = document.getElementById('submitBtn');
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Buat Pesanan';
+    }
+});
+</script>
+{% endblock %}

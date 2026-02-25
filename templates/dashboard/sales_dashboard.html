@@ -1,76 +1,298 @@
 {% extends 'base.html' %}
-
-{% block title %}Sales Dashboard{% endblock %}
+{% block title %}Beranda{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h2><i class="bi bi-speedometer2"></i> Sales Dashboard</h2>
-            <p class="text-muted">Welcome back, {{ user.full_name }}!</p>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner mb-4">
+        <div class="row align-items-center">
+            <div class="col-12 col-md-8">
+                <div class="hero-title">
+                    <i class="bi bi-bag-heart me-2"></i>Selamat Datang, {{ user.full_name }}!
+                </div>
+                <div class="hero-subtitle">
+                    Temukan dan pesan merchandise WiFi favorit pelanggan dengan mudah.
+                    {% if cart_total > 0 %}
+                    Ada <strong>{{ cart_total }} item</strong> di keranjang.
+                    {% endif %}
+                </div>
+                <div class="hero-actions flex-wrap">
+                    <a href="{% url 'orders:shop' %}" class="hero-btn">
+                        <i class="bi bi-shop"></i>Lihat Katalog
+                    </a>
+                    {% if cart_total > 0 %}
+                    <a href="{% url 'orders:cart_detail' %}" class="hero-btn hero-btn-outline">
+                        <i class="bi bi-cart3"></i>Keranjang ({{ cart_total }})
+                    </a>
+                    {% else %}
+                    <a href="{% url 'orders:my_orders' %}" class="hero-btn hero-btn-outline">
+                        <i class="bi bi-clock-history"></i>Riwayat Pesanan
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 d-none d-md-flex justify-content-end align-items-center">
+                <i class="bi bi-bag-heart-fill hero-decoration-icon"></i>
+            </div>
         </div>
     </div>
-    <!---->
-    <!-- <div class="row g-4"> -->
-    <!---->
-    <!--     <div class="col-md-4"> -->
-    <!--         <div class="card"> -->
-    <!--             <div class="card-body"> -->
-    <!--                 <h6 class="text-muted mb-2">My Total Orders</h6> -->
-    <!--                 <h2 class="mb-0">0</h2> -->
-    <!--             </div> -->
-    <!--         </div> -->
-    <!--     </div> -->
-    <!---->
-    <!--     <div class="col-md-4"> -->
-    <!--         <div class="card"> -->
-    <!--             <div class="card-body"> -->
-    <!--                 <h6 class="text-muted mb-2">Orders Today</h6> -->
-    <!--                 <h2 class="mb-0">0</h2> -->
-    <!--             </div> -->
-    <!--         </div> -->
-    <!--     </div> -->
-    <!---->
-    <!--     <div class="col-md-4"> -->
-    <!--         <div class="card"> -->
-    <!--             <div class="card-body"> -->
-    <!--                 <h6 class="text-muted mb-2">Available Items</h6> -->
-    <!--                 <h2 class="mb-0">0</h2> -->
-    <!--             </div> -->
-    <!--         </div> -->
-    <!--     </div> -->
-    <!-- </div> -->
-    
-    <div class="row mt-4">
-        <div class="col-md-12">
+
+    <!-- Stats Row -->
+    <div class="row g-4 mb-4">
+
+        <!-- Total Pesanan -->
+        <div class="col-12 col-sm-4">
+            <a href="{% url 'orders:my_orders' %}" class="text-decoration-none">
+                <div class="card stat-card h-100">
+                    <div class="card-body p-4">
+                        <div class="stat-icon mb-3">
+                            <i class="bi bi-receipt stat-icon-accent"></i>
+                        </div>
+                        <div class="stat-value">{{ total_orders|default:"0" }}</div>
+                        <div class="stat-label">Total Pesanan Saya</div>
+                        <div class="stat-sublabel mt-1">
+                            <span class="text-muted stat-sublabel-text">
+                                <i class="bi bi-calendar-day"></i>
+                                {{ orders_today|default:"0" }} hari ini
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Keranjang -->
+        <div class="col-12 col-sm-4">
+            <a href="{% url 'orders:cart_detail' %}" class="text-decoration-none">
+                <div class="card stat-card h-100">
+                    <div class="card-body p-4">
+                        <div class="stat-icon mb-3">
+                            <i class="bi bi-cart3 stat-icon-warning"></i>
+                        </div>
+                        <div class="stat-value">{{ cart_total|default:"0" }}</div>
+                        <div class="stat-label">Item di Keranjang</div>
+                        <div class="stat-sublabel mt-1">
+                            <span class="text-muted stat-sublabel-text">
+                                <i class="bi bi-bag-check"></i>
+                                Klik untuk checkout
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Katalog -->
+        <div class="col-12 col-sm-4">
+            <a href="{% url 'orders:shop' %}" class="text-decoration-none">
+                <div class="card stat-card h-100">
+                    <div class="card-body p-4">
+                        <div class="stat-icon mb-3">
+                            <i class="bi bi-shop stat-icon-success"></i>
+                        </div>
+                        <div class="stat-value">{{ available_count|default:"0" }}</div>
+                        <div class="stat-label">Produk Tersedia</div>
+                        <div class="stat-sublabel mt-1">
+                            <span class="text-muted stat-sublabel-text">
+                                <i class="bi bi-arrow-right-circle"></i>
+                                Lihat semua produk
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Featured Products -->
+    <div class="row mb-4">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h5><i class="bi bi-lightning"></i> Quick Actions</h5>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="bi bi-stars me-2 text-accent"></i>Produk Unggulan
+                    </h6>
+                    <a href="{% url 'orders:shop' %}" class="btn btn-secondary btn-sm">
+                        Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
                 </div>
                 <div class="card-body">
+                    {% if featured_products %}
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <a href="{% url 'orders:order_create' %}" class="btn btn-primary w-100 py-3">
-                                <i class="bi bi-plus-circle" style="font-size: 2rem;"></i><br>
-                                Create New Order
-                            </a>
+                        {% for product in featured_products %}
+                        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                            <div class="card shop-card h-100 shop-card-clickable"
+                                 onclick="window.location='{% url 'orders:shop_detail' product.pk %}'">
+
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                     class="shop-card-img featured-card-img">
+                                {% else %}
+                                <div class="shop-card-img-placeholder featured-card-img">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                {% endif %}
+
+                                {% if product.is_low_stock %}
+                                <div class="shop-card-badge-overlay">
+                                    <span class="badge bg-warning text-dark shop-badge-mini">Menipis</span>
+                                </div>
+                                {% endif %}
+
+                                <div class="card-body p-2">
+                                    <div class="featured-product-name">
+                                        {{ product.name|truncatewords:3 }}
+                                    </div>
+                                    <div class="featured-product-stock">
+                                        Stok: {{ product.stock }}
+                                    </div>
+                                    <form method="post"
+                                          action="{% url 'orders:cart_add' product.pk %}"
+                                          onclick="event.stopPropagation();"
+                                          class="mt-2 quick-add-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <input type="hidden" name="next" value="{% url 'dashboard:home' %}">
+                                        <button type="submit"
+                                                class="btn btn-primary w-100 quick-add-btn"
+                                                data-merchandise-id="{{ product.pk }}">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <a href="{% url 'merchandise:merchandise_list' %}" class="btn btn-secondary w-100 py-3">
-                                <i class="bi bi-box-seam" style="font-size: 2rem;"></i><br>
-                                Browse Merchandise
-                            </a>
-                        </div>
-                        <div class="col-md-4">
-                            <a href="{% url 'orders:order_list' %}" class="btn btn-secondary w-100 py-3">
-                                <i class="bi bi-receipt" style="font-size: 2rem;"></i><br>
-                                My Orders
-                            </a>
-                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-bag-x" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">Belum ada produk tersedia</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    {% if recent_orders %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="bi bi-clock-history me-2 text-accent"></i>Pesanan Terakhir
+                    </h6>
+                    <a href="{% url 'orders:my_orders' %}" class="btn btn-secondary btn-sm">
+                        Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>No. Pesanan</th>
+                                    <th>Pelanggan</th>
+                                    <th class="d-none d-sm-table-cell">Item</th>
+                                    <th class="d-none d-sm-table-cell">Tanggal</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr class="table-row-clickable"
+                                    onclick="window.location='{% url 'orders:order_detail' order.pk %}'">
+                                    <td class="fw-medium text-accent table-cell-sm">
+                                        {{ order.order_number }}
+                                    </td>
+                                    <td class="table-cell-sm">{{ order.customer_name }}</td>
+                                    <td class="d-none d-sm-table-cell">
+                                        <span class="badge bg-info">{{ order.items.count }} jenis</span>
+                                    </td>
+                                    <td class="d-none d-sm-table-cell text-muted table-cell-xs">
+                                        {{ order.created_at|date:"d M Y" }}<br>
+                                        <span>{{ order.created_at|date:"H:i" }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'orders:order_detail' order.pk %}"
+                                           class="btn btn-sm btn-secondary"
+                                           onclick="event.stopPropagation();"
+                                           title="Lihat Detail">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const csrfToken = '{{ csrf_token }}';
+
+// Quick add to cart dari dashboard
+document.querySelectorAll('.quick-add-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('.quick-add-btn');
+        const merchandiseId = btn.dataset.merchandiseId;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        fetch(`/orders/keranjang/tambah/${merchandiseId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'quantity=1'
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = '<i class="bi bi-check-circle"></i>';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-success');
+
+                // Update cart badge navbar
+                const navBadge = document.getElementById('navbar-cart-badge');
+                if (navBadge) {
+                    navBadge.textContent = data.cart_total_quantity;
+                    navBadge.style.display = 'inline-flex';
+                }
+
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-primary');
+                    btn.disabled = false;
+                }, 1500);
+            } else {
+                btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                btn.disabled = false;
+                alert(data.error || 'Gagal menambahkan ke keranjang');
+            }
+        })
+        .catch(() => {
+            btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
+            btn.disabled = false;
+        });
+    });
+});
+</script>
 {% endblock %}

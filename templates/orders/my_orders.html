@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Riwayat Pesanan{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-neu">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Beranda</a></li>
+            <li class="breadcrumb-item active">Riwayat Pesanan</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="mb-1">
+                <i class="bi bi-clock-history me-2" style="color: var(--color-accent);"></i>Riwayat Pesanan
+            </h2>
+            <p class="text-muted mb-0">
+                <span class="fw-semibold">{{ total_count }}</span> pesanan ditemukan
+            </p>
+        </div>
+        <div class="col-12 col-md-auto mt-3 mt-md-0">
+            <a href="{% url 'orders:shop' %}" class="btn btn-primary w-100 w-md-auto">
+                <i class="bi bi-shop me-2"></i>Belanja Lagi
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-medium form-label-sm">
+                            <i class="bi bi-search me-1"></i>Cari Pesanan
+                        </label>
+                        <input type="text" name="search" class="form-control"
+                               value="{{ search }}"
+                               placeholder="Nomor pesanan / nama pelanggan...">
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label class="form-label fw-medium form-label-sm">
+                            <i class="bi bi-calendar me-1"></i>Dari Tanggal
+                        </label>
+                        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label class="form-label fw-medium form-label-sm">
+                            <i class="bi bi-calendar me-1"></i>Sampai Tanggal
+                        </label>
+                        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                    </div>
+                    <div class="col-12 col-md-2 d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-search me-1"></i>Cari
+                        </button>
+                        <a href="{% url 'orders:my_orders' %}" class="btn btn-secondary" title="Reset Filter">
+                            <i class="bi bi-x-circle"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Orders Grid -->
+    {% if orders %}
+    <div class="row g-3">
+        {% for order in orders %}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card h-100 order-card"
+                 onclick="window.location='{% url 'orders:order_detail' order.pk %}'">
+                <div class="card-body p-4">
+
+                    <!-- Order header -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="fw-bold text-accent" style="font-size: var(--text-sm);">
+                                {{ order.order_number }}
+                            </div>
+                            <div class="text-muted" style="font-size: var(--text-xs);">
+                                <i class="bi bi-calendar3 me-1"></i>{{ order.created_at|date:"d M Y, H:i" }}
+                            </div>
+                        </div>
+                        <span class="badge bg-success">Selesai</span>
+                    </div>
+
+                    <!-- Customer info -->
+                    <div class="neu-inset-box mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-person-fill text-accent" style="font-size: var(--text-sm);"></i>
+                            <span class="fw-medium" style="font-size: var(--text-sm);">{{ order.customer_name }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-whatsapp text-success" style="font-size: var(--text-sm);"></i>
+                            <span class="text-muted" style="font-size: var(--text-xs);">{{ order.customer_phone }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Order stats -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="text-center">
+                            <div class="fw-bold" style="color: var(--color-text-dark); font-size: var(--text-lg);">
+                                {{ order.item_count|default:"0" }}
+                            </div>
+                            <div class="text-muted" style="font-size: var(--text-xs);">Jenis</div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="text-center">
+                            <div class="fw-bold" style="color: var(--color-text-dark); font-size: var(--text-lg);">
+                                {{ order.total_quantity|default:"0" }}
+                            </div>
+                            <div class="text-muted" style="font-size: var(--text-xs);">Total Item</div>
+                        </div>
+                        <div class="ms-auto">
+                            <a href="{% url 'orders:order_detail' order.pk %}"
+                               class="btn btn-secondary btn-sm"
+                               onclick="event.stopPropagation();"
+                               title="Lihat Detail">
+                                <i class="bi bi-eye me-1"></i>Detail
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div class="mb-4" style="font-size: 4rem; color: var(--color-text-light);">
+                <i class="bi bi-bag-x"></i>
+            </div>
+            <h4 class="fw-semibold mb-2">Belum Ada Pesanan</h4>
+            <p class="text-muted mb-4">
+                {% if search or date_from or date_to %}
+                Tidak ada pesanan yang cocok dengan filter yang dipilih.
+                {% else %}
+                Anda belum membuat pesanan. Mulai belanja sekarang!
+                {% endif %}
+            </p>
+            {% if search or date_from or date_to %}
+            <a href="{% url 'orders:my_orders' %}" class="btn btn-secondary me-2">
+                <i class="bi bi-x-circle me-2"></i>Hapus Filter
+            </a>
+            {% endif %}
+            <a href="{% url 'orders:shop' %}" class="btn btn-primary">
+                <i class="bi bi-shop me-2"></i>Mulai Belanja
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

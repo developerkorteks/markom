@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% block title %}Keranjang Belanja{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-neu">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Beranda</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'orders:shop' %}">Katalog</a></li>
+            <li class="breadcrumb-item active">Keranjang</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="mb-1">
+                <i class="bi bi-cart3 me-2" style="color: var(--color-accent);"></i>Keranjang Belanja
+            </h2>
+            <p class="text-muted mb-0">
+                {% if total_unique > 0 %}
+                    {{ total_unique }} jenis produk &nbsp;·&nbsp; {{ total_quantity }} item total
+                {% else %}
+                    Keranjang kosong
+                {% endif %}
+            </p>
+        </div>
+        {% if items %}
+        <div class="col-12 col-md-auto mt-3 mt-md-0 d-flex flex-wrap gap-2">
+            <a href="{% url 'orders:shop' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Lanjut Belanja
+            </a>
+            <form method="post" action="{% url 'orders:cart_clear' %}" class="d-inline" id="clearCartForm">
+                {% csrf_token %}
+                <button type="button" class="btn btn-danger-neu" onclick="confirmClearCart()">
+                    <i class="bi bi-trash me-1"></i>Kosongkan
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if items %}
+    <div class="row g-4">
+
+        <!-- Cart Items -->
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-body p-0">
+                    {% for item in items %}
+                    <div class="cart-item-row {% if not item.is_available %}cart-item-unavailable{% endif %}"
+                         id="cart-row-{{ item.merchandise_id }}"
+                         data-merchandise-id="{{ item.merchandise_id }}">
+
+                        <!-- Product Image -->
+                        <div class="cart-item-img-wrap">
+                            {% if item.image_url %}
+                            <img src="{{ item.image_url }}" alt="{{ item.name }}" class="cart-item-img">
+                            {% else %}
+                            <div class="cart-item-img-placeholder">
+                                <i class="bi bi-image"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="cart-item-info">
+                            <div class="fw-semibold" style="color: var(--color-text-dark);">
+                                {{ item.name }}
+                            </div>
+                            <div class="text-muted" style="font-size: var(--text-xs);">
+                                <i class="bi bi-tag me-1"></i>{{ item.category }}
+                            </div>
+
+                            <!-- Stock badge -->
+                            {% if not item.is_active %}
+                            <span class="badge bg-danger mt-1">Produk tidak aktif</span>
+                            {% elif item.is_out_of_stock %}
+                            <span class="badge bg-danger mt-1">Stok habis</span>
+                            {% elif item.is_low_stock %}
+                            <span class="badge bg-warning text-dark mt-1">Stok menipis ({{ item.stock }} tersisa)</span>
+                            {% else %}
+                            <span class="badge bg-success mt-1">Tersedia ({{ item.stock }} stok)</span>
+                            {% endif %}
+
+                            {% if not item.is_available %}
+                            <div class="text-danger mt-1" style="font-size: var(--text-xs);">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                {% if not item.is_active %}Produk tidak lagi tersedia.
+                                {% else %}Stok tidak mencukupi untuk jumlah yang diminta.{% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Quantity Control -->
+                        <div class="cart-item-qty">
+                            <div class="qty-control" id="qty-control-{{ item.merchandise_id }}">
+                                <button class="qty-btn"
+                                        onclick="updateQty({{ item.merchandise_id }}, {{ item.quantity }} - 1)"
+                                        {% if item.quantity <= 1 %}disabled{% endif %}>
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="number"
+                                       class="qty-input"
+                                       id="qty-{{ item.merchandise_id }}"
+                                       value="{{ item.quantity }}"
+                                       min="1"
+                                       max="{{ item.stock }}"
+                                       onchange="updateQty({{ item.merchandise_id }}, this.value)"
+                                       {% if not item.is_active %}disabled{% endif %}>
+                                <button class="qty-btn"
+                                        onclick="updateQty({{ item.merchandise_id }}, {{ item.quantity }} + 1)"
+                                        {% if item.quantity >= item.stock %}disabled{% endif %}>
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <div class="cart-item-action">
+                            <form method="post"
+                                  action="{% url 'orders:cart_remove' item.merchandise_id %}"
+                                  class="remove-form">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-remove-item" title="Hapus dari keranjang"
+                                        onclick="return confirm('Hapus item ini dari keranjang?')">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                    {% if not forloop.last %}<hr class="cart-divider">{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-12 col-lg-4">
+            <div class="card cart-summary-card">
+                <div class="card-header">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="bi bi-receipt me-2" style="color: var(--color-accent);"></i>Ringkasan Pesanan
+                    </h6>
+                </div>
+                <div class="card-body">
+
+                    <!-- Item summary -->
+                    <div class="summary-row">
+                        <span class="text-muted">Jenis Produk</span>
+                        <span class="fw-semibold" id="summary-unique">{{ total_unique }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="text-muted">Total Item</span>
+                        <span class="fw-semibold" id="summary-qty">{{ total_quantity }}</span>
+                    </div>
+
+                    <hr style="border-color: rgba(184,190,199,0.4);">
+
+                    <!-- Validation warning -->
+                    {% for item in items %}
+                    {% if not item.is_available %}
+                    <div class="alert alert-warning p-2 mb-3" style="font-size: var(--text-xs);">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Beberapa item tidak tersedia. Perbarui keranjang sebelum checkout.
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    <!-- Checkout button -->
+                    {% with all_available=True %}
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100 py-3 mb-2"
+                       id="checkout-btn">
+                        <i class="bi bi-bag-check me-2"></i>Lanjut ke Checkout
+                    </a>
+                    {% endwith %}
+                    <a href="{% url 'orders:shop' %}" class="btn btn-secondary w-100">
+                        <i class="bi bi-arrow-left me-2"></i>Lanjut Belanja
+                    </a>
+                </div>
+            </div>
+
+            <!-- Info card -->
+            <div class="card mt-3">
+                <div class="card-body p-3">
+                    <h6 class="fw-semibold mb-2" style="font-size: var(--text-sm);">
+                        <i class="bi bi-info-circle me-1" style="color: var(--color-accent);"></i>Info Pemesanan
+                    </h6>
+                    <ul class="mb-0" style="font-size: var(--text-xs); color: var(--color-text-muted); padding-left: 1.2rem;">
+                        <li>Stok akan dipotong otomatis saat pesanan dibuat</li>
+                        <li>Pesanan yang sudah dibuat tidak dapat diubah</li>
+                        <li>Keranjang akan dikosongkan setelah checkout berhasil</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4" style="font-size: 4rem; color: var(--color-text-light);">
+                        <i class="bi bi-cart-x"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-2">Keranjang Kosong</h4>
+                    <p class="text-muted mb-4">Belum ada produk di keranjang belanja Anda.</p>
+                    <a href="{% url 'orders:shop' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-shop me-2"></i>Mulai Belanja
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Confirm clear cart dengan Bootstrap modal mini
+function confirmClearCart() {
+    if (window.confirm('Kosongkan seluruh keranjang? Semua item akan dihapus.')) {
+        document.getElementById('clearCartForm').submit();
+    }
+}
+</script>
+<script>
+const csrfToken = '{{ csrf_token }}';
+
+function updateQty(merchandiseId, quantity) {
+    quantity = parseInt(quantity);
+    if (isNaN(quantity) || quantity < 0) return;
+
+    // Update input tampilan langsung
+    const input = document.getElementById('qty-' + merchandiseId);
+    if (input) input.value = quantity;
+
+    fetch(`/orders/keranjang/update/${merchandiseId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `quantity=${quantity}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            // Update summary
+            document.getElementById('summary-qty').textContent = data.cart_total_quantity;
+            document.getElementById('summary-unique').textContent = data.cart_total_unique;
+
+            // Update cart badge di navbar
+            const badge = document.getElementById('cart-badge');
+            if (badge) {
+                badge.textContent = data.cart_total_quantity;
+                badge.style.display = data.cart_total_quantity > 0 ? 'inline-flex' : 'none';
+            }
+
+            // Jika qty = 0, hapus row
+            if (quantity <= 0 || data.item_quantity === 0) {
+                const row = document.getElementById('cart-row-' + merchandiseId);
+                if (row) {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    row.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        row.remove();
+                        // Cek jika cart kosong
+                        if (data.cart_total_quantity === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            }
+
+            // Update tombol +/-
+            updateQtyButtons(merchandiseId, data.item_quantity);
+
+        } else {
+            // Kembalikan nilai input ke quantity sebelumnya
+            if (input) {
+                const prev = parseInt(input.getAttribute('data-prev') || input.value);
+                input.value = prev;
+            }
+            showToast(data.message, 'warning');
+        }
+    })
+    .catch(() => {
+        showToast('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+    });
+}
+
+function updateQtyButtons(merchandiseId, quantity) {
+    const row = document.getElementById('cart-row-' + merchandiseId);
+    if (!row) return;
+    const input = document.getElementById('qty-' + merchandiseId);
+    const maxStock = input ? parseInt(input.getAttribute('max')) : 9999;
+    const buttons = row.querySelectorAll('.qty-btn');
+    if (buttons.length >= 2) {
+        buttons[0].disabled = quantity <= 1;  // minus
+        buttons[1].disabled = quantity >= maxStock;  // plus
+    }
+    if (input) input.value = quantity;
+}
+
+function showToast(message, type) {
+    // Buat toast sederhana
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed`;
+    toast.style.cssText = 'bottom: 20px; right: 20px; z-index: 9999; min-width: 250px; box-shadow: var(--neu-shadow-raised);';
+    toast.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i>${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
+{% endblock %}

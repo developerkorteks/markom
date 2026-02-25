@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block title %}{{ merchandise.name }} — Katalog{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-neu">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Beranda</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'orders:shop' %}">Katalog</a></li>
+            <li class="breadcrumb-item active">{{ merchandise.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- Kiri: Gambar Produk -->
+        <div class="col-12 col-md-5 col-lg-4">
+            <div class="card">
+                <div class="card-body p-3">
+                    {% if merchandise.image %}
+                    <img src="{{ merchandise.image.url }}"
+                         alt="{{ merchandise.name }}"
+                         class="shop-detail-img">
+                    {% else %}
+                    <div class="shop-detail-img-placeholder">
+                        <i class="bi bi-image"></i>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Kanan: Info Produk + Tambah ke Keranjang -->
+        <div class="col-12 col-md-7 col-lg-8">
+
+            <!-- Card Info Produk -->
+            <div class="card mb-3">
+                <div class="card-body p-4">
+
+                    <!-- Badge Kategori + Status Stok -->
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <span class="badge bg-secondary">{{ merchandise.category.name }}</span>
+                        {% if merchandise.is_out_of_stock %}
+                        <span class="badge bg-danger">Stok Habis</span>
+                        {% elif merchandise.is_low_stock %}
+                        <span class="badge bg-warning text-dark">Stok Menipis</span>
+                        {% else %}
+                        <span class="badge bg-success">Tersedia</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nama Produk -->
+                    <h3 class="fw-bold mb-2 text-dark-custom">{{ merchandise.name }}</h3>
+
+                    <!-- Info Stok -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-box-seam text-accent"></i>
+                        <span class="text-sm">
+                            <strong>{{ merchandise.stock }}</strong> unit tersedia
+                        </span>
+                    </div>
+
+                    <!-- Stock Bar -->
+                    <div class="stock-bar mb-4">
+                        {% if merchandise.stock >= 50 %}
+                        <div class="stock-bar-fill bg-success" style="width: 100%;"></div>
+                        {% elif merchandise.stock >= 10 %}
+                        <div class="stock-bar-fill bg-warning" style="width: {% widthratio merchandise.stock 50 100 %}%;"></div>
+                        {% elif merchandise.stock > 0 %}
+                        <div class="stock-bar-fill bg-danger" style="width: {% widthratio merchandise.stock 50 100 %}%;"></div>
+                        {% else %}
+                        <div class="stock-bar-fill bg-danger" style="width: 5%;"></div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Deskripsi -->
+                    {% if merchandise.description %}
+                    <div class="mb-4">
+                        <h6 class="fw-semibold mb-2 text-dark-custom">Deskripsi Produk</h6>
+                        <p class="text-muted mb-0 text-sm" style="line-height: 1.7;">
+                            {{ merchandise.description }}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Tambah ke Keranjang -->
+                    {% if not merchandise.is_out_of_stock %}
+                    <form method="post"
+                          action="{% url 'orders:cart_add' merchandise.pk %}"
+                          id="addToCartForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'orders:shop_detail' merchandise.pk %}">
+
+                        <!-- Qty Stepper -->
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                            <label class="fw-medium mb-0 text-sm">Jumlah:</label>
+                            <div class="qty-control">
+                                <button type="button" class="qty-btn" id="qtyMinus"
+                                        onclick="changeQty(-1)" disabled>
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="number"
+                                       class="qty-input"
+                                       id="qtyInput"
+                                       name="quantity"
+                                       value="1"
+                                       min="1"
+                                       max="{{ merchandise.stock }}">
+                                <button type="button" class="qty-btn" id="qtyPlus"
+                                        onclick="changeQty(1)"
+                                        {% if merchandise.stock <= 1 %}disabled{% endif %}>
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                            <span class="text-muted text-xs">Maks. {{ merchandise.stock }}</span>
+                        </div>
+
+                        <!-- Info di keranjang -->
+                        {% if cart_quantity > 0 %}
+                        <div class="neu-inset-box mb-3 text-xs">
+                            <i class="bi bi-cart-check me-1 text-accent"></i>
+                            Sudah ada <strong>{{ cart_quantity }}</strong> unit di keranjang.
+                            <a href="{% url 'orders:cart_detail' %}" class="text-accent ms-1">Lihat keranjang →</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Tombol Aksi -->
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1"
+                                    id="addToCartBtn"
+                                    onclick="handleAddToCart(event)">
+                                <i class="bi bi-cart-plus me-2"></i>Tambah ke Keranjang
+                            </button>
+                            <a href="{% url 'orders:cart_detail' %}" class="btn btn-secondary btn-lg" title="Lihat Keranjang">
+                                <i class="bi bi-cart3"></i>
+                            </a>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-danger d-flex align-items-center gap-2">
+                        <i class="bi bi-x-circle-fill"></i>
+                        <span>Stok produk ini sedang habis.</span>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- Kembali ke Katalog -->
+            <a href="{% url 'orders:shop' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Kembali ke Katalog
+            </a>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const maxStock = {{ merchandise.stock }};
+
+function changeQty(delta) {
+    const input = document.getElementById('qtyInput');
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1;
+    if (val > maxStock) val = maxStock;
+    input.value = val;
+    updateButtons(val);
+}
+
+function updateButtons(val) {
+    document.getElementById('qtyMinus').disabled = val <= 1;
+    document.getElementById('qtyPlus').disabled = val >= maxStock;
+}
+
+document.getElementById('qtyInput')?.addEventListener('input', function() {
+    let val = parseInt(this.value) || 1;
+    if (val < 1) val = 1;
+    if (val > maxStock) val = maxStock;
+    this.value = val;
+    updateButtons(val);
+});
+
+function handleAddToCart(e) {
+    e.preventDefault();
+    const btn = document.getElementById('addToCartBtn');
+    const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menambahkan...';
+
+    fetch(`/orders/keranjang/tambah/{{ merchandise.pk }}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `quantity=${qty}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Ditambahkan!';
+            btn.classList.replace('btn-primary', 'btn-success');
+
+            // Update cart badge navbar
+            const navBadge = document.getElementById('navbar-cart-badge');
+            if (navBadge) {
+                navBadge.textContent = data.cart_total_quantity;
+                navBadge.style.display = 'inline-flex';
+            }
+
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Tambah ke Keranjang';
+                btn.classList.replace('btn-success', 'btn-primary');
+                btn.disabled = false;
+                location.reload();
+            }, 1200);
+        } else {
+            btn.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Tambah ke Keranjang';
+            btn.disabled = false;
+            alert(data.message || 'Gagal menambahkan ke keranjang.');
+        }
+    })
+    .catch(() => {
+        btn.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Tambah ke Keranjang';
+        btn.disabled = false;
+        alert('Terjadi kesalahan jaringan. Silakan coba lagi.');
+    });
+}
+</script>
+{% endblock %}

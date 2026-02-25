@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% block title %}Katalog Merchandise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb breadcrumb-neu">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Beranda</a></li>
+            <li class="breadcrumb-item active">Katalog</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-12 col-md">
+            <h2 class="mb-1">
+                <i class="bi bi-shop me-2" style="color: var(--color-accent);"></i>Katalog Merchandise
+            </h2>
+            <p class="text-muted mb-0" style="font-size: var(--text-sm);">
+                <span class="fw-medium" style="color: var(--color-accent);">{{ products|length }}</span> produk tersedia
+                {% if search %}&nbsp;·&nbsp;Pencarian: "<strong>{{ search }}</strong>"{% endif %}
+                {% if category_id %}&nbsp;·&nbsp;Filter aktif{% endif %}
+            </p>
+        </div>
+        <div class="col-12 col-md-auto mt-3 mt-md-0">
+            <a href="{% url 'orders:cart_detail' %}" class="btn btn-primary position-relative cart-nav-link">
+                <i class="bi bi-cart3 me-2"></i>Keranjang
+                {% if navbar_cart_total > 0 %}
+                <span class="cart-badge" id="cart-badge-header">{{ navbar_cart_total }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="card mb-4">
+        <div class="card-body py-3">
+            <form method="get" id="filterForm">
+                <div class="row g-3 align-items-end">
+                    <!-- Search -->
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <label class="form-label fw-medium" style="font-size: var(--text-xs);">
+                            <i class="bi bi-search me-1"></i>Cari Produk
+                        </label>
+                        <input type="text" name="q" class="form-control"
+                               value="{{ search }}"
+                               placeholder="Nama produk...">
+                    </div>
+
+                    <!-- Kategori -->
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label class="form-label fw-medium" style="font-size: var(--text-xs);">
+                            <i class="bi bi-tag me-1"></i>Kategori
+                        </label>
+                        <select name="category" class="form-select">
+                            <option value="">Semua Kategori</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.pk }}" {% if category_id == cat.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label class="form-label fw-medium" style="font-size: var(--text-xs);">
+                            <i class="bi bi-sort-down me-1"></i>Urutkan
+                        </label>
+                        <select name="sort" class="form-select">
+                            <option value="name" {% if sort == 'name' %}selected{% endif %}>Nama A-Z</option>
+                            <option value="category" {% if sort == 'category' %}selected{% endif %}>Kategori</option>
+                            <option value="stock_desc" {% if sort == 'stock_desc' %}selected{% endif %}>Stok Terbanyak</option>
+                            <option value="stock_asc" {% if sort == 'stock_asc' %}selected{% endif %}>Stok Tersedikit</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-12 col-sm-6 col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-search me-1"></i>Cari
+                        </button>
+                        <a href="{% url 'orders:shop' %}" class="btn btn-secondary" title="Reset filter">
+                            <i class="bi bi-x-circle"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div class="card shop-card h-100"
+                 onclick="window.location='{% url 'orders:shop_detail' product.pk %}'"
+                 style="cursor: pointer; position: relative;">
+
+                <!-- Stock badge overlay -->
+                {% if product.is_out_of_stock %}
+                <div class="shop-card-badge-overlay">
+                    <span class="badge bg-danger">Stok Habis</span>
+                </div>
+                {% elif product.is_low_stock %}
+                <div class="shop-card-badge-overlay">
+                    <span class="badge bg-warning text-dark">Stok Menipis</span>
+                </div>
+                {% endif %}
+
+                <!-- Product Image -->
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="shop-card-img">
+                {% else %}
+                <div class="shop-card-img-placeholder">
+                    <i class="bi bi-image"></i>
+                </div>
+                {% endif %}
+
+                <div class="card-body p-3 d-flex flex-column">
+                    <!-- Category badge -->
+                    <div class="mb-1">
+                        <span class="badge bg-secondary" style="font-size: 10px;">
+                            {{ product.category.name }}
+                        </span>
+                    </div>
+
+                    <!-- Name -->
+                    <h6 class="fw-semibold mb-1" style="color: var(--color-text-dark); font-size: var(--text-sm);">
+                        {{ product.name }}
+                    </h6>
+
+                    <!-- Description -->
+                    {% if product.description %}
+                    <p class="text-muted mb-2" style="font-size: var(--text-xs); line-height: 1.4; flex-grow: 1;">
+                        {{ product.description|truncatewords:10 }}
+                    </p>
+                    {% else %}
+                    <div class="flex-grow-1"></div>
+                    {% endif %}
+
+                    <!-- Stock info + bar -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span style="font-size: var(--text-xs); color: var(--color-text-muted);">
+                                <i class="bi bi-box-seam me-1"></i>Stok
+                            </span>
+                            <span class="fw-semibold" style="font-size: var(--text-xs);
+                                color: {% if product.is_out_of_stock %}var(--color-danger){% elif product.is_low_stock %}var(--color-warning){% else %}var(--color-success){% endif %};">
+                                {{ product.stock }}
+                            </span>
+                        </div>
+                        <div class="stock-bar">
+                            {% if product.is_out_of_stock %}
+                            <div class="stock-bar-fill bg-danger" style="width: 0%;"></div>
+                            {% elif product.stock >= 50 %}
+                            <div class="stock-bar-fill bg-success" style="width: 100%;"></div>
+                            {% elif product.stock >= 10 %}
+                            <div class="stock-bar-fill bg-warning" style="width: {% widthratio product.stock 50 100 %}%;"></div>
+                            {% else %}
+                            <div class="stock-bar-fill bg-danger" style="width: {% widthratio product.stock 50 100 %}%;"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Add to cart button -->
+                    {% if product.is_out_of_stock %}
+                    <button class="btn btn-secondary w-100 mt-auto" disabled style="font-size: var(--text-sm);">
+                        <i class="bi bi-x-circle me-1"></i>Stok Habis
+                    </button>
+                    {% else %}
+                    <form method="post"
+                          action="{% url 'orders:cart_add' product.pk %}"
+                          onclick="event.stopPropagation();"
+                          class="add-to-cart-form mt-auto">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit"
+                                class="btn btn-primary w-100 add-to-cart-btn"
+                                data-merchandise-id="{{ product.pk }}"
+                                data-merchandise-name="{{ product.name }}"
+                                style="font-size: var(--text-sm);">
+                            <i class="bi bi-cart-plus me-1"></i>Tambah ke Keranjang
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div class="mb-4" style="font-size: 4rem; color: var(--color-text-light);">
+                <i class="bi bi-search"></i>
+            </div>
+            <h4 class="fw-semibold mb-2" style="color: var(--color-text-dark);">Produk Tidak Ditemukan</h4>
+            <p class="text-muted mb-4" style="font-size: var(--text-sm);">
+                {% if search or category_id %}
+                Tidak ada produk yang cocok dengan filter yang dipilih.
+                {% else %}
+                Belum ada produk yang tersedia saat ini.
+                {% endif %}
+            </p>
+            {% if search or category_id %}
+            <a href="{% url 'orders:shop' %}" class="btn btn-primary">
+                <i class="bi bi-arrow-left me-2"></i>Lihat Semua Produk
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const csrfToken = '{{ csrf_token }}';
+
+// Handle add to cart dengan AJAX
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('.add-to-cart-btn');
+        const merchandiseId = btn.dataset.merchandiseId;
+        const originalHtml = btn.innerHTML;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menambahkan...';
+
+        fetch(`/orders/keranjang/tambah/${merchandiseId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'quantity=1'
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Ditambahkan!';
+                btn.classList.replace('btn-primary', 'btn-success');
+                updateAllCartBadges(data.cart_total_quantity);
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="bi bi-cart-plus me-1"></i>Tambah Lagi';
+                    btn.classList.replace('btn-success', 'btn-primary');
+                    btn.disabled = false;
+                }, 1500);
+            } else {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                showToast(data.message, 'warning');
+            }
+        })
+        .catch(() => {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            showToast('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+        });
+    });
+});
+
+function updateAllCartBadges(count) {
+    // Navbar badge
+    const navBadge = document.getElementById('navbar-cart-badge');
+    if (navBadge) {
+        navBadge.textContent = count;
+        navBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+    // Header badge
+    let headerBadge = document.getElementById('cart-badge-header');
+    if (count > 0) {
+        if (headerBadge) {
+            headerBadge.textContent = count;
+        } else {
+            headerBadge = document.createElement('span');
+            headerBadge.className = 'cart-badge';
+            headerBadge.id = 'cart-badge-header';
+            headerBadge.textContent = count;
+            const cartLink = document.querySelector('.cart-nav-link');
+            if (cartLink) cartLink.appendChild(headerBadge);
+        }
+    }
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed shadow`;
+    toast.style.cssText = 'bottom: 20px; right: 20px; z-index: 9999; min-width: 280px;';
+    toast.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i>${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Auto-submit filter on select change
+document.querySelectorAll('#filterForm select').forEach(sel => {
+    sel.addEventListener('change', () => document.getElementById('filterForm').submit());
+});
+</script>
+{% endblock %}
