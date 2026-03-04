@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'merchandise',
     'orders',
     'dashboard',
+    'inventory.apps.InventoryConfig',
 ]
 
 MIDDLEWARE = [
