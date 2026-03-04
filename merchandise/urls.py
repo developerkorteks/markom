@@ -19,4 +19,7 @@ urlpatterns = [
     path('<int:pk>/delete/', views.merchandise_delete, name='merchandise_delete'),
     path('<int:pk>/toggle-active/', views.merchandise_toggle_active, name='merchandise_toggle_active'),
     path('<int:pk>/adjust-stock/', views.merchandise_adjust_stock, name='merchandise_adjust_stock'),
+    
+    # Stock Opname Export
+    path('stock-opname-export/', views.stock_opname_export, name='stock_opname_export'),
 ]

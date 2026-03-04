@@ -1,6 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Category, Merchandise, StockHistory
+import calendar
+from datetime import datetime
 
 
 class CategoryForm(forms.ModelForm):
@@ -172,3 +174,49 @@ class StockAdjustmentForm(forms.Form):
             raise ValidationError('Alasan penyesuaian wajib diisi.')
 
         return reason.strip()
+
+
+class StockOpnameExportForm(forms.Form):
+    """Form untuk export stock opname"""
+    
+    MONTH_CHOICES = [(i, calendar.month_name[i].upper()) for i in range(1, 13)]
+    
+    current_year = datetime.now().year
+    YEAR_CHOICES = [(year, str(year)) for year in range(current_year - 2, current_year + 2)]
+    
+    month = forms.ChoiceField(
+        choices=MONTH_CHOICES,
+        label='Bulan',
+        initial=datetime.now().month,
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    
+    year = forms.ChoiceField(
+        choices=YEAR_CHOICES,
+        label='Tahun',
+        initial=current_year,
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    
+    branch_name = forms.CharField(
+        label='Nama Cabang/Organisasi',
+        max_length=100,
+        initial='SEMARANG',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'mis. SEMARANG, JAKARTA, dll.'
+        })
+    )
+    
+    def clean_branch_name(self):
+        """Validasi branch name"""
+        branch_name = self.cleaned_data.get('branch_name')
+        
+        if not branch_name or not branch_name.strip():
+            raise ValidationError('Nama cabang/organisasi wajib diisi.')
+        
+        return branch_name.strip().upper()

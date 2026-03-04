@@ -16,9 +16,14 @@
         </div>
         {% if user.is_admin %}
         <div class="col-12 col-md-auto mt-3 mt-md-0">
-            <a href="{% url 'merchandise:merchandise_create' %}" class="btn btn-primary w-100 w-md-auto">
-                <i class="bi bi-plus-circle"></i> Tambah Merchandise Baru
-            </a>
+            <div class="btn-group w-100 w-md-auto" role="group">
+                <a href="{% url 'merchandise:merchandise_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Tambah Merchandise
+                </a>
+                <a href="{% url 'merchandise:stock_opname_export' %}" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel"></i> Export Stock Opname
+                </a>
+            </div>
         </div>
         {% endif %}
     </div>

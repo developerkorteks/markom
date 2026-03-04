@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-clipboard-check"></i> {{ title }}</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:checkout_review_list' %}">Review Checkouts</a></li>
+                    <li class="breadcrumb-item active">Review</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Checkout Details</h5></div>
+                <div class="card-body">
+                    <div class="row mb-2"><div class="col-4 fw-bold">Sales:</div><div class="col-8">{{ checkout.sales_user.full_name }}</div></div>
+                    <div class="row mb-2"><div class="col-4 fw-bold">Tool:</div><div class="col-8">{{ checkout.tool.name }}</div></div>
+                    <div class="row mb-2"><div class="col-4 fw-bold">Stock Tersedia:</div><div class="col-8"><span class="badge bg-info">{{ checkout.tool.stock }}</span></div></div>
+                    <div class="row mb-2"><div class="col-4 fw-bold">Quantity:</div><div class="col-8"><span class="badge bg-primary fs-6">{{ checkout.quantity }}</span></div></div>
+                    <div class="row mb-2"><div class="col-4 fw-bold">Notes:</div><div class="col-8">{{ checkout.notes|default:"-" }}</div></div>
+                    <div class="row"><div class="col-4 fw-bold">Tanggal:</div><div class="col-8">{{ checkout.created_at|date:"d/m/Y H:i" }}</div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Review Decision</h5></div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Keputusan</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="action" id="approve" value="approve" checked>
+                                <label class="form-check-label" for="approve">
+                                    <i class="bi bi-check-circle text-success"></i> Approve (Stock akan berkurang {{ checkout.quantity }} unit)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="action" id="reject" value="reject">
+                                <label class="form-check-label" for="reject">
+                                    <i class="bi bi-x-circle text-danger"></i> Reject (Stock tidak berubah)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_admin_notes" class="form-label">Catatan Admin</label>
+                            <textarea name="admin_notes" id="id_admin_notes" class="form-control" rows="3" placeholder="Catatan untuk sales (opsional)"></textarea>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> Keputusan tidak bisa diubah setelah submit.
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Submit Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card mb-3">
+                <div class="card-header"><h6 class="mb-0">Statistik {{ checkout.sales_user.full_name }}</h6></div>
+                <div class="card-body">
+                    <p>Total Request: <strong>{{ stats.total }}</strong></p>
+                    <p>Approved: <strong class="text-success">{{ stats.approved }}</strong></p>
+                    <p>Rejected: <strong class="text-danger">{{ stats.rejected }}</strong></p>
+                    <p class="mb-0">Pending: <strong class="text-warning">{{ stats.pending }}</strong></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Riwayat Checkout</h6></div>
+                <div class="card-body p-0">
+                    {% if history %}
+                    <div class="list-group list-group-flush">
+                        {% for h in history %}
+                        <div class="list-group-item">
+                            <small>{{ h.created_at|date:"d/m/Y" }}</small><br>
+                            <strong>{{ h.tool.name }}</strong> x{{ h.quantity }}<br>
+                            <span class="badge {% if h.status == 'APPROVED' %}bg-success{% elif h.status == 'REJECTED' %}bg-danger{% else %}bg-warning{% endif %}">{{ h.get_status_display }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3"><small class="text-muted">Belum ada riwayat</small></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

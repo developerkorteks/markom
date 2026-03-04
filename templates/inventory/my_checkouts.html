@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}My Checkouts{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-list-check"></i> My Checkouts</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item active">My Checkouts</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12 col-md-auto mt-3 mt-md-0">
+            <a href="{% url 'inventory:tool_checkout' %}" class="btn btn-primary w-100 w-md-auto">
+                <i class="bi bi-plus-circle"></i> Checkout Baru
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0"><i class="bi bi-clock"></i> Pending ({{ pending.count }})</h5></div>
+        <div class="card-body p-0">
+            {% if pending %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th>Tool</th><th>Qty</th><th>Notes</th><th>Tanggal</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for checkout in pending %}
+                        <tr>
+                            <td><strong>{{ checkout.tool.name }}</strong></td>
+                            <td><span class="badge bg-secondary">{{ checkout.quantity }}</span></td>
+                            <td><small>{{ checkout.notes|truncatewords:10|default:"-" }}</small></td>
+                            <td><small>{{ checkout.created_at|date:"d/m/Y H:i" }}</small></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-3"><p class="text-muted mb-0">Tidak ada pending</p></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white"><h6 class="mb-0">Approved ({{ approved.count }})</h6></div>
+                <div class="card-body p-0">
+                    {% if approved %}
+                    <div class="list-group list-group-flush">
+                        {% for checkout in approved|slice:":5" %}
+                        <div class="list-group-item">
+                            <strong>{{ checkout.tool.name }}</strong> x{{ checkout.quantity }}
+                            <br><small class="text-muted">{{ checkout.reviewed_at|date:"d/m/Y" }}</small>
+                            {% if checkout.admin_notes %}<br><small><i class="bi bi-chat"></i> {{ checkout.admin_notes }}</small>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3"><small class="text-muted">Belum ada yang approved</small></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white"><h6 class="mb-0">Rejected ({{ rejected.count }})</h6></div>
+                <div class="card-body p-0">
+                    {% if rejected %}
+                    <div class="list-group list-group-flush">
+                        {% for checkout in rejected|slice:":5" %}
+                        <div class="list-group-item">
+                            <strong>{{ checkout.tool.name }}</strong> x{{ checkout.quantity }}
+                            <br><small class="text-muted">{{ checkout.reviewed_at|date:"d/m/Y" }}</small>
+                            {% if checkout.admin_notes %}<br><small class="text-danger"><i class="bi bi-chat"></i> {{ checkout.admin_notes }}</small>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3"><small class="text-muted">Belum ada yang rejected</small></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

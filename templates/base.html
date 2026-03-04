@@ -86,6 +86,24 @@
                             <i class="bi bi-receipt"></i> Semua Pesanan
                         </a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}"
+                           href="#" id="inventoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-tools"></i> Sales Tools
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="inventoryDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'inventory:tool_list' %}">
+                                    <i class="bi bi-list-ul"></i> Manage Tools
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'inventory:checkout_review_list' %}">
+                                    <i class="bi bi-clipboard-check"></i> Review Checkouts
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     {% endif %}
 
                     {% if user.is_sales %}
@@ -94,6 +112,18 @@
                         <a class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"
                            href="{% url 'orders:shop' %}">
                             <i class="bi bi-shop"></i> Katalog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'catalog' in request.path %}active{% endif %}"
+                           href="{% url 'inventory:tools_catalog' %}">
+                            <i class="bi bi-grid"></i> Tools Catalog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'my-checkouts' in request.path %}active{% endif %}"
+                           href="{% url 'inventory:my_checkouts' %}">
+                            <i class="bi bi-list-check"></i> My Checkouts
                         </a>
                     </li>
                     <li class="nav-item">

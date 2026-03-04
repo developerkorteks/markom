@@ -4,6 +4,9 @@ from django.conf import settings
 from django.utils import timezone
 from merchandise.models import Merchandise
 
+# Import new SalesTool models
+from .sales_tool_models import SalesTool, ToolCheckout
+
 
 class SalesInventory(models.Model):
     """

@@ -2,9 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
+from django.http import HttpResponse
 from accounts.decorators import admin_required, admin_or_sales_required
 from .models import Category, Merchandise, StockHistory
-from .forms import CategoryForm, MerchandiseForm, StockAdjustmentForm
+from .forms import CategoryForm, MerchandiseForm, StockAdjustmentForm, StockOpnameExportForm
+import calendar
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from orders.models import OrderItem
 
 # ============================================
 # CATEGORY VIEWS
@@ -323,3 +328,173 @@ def merchandise_adjust_stock(request, pk):
         'form': form,
         'merchandise': merchandise
     })
+
+# ============================================
+# STOCK OPNAME EXPORT
+# ============================================
+
+@admin_required
+def stock_opname_export(request):
+    """Export stock opname report to Excel (Admin only)"""
+    if request.method == 'POST':
+        form = StockOpnameExportForm(request.POST)
+        if form.is_valid():
+            try:
+                month = int(form.cleaned_data['month'])
+                year = int(form.cleaned_data['year'])
+                branch_name = form.cleaned_data['branch_name']
+                
+                # Generate Excel file
+                response = generate_stock_opname_excel(month, year, branch_name)
+                return response
+            except Exception as e:
+                messages.error(request, f'Error generating export: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = StockOpnameExportForm()
+    
+    return render(request, 'merchandise/stock_opname_export.html', {
+        'form': form,
+        'title': 'Export Stock Opname'
+    })
+
+
+def generate_stock_opname_excel(month, year, branch_name):
+    """Generate stock opname Excel file"""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+    from openpyxl.utils import get_column_letter
+    from django.db.models import Sum
+    from django.utils import timezone
+    
+    # Calculate date range for the period (timezone-aware)
+    start_date = timezone.make_aware(datetime(year, month, 1))
+    end_date = start_date + relativedelta(months=1)
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    month_name = calendar.month_name[month].upper()
+    ws.title = f"STOCK OPNAME {month_name}"
+    
+    # Define styles
+    title_font = Font(name='Arial', size=16, bold=True)
+    header_font = Font(name='Arial', size=11, bold=True, color='FFFFFF')
+    category_font = Font(name='Arial', size=12, bold=True)
+    normal_font = Font(name='Arial', size=11)
+    
+    header_fill = PatternFill(start_color='4472C4', end_color='4472C4', fill_type='solid')
+    category_fill = PatternFill(start_color='D9E1F2', end_color='D9E1F2', fill_type='solid')
+    
+    center_alignment = Alignment(horizontal='center', vertical='center')
+    left_alignment = Alignment(horizontal='left', vertical='center')
+    
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Title (Row 1-2 merged)
+    ws.merge_cells('A1:D2')
+    title_cell = ws['A1']
+    title_cell.value = f'LAPORAN STOCK OPNAME - {month_name} {year}\n{branch_name}'
+    title_cell.font = title_font
+    title_cell.alignment = center_alignment
+    
+    # Set row heights
+    ws.row_dimensions[1].height = 30
+    ws.row_dimensions[2].height = 30
+    ws.row_dimensions[4].height = 25
+    
+    # Headers (Row 4)
+    headers = ['JENIS MATERIAL/PRODUK', 'STOCK AWAL', 'PENGGUNAAN', 'SISA STOCK']
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=4, column=col_num)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = center_alignment
+        cell.border = thin_border
+    
+    # Set column widths
+    ws.column_dimensions['A'].width = 50
+    ws.column_dimensions['B'].width = 15
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 15
+    
+    # Get data - group by category
+    current_row = 5
+    categories = Category.objects.filter(is_active=True).prefetch_related('merchandise_set')
+    
+    for category in categories:
+        merchandises = category.merchandise_set.filter(is_active=True)
+        
+        if not merchandises.exists():
+            continue
+        
+        # Category row
+        category_cell = ws.cell(row=current_row, column=1)
+        category_cell.value = category.name.upper()
+        category_cell.font = category_font
+        category_cell.fill = category_fill
+        category_cell.alignment = left_alignment
+        category_cell.border = thin_border
+        
+        # Merge category row across columns
+        ws.merge_cells(f'A{current_row}:D{current_row}')
+        current_row += 1
+        
+        # Merchandise rows
+        for merch in merchandises:
+            # Calculate usage in period
+            usage = OrderItem.objects.filter(
+                merchandise=merch,
+                order__created_at__gte=start_date,
+                order__created_at__lte=end_date
+            ).aggregate(total=Sum('quantity'))['total'] or 0
+            
+            # Stock awal = current stock + usage
+            stock_awal = merch.stock + usage
+            
+            # Product name
+            name_cell = ws.cell(row=current_row, column=1)
+            name_cell.value = f"  {merch.name}"  # Indent with 2 spaces
+            name_cell.font = normal_font
+            name_cell.alignment = left_alignment
+            name_cell.border = thin_border
+            
+            # Stock Awal
+            stock_cell = ws.cell(row=current_row, column=2)
+            stock_cell.value = stock_awal
+            stock_cell.font = normal_font
+            stock_cell.alignment = center_alignment
+            stock_cell.border = thin_border
+            
+            # Penggunaan
+            usage_cell = ws.cell(row=current_row, column=3)
+            usage_cell.value = usage
+            usage_cell.font = normal_font
+            usage_cell.alignment = center_alignment
+            usage_cell.border = thin_border
+            
+            # Sisa Stock (Formula)
+            sisa_cell = ws.cell(row=current_row, column=4)
+            sisa_cell.value = f'=B{current_row}-C{current_row}'
+            sisa_cell.font = Font(name='Arial', size=11, bold=True)
+            sisa_cell.alignment = center_alignment
+            sisa_cell.border = thin_border
+            
+            current_row += 1
+    
+    # Prepare response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename = f'Stock_Opname_{month_name}_{year}_{branch_name}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    wb.save(response)
+    return response

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Checkout Tool{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-cart-check"></i> Checkout Tool</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:tools_catalog' %}">Catalog</a></li>
+                    <li class="breadcrumb-item active">Checkout</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Form Checkout</h5></div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                            {{ field }}
+                            {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors.0 }}</div>{% endif %}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                        </div>
+                        {% endfor %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Checkout akan menunggu persetujuan admin. Stock akan berkurang setelah admin menyetujui.
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Submit Checkout</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
