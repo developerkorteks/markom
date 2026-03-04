@@ -99,7 +99,7 @@
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{% url 'inventory:checkout_review_list' %}">
-                                    <i class="bi bi-clipboard-check"></i> Review Checkouts
+                                    <i class="bi bi-clipboard-check"></i> Review Ambil Tool
                                 </a>
                             </li>
                         </ul>
@@ -108,40 +108,49 @@
 
                     {% if user.is_sales %}
                     <!-- Menu Sales -->
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}"
-                           href="{% url 'orders:shop' %}">
-                            <i class="bi bi-shop"></i> Katalog
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if request.resolver_match.app_name == 'orders' %}active{% endif %}"
+                           href="#" id="merchandiseMenuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bag"></i> Merchandise
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="merchandiseMenuDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'orders:shop' %}">
+                                    <i class="bi bi-shop"></i> Katalog Produk
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'orders:cart_detail' %}">
+                                    <i class="bi bi-cart3"></i> Keranjang
+                                    {% if navbar_cart_total > 0 %}
+                                    <span class="badge bg-primary ms-1">{{ navbar_cart_total }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'orders:my_orders' %}">
+                                    <i class="bi bi-clock-history"></i> Riwayat Pesanan
+                                </a>
+                            </li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'catalog' in request.path %}active{% endif %}"
-                           href="{% url 'inventory:tools_catalog' %}">
-                            <i class="bi bi-grid"></i> Tools Catalog
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}"
+                           href="#" id="toolsMenuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-tools"></i> Sales Tools
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'my-checkouts' in request.path %}active{% endif %}"
-                           href="{% url 'inventory:my_checkouts' %}">
-                            <i class="bi bi-list-check"></i> My Checkouts
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link cart-nav-link {% if request.resolver_match.url_name == 'cart_detail' %}active{% endif %}"
-                           href="{% url 'orders:cart_detail' %}">
-                            <i class="bi bi-cart3"></i> Keranjang
-                            {% if navbar_cart_total > 0 %}
-                            <span class="cart-badge" id="navbar-cart-badge">{{ navbar_cart_total }}</span>
-                            {% else %}
-                            <span class="cart-badge" id="navbar-cart-badge" style="display:none;">0</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}"
-                           href="{% url 'orders:my_orders' %}">
-                            <i class="bi bi-clock-history"></i> Riwayat
-                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="toolsMenuDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'inventory:tools_catalog' %}">
+                                    <i class="bi bi-grid"></i> Katalog Tools
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'inventory:my_checkouts' %}">
+                                    <i class="bi bi-box-arrow-down"></i> Ambil Tool Saya
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     {% endif %}
                 </ul>

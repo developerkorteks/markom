@@ -32,11 +32,12 @@
         <div class="quick-actions-divider"></div>
         <div class="quick-actions-icons-scroll">
         <div class="quick-actions-icons">
+            <!-- Merchandise Section -->
             <a href="{% url 'orders:shop' %}" class="app-icon-btn">
                 <div class="app-icon-wrap app-icon-blue">
                     <i class="bi bi-shop"></i>
                 </div>
-                <span class="app-icon-label">Katalog</span>
+                <span class="app-icon-label">Produk</span>
             </a>
             <a href="{% url 'orders:cart_detail' %}" class="app-icon-btn">
                 <div class="app-icon-wrap app-icon-orange position-relative">
@@ -47,17 +48,24 @@
                 </div>
                 <span class="app-icon-label">Keranjang</span>
             </a>
-            <a href="{% url 'orders:checkout' %}" class="app-icon-btn">
-                <div class="app-icon-wrap app-icon-green">
-                    <i class="bi bi-bag-check-fill"></i>
-                </div>
-                <span class="app-icon-label">Checkout</span>
-            </a>
             <a href="{% url 'orders:my_orders' %}" class="app-icon-btn">
                 <div class="app-icon-wrap app-icon-purple">
-                    <i class="bi bi-receipt-cutoff"></i>
+                    <i class="bi bi-clock-history"></i>
                 </div>
                 <span class="app-icon-label">Pesanan</span>
+            </a>
+            <!-- Tools Section -->
+            <a href="{% url 'inventory:tools_catalog' %}" class="app-icon-btn">
+                <div class="app-icon-wrap app-icon-teal">
+                    <i class="bi bi-tools"></i>
+                </div>
+                <span class="app-icon-label">Tools</span>
+            </a>
+            <a href="{% url 'inventory:my_checkouts' %}" class="app-icon-btn">
+                <div class="app-icon-wrap app-icon-green">
+                    <i class="bi bi-box-arrow-down"></i>
+                </div>
+                <span class="app-icon-label">Ambil Tool</span>
             </a>
         </div>
         </div><!-- end quick-actions-icons-scroll -->

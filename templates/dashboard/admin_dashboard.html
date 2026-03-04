@@ -33,7 +33,7 @@
     <div class="row g-3 mb-4">
 
         <!-- Total Pesanan -->
-        <div class="col-6 col-md-4">
+        <div class="col-6 col-md-3">
             <a href="{% url 'orders:order_list' %}" class="text-decoration-none">
                 <div class="card mini-stat-card h-100">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
@@ -51,7 +51,7 @@
         </div>
 
         <!-- Merchandise Aktif -->
-        <div class="col-6 col-md-4">
+        <div class="col-6 col-md-3">
             <a href="{% url 'merchandise:merchandise_list' %}" class="text-decoration-none">
                 <div class="card mini-stat-card h-100">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Pengguna Sales -->
-        <div class="col-6 col-md-4">
+        <div class="col-6 col-md-3">
             <a href="{% url 'accounts:user_list' %}" class="text-decoration-none">
                 <div class="card mini-stat-card h-100">
                     <div class="card-body p-3 d-flex align-items-center gap-3">
@@ -80,6 +80,24 @@
                             <div class="mini-stat-value">{{ total_sales_users|default:"0" }}</div>
                             <div class="mini-stat-label">Pengguna Sales</div>
                             <div class="mini-stat-sub">Kelola pengguna</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Tools Pending -->
+        <div class="col-6 col-md-3">
+            <a href="{% url 'inventory:checkout_review_list' %}" class="text-decoration-none">
+                <div class="card mini-stat-card h-100">
+                    <div class="card-body p-3 d-flex align-items-center gap-3">
+                        <div class="mini-stat-icon-wrap mini-stat-danger">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        <div>
+                            <div class="mini-stat-value">{{ pending_checkouts|default:"0" }}</div>
+                            <div class="mini-stat-label">Tools Pending</div>
+                            <div class="mini-stat-sub">{{ approved_checkouts_today|default:"0" }} disetujui hari ini</div>
                         </div>
                     </div>
                 </div>
@@ -127,6 +145,19 @@
                             <i class="bi bi-plus-circle-fill"></i>
                         </div>
                         <span class="app-icon-label">Buat Order</span>
+                    </a>
+                    <!-- Sales Tools Section -->
+                    <a href="{% url 'inventory:tool_list' %}" class="app-icon-btn">
+                        <div class="app-icon-wrap app-icon-red">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        <span class="app-icon-label">Manage Tools</span>
+                    </a>
+                    <a href="{% url 'inventory:checkout_review_list' %}" class="app-icon-btn">
+                        <div class="app-icon-wrap app-icon-purple">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <span class="app-icon-label">Review Tools</span>
                     </a>
                 </div>
                 </div><!-- end quick-actions-icons-scroll -->

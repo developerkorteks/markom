@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Ambil Tool{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb breadcrumb-neu">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'inventory:my_checkouts' %}">Ambil Tool</a></li>
+            <li class="breadcrumb-item active">Detail</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-3 align-items-center">
+        <div class="col">
+            <h3 class="mb-1">
+                <i class="bi bi-info-circle me-2" style="color: var(--color-accent);"></i>Detail Ambil Tool
+            </h3>
+            <p class="text-muted mb-0" style="font-size: var(--text-sm);">
+                Detail informasi pengambilan tool Anda
+            </p>
+        </div>
+        <div class="col-12 col-md-auto mt-2 mt-md-0">
+            <a href="{% url 'inventory:my_checkouts' %}" class="btn btn-secondary btn-sm w-100 w-md-auto">
+                <i class="bi bi-arrow-left me-1"></i>Kembali
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Info Card -->
+        <div class="col-md-8 mb-3">
+            <div class="card">
+                <div class="card-header" style="padding: var(--space-3) var(--space-4);">
+                    <h6 class="mb-0">
+                        <i class="bi bi-box-seam me-2" style="color: var(--color-accent);"></i>Informasi Pengambilan Tool
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Tool Info -->
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">Tool</small>
+                            <strong style="font-size: var(--text-sm);">{{ checkout.tool.name }}</strong>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">Quantity</small>
+                            <span class="badge bg-primary" style="font-size: var(--text-sm);">{{ checkout.quantity }} unit</span>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">Status</small>
+                            {% if checkout.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif checkout.status == 'APPROVED' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% else %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if checkout.tool.image %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2" style="font-size: var(--text-xs);">Foto Tool</small>
+                        <img src="{{ checkout.tool.image.url }}" alt="{{ checkout.tool.name }}" 
+                             style="max-width: 300px; border-radius: var(--radius-md); box-shadow: var(--neu-shadow-raised);">
+                    </div>
+                    {% endif %}
+
+                    {% if checkout.tool.description %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">Deskripsi Tool</small>
+                        <p class="mb-0" style="font-size: var(--text-sm);">{{ checkout.tool.description }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if checkout.notes %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">Notes Anda</small>
+                        <div class="neu-inset-box">
+                            <p class="mb-0" style="font-size: var(--text-sm);">{{ checkout.notes }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if checkout.admin_notes and checkout.status != 'PENDING' %}
+                    <div>
+                        <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">Catatan Admin</small>
+                        <div class="neu-inset-box">
+                            <p class="mb-0 {% if checkout.status == 'APPROVED' %}text-success{% else %}text-danger{% endif %}" 
+                               style="font-size: var(--text-sm);">
+                                <i class="bi bi-chat-left-text me-1"></i>{{ checkout.admin_notes }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header" style="padding: var(--space-3) var(--space-4);">
+                    <h6 class="mb-0">
+                        <i class="bi bi-clock-history me-2" style="color: var(--color-accent);"></i>Timeline
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Created -->
+                    <div class="mb-3 pb-3" style="border-bottom: 1px solid rgba(184, 190, 199, 0.3);">
+                        <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">
+                            <i class="bi bi-plus-circle me-1"></i>Dibuat
+                        </small>
+                        <div style="font-size: var(--text-sm);">{{ checkout.created_at|date:"d M Y, H:i" }}</div>
+                    </div>
+
+                    {% if checkout.status != 'PENDING' %}
+                    <!-- Reviewed -->
+                    <div class="mb-3 pb-3" style="border-bottom: 1px solid rgba(184, 190, 199, 0.3);">
+                        <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">
+                            {% if checkout.status == 'APPROVED' %}
+                                <i class="bi bi-check-circle me-1"></i>Disetujui
+                            {% else %}
+                                <i class="bi bi-x-circle me-1"></i>Ditolak
+                            {% endif %}
+                        </small>
+                        <div style="font-size: var(--text-sm);">{{ checkout.reviewed_at|date:"d M Y, H:i" }}</div>
+                        {% if checkout.reviewed_by %}
+                        <small class="text-muted" style="font-size: var(--text-xs);">
+                            oleh {{ checkout.reviewed_by.full_name }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Current Stock -->
+                    <div>
+                        <small class="text-muted d-block mb-1" style="font-size: var(--text-xs);">
+                            <i class="bi bi-box me-1"></i>Stock Saat Ini
+                        </small>
+                        <div style="font-size: var(--text-sm);">
+                            {% if checkout.tool.stock == 0 %}
+                                <span class="badge bg-danger">{{ checkout.tool.stock }}</span>
+                            {% elif checkout.tool.stock < 10 %}
+                                <span class="badge bg-warning text-dark">{{ checkout.tool.stock }}</span>
+                            {% else %}
+                                <span class="badge bg-success">{{ checkout.tool.stock }}</span>
+                            {% endif %}
+                            unit tersedia
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if checkout.status == 'PENDING' %}
+            <!-- Pending Info -->
+            <div class="card mt-3">
+                <div class="card-body text-center" style="padding: var(--space-4);">
+                    <i class="bi bi-hourglass-split" style="font-size: 2rem; color: var(--color-warning);"></i>
+                    <p class="text-muted mb-0 mt-2" style="font-size: var(--text-xs);">
+                        Pengambilan tool Anda sedang menunggu persetujuan admin
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -8,7 +8,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'inventory:checkout_review_list' %}">Review Checkouts</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:checkout_review_list' %}">Review Ambil Tool</a></li>
                     <li class="breadcrumb-item active">Review</li>
                 </ol>
             </nav>
@@ -18,7 +18,7 @@
     <div class="row">
         <div class="col-lg-8 mb-4">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Checkout Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">Detail Pengambilan Tool</h5></div>
                 <div class="card-body">
                     <div class="row mb-2"><div class="col-4 fw-bold">Sales:</div><div class="col-8">{{ checkout.sales_user.full_name }}</div></div>
                     <div class="row mb-2"><div class="col-4 fw-bold">Tool:</div><div class="col-8">{{ checkout.tool.name }}</div></div>
@@ -76,7 +76,7 @@
             </div>
 
             <div class="card">
-                <div class="card-header"><h6 class="mb-0">Riwayat Checkout</h6></div>
+                <div class="card-header"><h6 class="mb-0">Riwayat Pengambilan</h6></div>
                 <div class="card-body p-0">
                     {% if history %}
                     <div class="list-group list-group-flush">

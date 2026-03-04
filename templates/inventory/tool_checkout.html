@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Checkout Tool{% endblock %}
+{% block title %}Ambil Tool{% endblock %}
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h2><i class="bi bi-cart-check"></i> Checkout Tool</h2>
+            <h2><i class="bi bi-box-arrow-down"></i> Ambil Tool</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'inventory:tools_catalog' %}">Catalog</a></li>
-                    <li class="breadcrumb-item active">Checkout</li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:tools_catalog' %}">Katalog Tools</a></li>
+                    <li class="breadcrumb-item active">Ambil Tool</li>
                 </ol>
             </nav>
         </div>
@@ -17,23 +17,78 @@
     <div class="row justify-content-center">
         <div class="col-lg-6">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Form Checkout</h5></div>
+                <div class="card-header"><h5 class="mb-0">Form Ambil Tool</h5></div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        {% for field in form %}
+                        
+                        {% if selected_tool %}
+                        <!-- Tool yang dipilih - Read only -->
                         <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}</label>
-                            {{ field }}
-                            {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors.0 }}</div>{% endif %}
-                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            <label class="form-label">Tool yang Dipilih <span class="text-danger">*</span></label>
+                            <div class="neu-inset-box p-3">
+                                <div class="d-flex align-items-start gap-3">
+                                    {% if selected_tool.image %}
+                                    <img src="{{ selected_tool.image.url }}" alt="{{ selected_tool.name }}" 
+                                         style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--neu-shadow-raised);">
+                                    {% else %}
+                                    <div style="width: 80px; height: 80px; background: var(--neu-bg); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; box-shadow: var(--neu-shadow-inset-subtle);">
+                                        <i class="bi bi-tools" style="font-size: 2rem; color: var(--color-text-light);"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1" style="color: var(--color-text-dark);">{{ selected_tool.name }}</h6>
+                                        {% if selected_tool.description %}
+                                        <p class="text-muted mb-2 small">{{ selected_tool.description|truncatewords:20 }}</p>
+                                        {% endif %}
+                                        <div>
+                                            <small class="text-muted">Stock tersedia: </small>
+                                            {% if selected_tool.stock < 10 %}
+                                            <span class="badge bg-warning text-dark">{{ selected_tool.stock }}</span>
+                                            {% else %}
+                                            <span class="badge bg-success">{{ selected_tool.stock }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Hidden field untuk tool -->
+                            {{ form.tool.as_hidden }}
                         </div>
-                        {% endfor %}
+                        {% else %}
+                        <!-- Dropdown tool jika tidak ada yang dipilih -->
+                        <div class="mb-3">
+                            <label for="{{ form.tool.id_for_label }}" class="form-label">{{ form.tool.label }} <span class="text-danger">*</span></label>
+                            {{ form.tool }}
+                            {% if form.tool.errors %}<div class="invalid-feedback d-block">{{ form.tool.errors.0 }}</div>{% endif %}
+                            {% if form.tool.help_text %}<div class="form-text">{{ form.tool.help_text }}</div>{% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Quantity -->
+                        <div class="mb-3">
+                            <label for="{{ form.quantity.id_for_label }}" class="form-label">{{ form.quantity.label }} <span class="text-danger">*</span></label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}<div class="invalid-feedback d-block">{{ form.quantity.errors.0 }}</div>{% endif %}
+                            {% if form.quantity.help_text %}<div class="form-text">{{ form.quantity.help_text }}</div>{% endif %}
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}<div class="invalid-feedback d-block">{{ form.notes.errors.0 }}</div>{% endif %}
+                            {% if form.notes.help_text %}<div class="form-text">{{ form.notes.help_text }}</div>{% endif %}
+                        </div>
+                        
                         <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Checkout akan menunggu persetujuan admin. Stock akan berkurang setelah admin menyetujui.
+                            <i class="bi bi-info-circle"></i> Pengambilan tool akan menunggu persetujuan admin. Stock akan berkurang setelah admin menyetujui.
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Submit Checkout</button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-send me-2"></i>Submit Permintaan</button>
+                            <a href="{% url 'inventory:tools_catalog' %}" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i>Kembali ke Katalog
+                            </a>
                         </div>
                     </form>
                 </div>

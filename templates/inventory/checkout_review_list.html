@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}Review Checkouts{% endblock %}
+{% block title %}Review Ambil Tool{% endblock %}
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h2><i class="bi bi-clipboard-check"></i> Review Checkouts</h2>
+            <h2><i class="bi bi-clipboard-check"></i> Review Ambil Tool</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
-                    <li class="breadcrumb-item active">Review Checkouts</li>
+                    <li class="breadcrumb-item active">Review Ambil Tool</li>
                 </ol>
             </nav>
         </div>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="card">
-        <div class="card-header"><h5 class="mb-0">Checkouts ({{ checkouts.count }})</h5></div>
+        <div class="card-header"><h5 class="mb-0">Pengambilan Tool ({{ checkouts.count }})</h5></div>
         <div class="card-body p-0">
             {% if checkouts %}
             <div class="table-responsive">
@@ -106,7 +106,7 @@
             {% else %}
             <div class="text-center py-5">
                 <i class="bi bi-inbox display-4 text-muted"></i>
-                <h5 class="mt-3">Tidak Ada Checkouts</h5>
+                <h5 class="mt-3">Tidak Ada Pengambilan Tool</h5>
             </div>
             {% endif %}
         </div>

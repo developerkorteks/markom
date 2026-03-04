@@ -1318,9 +1318,20 @@ a[href^="https://wa.me"]:hover {
     border: none;
 }
 
+/* Body flexbox layout untuk sticky footer */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
 /* Footer */
 footer {
-    margin-top: var(--space-8);
+    margin-top: auto;
     padding: var(--space-4) var(--space-6);
     background-color: var(--neu-bg);
     border-top: 1px solid rgba(184, 190, 199, 0.4);
@@ -1330,6 +1341,19 @@ footer {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
     text-align: center;
+    flex-shrink: 0;
+}
+
+/* List group items - neumorphic background */
+.list-group-item {
+    background-color: var(--neu-bg) !important;
+    border-color: rgba(184, 190, 199, 0.3) !important;
+}
+
+.list-group-item-action:hover {
+    background-color: var(--neu-bg-light) !important;
+    transform: translateX(2px);
+    transition: all var(--transition-fast);
 }
 
 /* Main content padding */

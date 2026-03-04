@@ -16,6 +16,7 @@ urlpatterns = [
     path('checkout/', views.tool_checkout, name='tool_checkout'),
     path('checkout/<int:pk>/', views.tool_checkout, name='tool_checkout_pk'),
     path('my-checkouts/', views.my_checkouts, name='my_checkouts'),
+    path('my-checkouts/<int:pk>/', views.checkout_detail, name='checkout_detail'),
     
     # Admin - Review Checkouts
     path('review/', views.checkout_review_list, name='checkout_review_list'),

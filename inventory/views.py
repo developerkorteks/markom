@@ -157,13 +157,15 @@ def tools_catalog(request):
     return render(request, 'inventory/tools_catalog.html', {
         'tools': tools,
         'search': search,
-        'title': 'Tools Catalog'
+        'title': 'Katalog Tools'
     })
 
 
 @sales_required
 def tool_checkout(request, pk=None):
-    """Sales: Checkout a tool"""
+    """Sales: Ambil tool untuk keperluan penjualan"""
+    selected_tool = None
+    
     if request.method == 'POST':
         form = ToolCheckoutForm(request.POST)
         if form.is_valid():
@@ -173,29 +175,36 @@ def tool_checkout(request, pk=None):
             
             messages.success(
                 request,
-                f'Checkout {checkout.quantity} unit "{checkout.tool.name}" berhasil. Menunggu persetujuan admin.'
+                f'Permintaan ambil {checkout.quantity} unit "{checkout.tool.name}" berhasil. Menunggu persetujuan admin.'
             )
             return redirect('inventory:my_checkouts')
         else:
             messages.error(request, 'Form tidak valid.')
+            # Get selected_tool from form data if available
+            if 'tool' in request.POST:
+                try:
+                    selected_tool = SalesTool.objects.get(pk=request.POST['tool'])
+                except SalesTool.DoesNotExist:
+                    pass
     else:
         # Pre-select tool if pk provided
         initial = {}
         if pk:
-            tool = get_object_or_404(SalesTool, pk=pk, is_active=True)
-            initial['tool'] = tool
+            selected_tool = get_object_or_404(SalesTool, pk=pk, is_active=True)
+            initial['tool'] = selected_tool.pk
         
         form = ToolCheckoutForm(initial=initial)
     
     return render(request, 'inventory/tool_checkout.html', {
         'form': form,
-        'title': 'Checkout Tool'
+        'selected_tool': selected_tool,
+        'title': 'Ambil Tool'
     })
 
 
 @sales_required
 def my_checkouts(request):
-    """Sales: View their checkout requests"""
+    """Sales: Lihat daftar pengambilan tool"""
     checkouts = ToolCheckout.objects.filter(
         sales_user=request.user
     ).select_related('tool', 'reviewed_by').order_by('-created_at')
@@ -209,17 +218,32 @@ def my_checkouts(request):
         'pending': pending,
         'approved': approved,
         'rejected': rejected,
-        'title': 'My Checkouts'
+        'title': 'Ambil Tool Saya'
+    })
+
+
+@sales_required
+def checkout_detail(request, pk):
+    """Sales: Lihat detail pengambilan tool"""
+    checkout = get_object_or_404(
+        ToolCheckout, 
+        pk=pk,
+        sales_user=request.user  # Only allow viewing own checkouts
+    )
+    
+    return render(request, 'inventory/checkout_detail.html', {
+        'checkout': checkout,
+        'title': f'Detail Ambil Tool - {checkout.tool.name}'
     })
 
 
 # ============================================
-# ADMIN VIEWS - Review Checkouts with Filters
+# ADMIN VIEWS - Review Ambil Tool
 # ============================================
 
 @admin_required
 def checkout_review_list(request):
-    """Admin: Review checkouts with filters"""
+    """Admin: Review pengambilan tools"""
     # Get filter parameters
     status_filter = request.GET.get('status', 'PENDING')
     sales_user_id = request.GET.get('sales_user', '')
@@ -286,7 +310,7 @@ def checkout_review_list(request):
         'date_to': date_to,
         'month': month,
         'year': year,
-        'title': 'Review Checkouts'
+        'title': 'Review Ambil Tool'
     })
 
 
@@ -343,7 +367,7 @@ def checkout_review(request, pk):
         'form': form,
         'history': history,
         'stats': stats,
-        'title': f'Review Checkout - {checkout.sales_user.full_name}'
+        'title': f'Review Ambil Tool - {checkout.sales_user.full_name}'
     })
 
 

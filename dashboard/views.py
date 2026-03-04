@@ -54,6 +54,14 @@ def home(request):
             .order_by('-order_count')
         )
 
+        # ── Tool checkouts stats ──
+        from inventory.sales_tool_models import ToolCheckout
+        pending_checkouts = ToolCheckout.objects.filter(status='PENDING').count()
+        approved_checkouts_today = ToolCheckout.objects.filter(
+            status='APPROVED',
+            reviewed_at__date=today
+        ).count()
+        
         context = {
             # ── Core counts ──
             'total_orders': Order.objects.count(),
@@ -75,6 +83,10 @@ def home(request):
             'orders_this_month': Order.objects.filter(
                 created_at__date__gte=first_day_of_month
             ).count(),
+
+            # ── Tool checkouts ──
+            'pending_checkouts': pending_checkouts,
+            'approved_checkouts_today': approved_checkouts_today,
 
             # ── Recent orders widget ──
             'recent_orders': recent_orders,

@@ -1,89 +1,178 @@
 {% extends 'base.html' %}
-{% block title %}My Checkouts{% endblock %}
+
+{% block title %}Ambil Tool Saya{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb breadcrumb-neu">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+            <li class="breadcrumb-item active">Ambil Tool</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-3 align-items-center">
         <div class="col">
-            <h2><i class="bi bi-list-check"></i> My Checkouts</h2>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
-                    <li class="breadcrumb-item active">My Checkouts</li>
-                </ol>
-            </nav>
+            <h3 class="mb-1">
+                <i class="bi bi-list-check me-2" style="color: var(--color-accent);"></i>Ambil Tool Saya
+            </h3>
+            <p class="text-muted mb-0" style="font-size: var(--text-sm);">
+                <span class="fw-semibold">{{ pending.count }}</span> pending · 
+                <span class="fw-semibold">{{ approved.count }}</span> disetujui · 
+                <span class="fw-semibold">{{ rejected.count }}</span> ditolak
+            </p>
         </div>
-        <div class="col-12 col-md-auto mt-3 mt-md-0">
-            <a href="{% url 'inventory:tool_checkout' %}" class="btn btn-primary w-100 w-md-auto">
-                <i class="bi bi-plus-circle"></i> Checkout Baru
+        <div class="col-12 col-md-auto mt-2 mt-md-0">
+            <a href="{% url 'inventory:tool_checkout' %}" class="btn btn-primary btn-sm w-100 w-md-auto">
+                <i class="bi bi-plus-circle me-1"></i>Ambil Tool Baru
             </a>
         </div>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0"><i class="bi bi-clock"></i> Pending ({{ pending.count }})</h5></div>
+    <!-- Pending Checkouts -->
+    <div class="card mb-3">
+        <div class="card-header" style="padding: var(--space-3) var(--space-4);">
+            <h6 class="mb-0">
+                <i class="bi bi-clock-history me-2" style="color: var(--color-warning);"></i>Pending ({{ pending.count }})
+            </h6>
+        </div>
         <div class="card-body p-0">
             {% if pending %}
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr><th>Tool</th><th>Qty</th><th>Notes</th><th>Tanggal</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for checkout in pending %}
-                        <tr>
-                            <td><strong>{{ checkout.tool.name }}</strong></td>
-                            <td><span class="badge bg-secondary">{{ checkout.quantity }}</span></td>
-                            <td><small>{{ checkout.notes|truncatewords:10|default:"-" }}</small></td>
-                            <td><small>{{ checkout.created_at|date:"d/m/Y H:i" }}</small></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="font-size: var(--text-sm);">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="padding: var(--space-2) var(--space-3);">Tool</th>
+                                <th class="text-center" style="width: 60px; padding: var(--space-2) var(--space-3);">Qty</th>
+                                <th style="padding: var(--space-2) var(--space-3);">Notes</th>
+                                <th style="width: 130px; padding: var(--space-2) var(--space-3);">Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for checkout in pending %}
+                            <tr style="cursor: pointer;" onclick="window.location='{% url 'inventory:checkout_detail' checkout.pk %}';">
+                                <td style="padding: var(--space-2) var(--space-3);">
+                                    <strong style="color: var(--color-text-dark); font-size: var(--text-sm);">{{ checkout.tool.name }}</strong>
+                                </td>
+                                <td class="text-center" style="padding: var(--space-2) var(--space-3);">
+                                    <span class="badge bg-warning text-dark" style="font-size: 10px;">{{ checkout.quantity }}</span>
+                                </td>
+                                <td style="padding: var(--space-2) var(--space-3);">
+                                    <small class="text-muted" style="font-size: var(--text-xs);">
+                                        {{ checkout.notes|truncatewords:10|default:"-" }}
+                                    </small>
+                                </td>
+                                <td style="padding: var(--space-2) var(--space-3);">
+                                    <small class="text-muted" style="font-size: var(--text-xs);">
+                                        <i class="bi bi-calendar3 me-1"></i>{{ checkout.created_at|date:"d/m H:i" }}
+                                    </small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             {% else %}
-            <div class="text-center py-3"><p class="text-muted mb-0">Tidak ada pending</p></div>
+                <div class="text-center py-4">
+                    <div class="mb-2" style="font-size: 2rem; color: var(--color-text-light);">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <p class="text-muted mb-0 small">Tidak ada pengambilan tool yang pending</p>
+                </div>
             {% endif %}
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-success text-white"><h6 class="mb-0">Approved ({{ approved.count }})</h6></div>
+    <!-- Approved & Rejected -->
+    <div class="row g-3">
+        <!-- Approved -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header" style="padding: var(--space-3) var(--space-4);">
+                    <h6 class="mb-0" style="font-size: var(--text-sm);">
+                        <i class="bi bi-check-circle me-1" style="color: var(--color-success);"></i>Approved ({{ approved.count }})
+                    </h6>
+                </div>
                 <div class="card-body p-0">
                     {% if approved %}
-                    <div class="list-group list-group-flush">
-                        {% for checkout in approved|slice:":5" %}
-                        <div class="list-group-item">
-                            <strong>{{ checkout.tool.name }}</strong> x{{ checkout.quantity }}
-                            <br><small class="text-muted">{{ checkout.reviewed_at|date:"d/m/Y" }}</small>
-                            {% if checkout.admin_notes %}<br><small><i class="bi bi-chat"></i> {{ checkout.admin_notes }}</small>{% endif %}
+                        <div class="list-group list-group-flush">
+                            {% for checkout in approved|slice:":5" %}
+                            <a href="{% url 'inventory:checkout_detail' checkout.pk %}" class="list-group-item list-group-item-action" style="padding: var(--space-3) var(--space-4); background-color: var(--neu-bg); border-color: rgba(184, 190, 199, 0.3); text-decoration: none;">
+                                <div class="mb-1">
+                                    <strong style="color: var(--color-text-dark); font-size: var(--text-sm);">{{ checkout.tool.name }}</strong>
+                                    <span class="badge bg-success ms-1" style="font-size: 10px;">x{{ checkout.quantity }}</span>
+                                </div>
+                                <small class="text-muted d-block" style="font-size: var(--text-xs);">
+                                    <i class="bi bi-calendar3 me-1"></i>{{ checkout.reviewed_at|date:"d/m H:i" }}
+                                </small>
+                                {% if checkout.admin_notes %}
+                                <small class="text-success d-block mt-1" style="font-size: var(--text-xs);">
+                                    <i class="bi bi-chat-left-text me-1"></i>{{ checkout.admin_notes|truncatewords:8 }}
+                                </small>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
+                        {% if approved.count > 5 %}
+                        <div class="card-footer text-center" style="padding: var(--space-2);">
+                            <small class="text-muted" style="font-size: var(--text-xs);">+{{ approved.count|add:"-5" }} lainnya</small>
+                        </div>
+                        {% endif %}
                     {% else %}
-                    <div class="text-center py-3"><small class="text-muted">Belum ada yang approved</small></div>
+                        <div class="text-center py-4">
+                            <div class="mb-2" style="font-size: 2rem; color: var(--color-text-light);">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <p class="text-muted mb-0 small">Belum ada pengambilan yang disetujui</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-danger text-white"><h6 class="mb-0">Rejected ({{ rejected.count }})</h6></div>
+        <!-- Rejected -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header" style="padding: var(--space-3) var(--space-4);">
+                    <h6 class="mb-0" style="font-size: var(--text-sm);">
+                        <i class="bi bi-x-circle me-1" style="color: var(--color-danger);"></i>Rejected ({{ rejected.count }})
+                    </h6>
+                </div>
                 <div class="card-body p-0">
                     {% if rejected %}
-                    <div class="list-group list-group-flush">
-                        {% for checkout in rejected|slice:":5" %}
-                        <div class="list-group-item">
-                            <strong>{{ checkout.tool.name }}</strong> x{{ checkout.quantity }}
-                            <br><small class="text-muted">{{ checkout.reviewed_at|date:"d/m/Y" }}</small>
-                            {% if checkout.admin_notes %}<br><small class="text-danger"><i class="bi bi-chat"></i> {{ checkout.admin_notes }}</small>{% endif %}
+                        <div class="list-group list-group-flush">
+                            {% for checkout in rejected|slice:":5" %}
+                            <a href="{% url 'inventory:checkout_detail' checkout.pk %}" class="list-group-item list-group-item-action" style="padding: var(--space-3) var(--space-4); background-color: var(--neu-bg); border-color: rgba(184, 190, 199, 0.3); text-decoration: none;">
+                                <div class="mb-1">
+                                    <strong style="color: var(--color-text-dark); font-size: var(--text-sm);">{{ checkout.tool.name }}</strong>
+                                    <span class="badge bg-danger ms-1" style="font-size: 10px;">x{{ checkout.quantity }}</span>
+                                </div>
+                                <small class="text-muted d-block" style="font-size: var(--text-xs);">
+                                    <i class="bi bi-calendar3 me-1"></i>{{ checkout.reviewed_at|date:"d/m H:i" }}
+                                </small>
+                                {% if checkout.admin_notes %}
+                                <small class="text-danger d-block mt-1" style="font-size: var(--text-xs);">
+                                    <i class="bi bi-chat-left-text me-1"></i>{{ checkout.admin_notes|truncatewords:8 }}
+                                </small>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
+                        {% if rejected.count > 5 %}
+                        <div class="card-footer text-center" style="padding: var(--space-2);">
+                            <small class="text-muted" style="font-size: var(--text-xs);">+{{ rejected.count|add:"-5" }} lainnya</small>
+                        </div>
+                        {% endif %}
                     {% else %}
-                    <div class="text-center py-3"><small class="text-muted">Belum ada yang rejected</small></div>
+                        <div class="text-center py-4">
+                            <div class="mb-2" style="font-size: 2rem; color: var(--color-text-light);">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                            <p class="text-muted mb-0 small">Belum ada pengambilan yang ditolak</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
