@@ -131,7 +131,9 @@
                 {% endif %}
 
                 <!-- Badge stok overlay -->
-                {% if item.is_out_of_stock %}
+                {% if item.is_unlimited %}
+                <span class="merch-compact-stock-badge merch-stock-ok" style="background:var(--bs-info,#0dcaf0);color:#000;">∞ Unlimited</span>
+                {% elif item.is_out_of_stock %}
                 <span class="merch-compact-stock-badge merch-stock-out">Habis</span>
                 {% elif item.is_low_stock %}
                 <span class="merch-compact-stock-badge merch-stock-low">Menipis</span>
@@ -151,7 +153,9 @@
                 </div>
                 <div class="merch-compact-stock">
                     Stok:
-                    {% if item.is_out_of_stock %}
+                    {% if item.is_unlimited %}
+                    <strong style="color:var(--bs-info,#0dcaf0);">∞</strong>
+                    {% elif item.is_out_of_stock %}
                     <strong class="merch-stock-text-out">{{ item.stock }}</strong>
                     {% elif item.is_low_stock %}
                     <strong class="merch-stock-text-low">{{ item.stock }}</strong>

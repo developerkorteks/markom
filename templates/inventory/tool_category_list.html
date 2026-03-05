@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Kategori Tools{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="mb-1"><i class="bi bi-tag me-2" style="color: var(--color-accent);"></i>Kategori Tools</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:tool_list' %}">Sales Tools</a></li>
+                    <li class="breadcrumb-item active">Kategori</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12 col-md-auto mt-3 mt-md-0">
+            <a href="{% url 'inventory:tool_category_create' %}" class="btn btn-primary w-100 w-md-auto">
+                <i class="bi bi-plus-circle"></i> Tambah Kategori
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="compact-filter-bar mb-4">
+        <form method="get" class="compact-filter-form">
+            <div class="compact-filter-field compact-filter-search">
+                <i class="bi bi-search compact-filter-icon"></i>
+                <input type="text" name="search" class="compact-filter-input"
+                       placeholder="Cari nama kategori..."
+                       value="{{ search|default:'' }}">
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-actions">
+                <button type="submit" class="compact-filter-btn compact-filter-btn-primary" title="Cari">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <a href="{% url 'inventory:tool_category_list' %}" class="compact-filter-btn compact-filter-btn-reset" title="Reset">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            {% if categories %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nama Kategori</th>
+                            <th class="d-none d-md-table-cell">Deskripsi</th>
+                            <th>Jumlah Tools</th>
+                            <th>Status</th>
+                            <th class="d-none d-sm-table-cell">Dibuat</th>
+                            <th style="width: 120px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                        <tr>
+                            <td class="cell-max-md">
+                                <strong title="{{ cat.name }}">{{ cat.name|truncatechars:30 }}</strong>
+                            </td>
+                            <td class="d-none d-md-table-cell cell-max-lg">
+                                {{ cat.description|truncatewords:10|default:"-" }}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ cat.num_tools }} tools</span>
+                            </td>
+                            <td>
+                                {% if cat.is_active %}
+                                <span class="badge bg-success">Aktif</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Nonaktif</span>
+                                {% endif %}
+                            </td>
+                            <td class="d-none d-sm-table-cell">
+                                {{ cat.created_at|date:"d M Y" }}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'inventory:tool_category_update' cat.pk %}"
+                                       class="btn btn-outline-primary" title="Edit Kategori">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'inventory:tool_category_delete' cat.pk %}"
+                                       class="btn btn-outline-danger" title="Hapus Kategori">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-muted px-3 py-2" style="font-size: var(--text-xs);">
+                Total: {{ categories.count }} kategori
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-tag" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">Belum ada kategori ditemukan.</p>
+                <a href="{% url 'inventory:tool_category_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Tambah Kategori Pertama
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,119 +4,213 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Header -->
-    <div class="row mb-4 align-items-start">
+    <!-- Page Header -->
+    <div class="row mb-4 align-items-center">
         <div class="col">
-            <h2><i class="bi bi-tools"></i> Sales Tools Management</h2>
+            <h2 class="mb-1"><i class="bi bi-tools me-2" style="color: var(--color-accent);"></i>Sales Tools</h2>
             <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
+                <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
                     <li class="breadcrumb-item active">Sales Tools</li>
                 </ol>
             </nav>
         </div>
-        <div class="col-12 col-md-auto mt-3 mt-md-0">
+        <div class="col-12 col-md-auto mt-3 mt-md-0 d-flex gap-2 flex-wrap justify-content-end">
+            <a href="{% url 'inventory:tool_category_list' %}" class="btn btn-outline-secondary w-100 w-md-auto">
+                <i class="bi bi-tag"></i> Kelola Kategori
+            </a>
             <a href="{% url 'inventory:tool_create' %}" class="btn btn-primary w-100 w-md-auto">
-                <i class="bi bi-plus-circle"></i> Tambah Tool Baru
+                <i class="bi bi-plus-circle"></i> Tambah Tool
             </a>
         </div>
     </div>
 
-    <!-- Search -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-10">
-                    <input type="text" name="search" class="form-control" placeholder="Cari tool..." value="{{ search }}">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-secondary w-100">
-                        <i class="bi bi-search"></i> Cari
+    <!-- Filter Bar -->
+    <div class="compact-filter-bar mb-4">
+        <form method="get" class="compact-filter-form">
+            <div class="compact-filter-field compact-filter-search">
+                <i class="bi bi-search compact-filter-icon"></i>
+                <input type="text" name="search" class="compact-filter-input"
+                       placeholder="Cari nama tool..."
+                       value="{{ search }}">
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-select-wrap">
+                <div class="custom-select-wrapper" data-name="category">
+                    <input type="hidden" name="category" class="custom-select-input" value="{{ category_filter }}">
+                    <button type="button" class="custom-select-trigger">
+                        <i class="bi bi-tag cs-icon"></i>
+                        <span class="cs-label">
+                            {% if category_filter == 'none' %}Tanpa Kategori
+                            {% elif category_filter %}{{ categories|dictsort:"pk"|first }}
+                            {% else %}Semua Kategori{% endif %}
+                        </span>
+                        <i class="bi bi-chevron-down cs-chevron"></i>
                     </button>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option{% if not category_filter %} is-selected{% endif %}" data-value="">
+                            <i class="bi bi-check2 cs-opt-check"></i> Semua Kategori
+                        </div>
+                        <div class="custom-select-option{% if category_filter == 'none' %} is-selected{% endif %}" data-value="none">
+                            <i class="bi bi-check2 cs-opt-check"></i> Tanpa Kategori
+                        </div>
+                        {% for cat in categories %}
+                        <div class="custom-select-option{% if category_filter == cat.pk|stringformat:'s' %} is-selected{% endif %}" data-value="{{ cat.pk }}">
+                            <i class="bi bi-check2 cs-opt-check"></i> {{ cat.name }}
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </form>
-        </div>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-select-wrap">
+                <div class="custom-select-wrapper" data-name="status">
+                    <input type="hidden" name="status" class="custom-select-input" value="{{ status_filter }}">
+                    <button type="button" class="custom-select-trigger">
+                        <i class="bi bi-toggle-on cs-icon"></i>
+                        <span class="cs-label">
+                            {% if status_filter == 'active' %}Aktif
+                            {% elif status_filter == 'inactive' %}Nonaktif
+                            {% elif status_filter == 'unlimited' %}Unlimited
+                            {% else %}Semua Status{% endif %}
+                        </span>
+                        <i class="bi bi-chevron-down cs-chevron"></i>
+                    </button>
+                    <div class="custom-select-dropdown">
+                        <div class="custom-select-option{% if not status_filter %} is-selected{% endif %}" data-value="">
+                            <i class="bi bi-check2 cs-opt-check"></i> Semua Status
+                        </div>
+                        <div class="custom-select-option{% if status_filter == 'active' %} is-selected{% endif %}" data-value="active">
+                            <i class="bi bi-check2 cs-opt-check"></i> Aktif
+                        </div>
+                        <div class="custom-select-option{% if status_filter == 'inactive' %} is-selected{% endif %}" data-value="inactive">
+                            <i class="bi bi-check2 cs-opt-check"></i> Nonaktif
+                        </div>
+                        <div class="custom-select-option{% if status_filter == 'unlimited' %} is-selected{% endif %}" data-value="unlimited">
+                            <i class="bi bi-check2 cs-opt-check"></i> ∞ Unlimited
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="compact-filter-divider"></div>
+            <div class="compact-filter-actions">
+                <button type="submit" class="compact-filter-btn compact-filter-btn-primary" title="Terapkan Filter">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <a href="{% url 'inventory:tool_list' %}" class="compact-filter-btn compact-filter-btn-reset" title="Reset Filter">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
     </div>
 
-    <!-- Tools List -->
+    <!-- Tools Table -->
     <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Daftar Tools ({{ tools.count }})</h5>
-        </div>
         <div class="card-body p-0">
             {% if tools %}
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 80px;">Foto</th>
-                                <th>Nama Tool</th>
-                                <th class="text-center" style="width: 100px;">Stock</th>
-                                <th class="text-center" style="width: 100px;">Status</th>
-                                <th class="text-center" style="width: 200px;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tool in tools %}
-                            <tr>
-                                <td>
-                                    {% if tool.image %}
-                                        <img src="{{ tool.image.url }}" alt="{{ tool.name }}" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
-                                    {% else %}
-                                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                            <i class="bi bi-image"></i>
-                                        </div>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <strong>{{ tool.name }}</strong>
-                                    {% if tool.description %}
-                                        <br><small class="text-muted">{{ tool.description|truncatewords:15 }}</small>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    {% if tool.stock == 0 %}
-                                        <span class="badge bg-danger">{{ tool.stock }}</span>
-                                    {% elif tool.stock < 10 %}
-                                        <span class="badge bg-warning text-dark">{{ tool.stock }}</span>
-                                    {% else %}
-                                        <span class="badge bg-success">{{ tool.stock }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    {% if tool.is_active %}
-                                        <span class="badge bg-success">Aktif</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Nonaktif</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a href="{% url 'inventory:tool_update' tool.pk %}" class="btn btn-outline-primary" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{% url 'inventory:tool_adjust_stock' tool.pk %}" class="btn btn-outline-info" title="Adjust Stock">
-                                            <i class="bi bi-clipboard-data"></i>
-                                        </a>
-                                        <a href="{% url 'inventory:tool_delete' tool.pk %}" class="btn btn-outline-danger" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width:70px;" class="d-none d-sm-table-cell">Foto</th>
+                            <th>Nama Tool</th>
+                            <th class="d-none d-md-table-cell">Kategori</th>
+                            <th class="text-center" style="width:90px;">Stock</th>
+                            <th class="text-center" style="width:90px;">Status</th>
+                            <th style="width:130px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tool in tools %}
+                        <tr>
+                            <td class="d-none d-sm-table-cell">
+                                {% if tool.image %}
+                                    <img src="{{ tool.image.url }}" alt="{{ tool.name }}"
+                                         class="img-thumbnail"
+                                         style="width:55px;height:55px;object-fit:cover;">
+                                {% else %}
+                                    <div class="bg-light text-secondary d-flex align-items-center justify-content-center rounded"
+                                         style="width:55px;height:55px;">
+                                        <i class="bi bi-tools"></i>
                                     </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                {% endif %}
+                            </td>
+                            <td class="cell-max-md">
+                                <strong title="{{ tool.name }}">{{ tool.name|truncatechars:35 }}</strong>
+                                {% if tool.is_unlimited %}
+                                    <span class="badge bg-info text-dark ms-1" title="Stok tidak habis">∞</span>
+                                {% endif %}
+                                {% if tool.description %}
+                                    <br><small class="text-muted">{{ tool.description|truncatewords:10 }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="d-none d-md-table-cell">
+                                {% if tool.category %}
+                                    <span class="badge bg-light text-dark border">{{ tool.category.name }}</span>
+                                {% else %}
+                                    <span class="text-muted small">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if tool.is_unlimited %}
+                                    <span class="badge bg-info text-dark">∞</span>
+                                {% elif tool.stock == 0 %}
+                                    <span class="badge bg-danger">{{ tool.stock }}</span>
+                                {% elif tool.stock < 10 %}
+                                    <span class="badge bg-warning text-dark">{{ tool.stock }}</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ tool.stock }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if tool.is_active %}
+                                    <span class="badge bg-success">Aktif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Nonaktif</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'inventory:tool_update' tool.pk %}"
+                                       class="btn btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if not tool.is_unlimited %}
+                                    <a href="{% url 'inventory:tool_adjust_stock' tool.pk %}"
+                                       class="btn btn-outline-info" title="Adjust Stock">
+                                        <i class="bi bi-clipboard-data"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'inventory:tool_delete' tool.pk %}"
+                                       class="btn btn-outline-danger" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-muted px-3 py-2" style="font-size: var(--text-xs);">
+                Menampilkan {{ tools.count }} tools
+            </div>
             {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-inbox display-4 text-muted"></i>
-                    <h5 class="mt-3">Belum Ada Tools</h5>
-                    <p class="text-muted">Belum ada tools untuk sales. Klik tombol "Tambah Tool Baru" untuk mulai.</p>
-                    <a href="{% url 'inventory:tool_create' %}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Tambah Tool Pertama
-                    </a>
-                </div>
+            <div class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">
+                    {% if search or category_filter or status_filter %}
+                        Tidak ada tools yang sesuai filter.
+                    {% else %}
+                        Belum ada tools. Klik "Tambah Tool" untuk memulai.
+                    {% endif %}
+                </p>
+                {% if not search and not category_filter and not status_filter %}
+                <a href="{% url 'inventory:tool_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Tambah Tool Pertama
+                </a>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
     </div>

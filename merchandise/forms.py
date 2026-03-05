@@ -56,7 +56,7 @@ class MerchandiseForm(forms.ModelForm):
 
     class Meta:
         model = Merchandise
-        fields = ['name', 'description', 'category', 'stock', 'image', 'is_active']
+        fields = ['name', 'description', 'category', 'stock', 'image', 'is_unlimited', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -79,6 +79,10 @@ class MerchandiseForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'image/jpeg,image/png,image/jpg'
             }),
+            'is_unlimited': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_is_unlimited'
+            }),
             'is_active': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             })
@@ -89,6 +93,7 @@ class MerchandiseForm(forms.ModelForm):
             'category': 'Kategori',
             'stock': 'Stok',
             'image': 'Gambar',
+            'is_unlimited': 'Stok Unlimited',
             'is_active': 'Aktif',
         }
 
@@ -97,6 +102,7 @@ class MerchandiseForm(forms.ModelForm):
         # Hanya tampilkan kategori yang aktif
         self.fields['category'].queryset = Category.objects.filter(is_active=True)
         self.fields['category'].empty_label = '-- Pilih Kategori --'
+        self.fields['is_unlimited'].required = False
 
         # Saat mode edit (instance sudah ada), hapus field stock dari form
         # karena stok dikelola melalui fitur Sesuaikan Stok, bukan dari form ini
@@ -115,6 +121,11 @@ class MerchandiseForm(forms.ModelForm):
     def clean_stock(self):
         """Validasi stok"""
         stock = self.cleaned_data.get('stock')
+        # Cek is_unlimited dari raw POST data (karena clean_stock dipanggil sebelum clean_is_unlimited)
+        is_unlimited = bool(self.data.get('is_unlimited'))
+
+        if is_unlimited:
+            return 0  # unlimited: stok tidak relevan
 
         if stock is None:
             raise ValidationError('Stok wajib diisi.')

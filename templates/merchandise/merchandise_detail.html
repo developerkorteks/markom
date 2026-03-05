@@ -180,9 +180,11 @@
             <a href="{% url 'merchandise:merchandise_edit' merchandise.pk %}" class="btn btn-primary">
                 <i class="bi bi-pencil"></i> Edit
             </a>
+            {% if not merchandise.is_unlimited %}
             <a href="{% url 'merchandise:merchandise_adjust_stock' merchandise.pk %}" class="btn btn-warning">
                 <i class="bi bi-arrow-repeat"></i> Sesuaikan Stok
             </a>
+            {% endif %}
         </div>
         {% endif %}
     </div>
@@ -226,7 +228,15 @@
                 
                 <!-- Status Stok -->
                 <div class="mb-4">
-                    {% if merchandise.is_out_of_stock %}
+                    {% if merchandise.is_unlimited %}
+                    <div class="stock-badge-large" style="background: var(--color-info-bg, #cff4fc); color: var(--color-info, #0dcaf0);">
+                        <i class="bi bi-infinity"></i>
+                        <div>
+                            <div>∞</div>
+                            <div style="font-size: var(--text-sm); font-weight: var(--font-normal);">Stok Unlimited</div>
+                        </div>
+                    </div>
+                    {% elif merchandise.is_out_of_stock %}
                     <div class="stock-badge-large" style="background: var(--color-danger-bg); color: var(--color-danger);">
                         <i class="bi bi-x-circle-fill"></i>
                         <div>
@@ -272,7 +282,13 @@
                 </div>
                 <div class="info-row">
                     <span class="info-label">Stok Saat Ini</span>
-                    <span class="info-value">{{ merchandise.stock }} unit</span>
+                    <span class="info-value">
+                        {% if merchandise.is_unlimited %}
+                        <span class="badge bg-info text-dark">∞ Unlimited</span>
+                        {% else %}
+                        {{ merchandise.stock }} unit
+                        {% endif %}
+                    </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Status</span>

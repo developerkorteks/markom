@@ -66,7 +66,7 @@
 
                         <div class="row">
                             {% if not merchandise %}
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3" id="stockInitialField">
                                 <label for="{{ form.stock.id_for_label }}" class="form-label">Stok Awal *</label>
                                 {{ form.stock }}
                                 {% if form.stock.errors %}
@@ -90,6 +90,17 @@
                                 {% endif %}
                                 <small class="text-muted">Maks. 2MB, format JPG/PNG</small>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_unlimited }}
+                                <label class="form-check-label" for="{{ form.is_unlimited.id_for_label }}">
+                                    <strong>Stok Unlimited</strong>
+                                    <span class="badge bg-info text-dark ms-1">∞</span>
+                                </label>
+                            </div>
+                            <small class="text-muted">Centang jika merchandise bisa dipakai berkali-kali tanpa habis (contoh: tenda, spanduk, display stand)</small>
                         </div>
 
                         <div class="mb-3">
@@ -181,7 +192,9 @@
                             <tr>
                                 <td class="text-muted" style="font-size: var(--text-xs);">Stok Saat Ini</td>
                                 <td>
-                                    {% if merchandise.stock > 20 %}
+                                    {% if merchandise.is_unlimited %}
+                                    <span class="badge bg-info text-dark">∞ Unlimited</span>
+                                    {% elif merchandise.stock > 20 %}
                                     <span class="badge bg-success">{{ merchandise.stock }} pcs</span>
                                     {% elif merchandise.stock >= 10 %}
                                     <span class="badge bg-warning text-dark">{{ merchandise.stock }} pcs</span>
@@ -288,5 +301,26 @@
         reader.readAsDataURL(file);
     });
 })();
+
+// Toggle stok field saat is_unlimited dicentang
+(function () {
+    var unlimitedChk = document.getElementById('id_is_unlimited');
+    var stockField = document.getElementById('stockInitialField');
+
+    function toggleStock() {
+        if (!stockField) return;
+        if (unlimitedChk && unlimitedChk.checked) {
+            stockField.style.display = 'none';
+        } else {
+            stockField.style.display = '';
+        }
+    }
+
+    if (unlimitedChk) {
+        unlimitedChk.addEventListener('change', toggleStock);
+        toggleStock(); // run on load
+    }
+})();
 </script>
 {% endblock %}
+

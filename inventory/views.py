@@ -5,12 +5,94 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, Count
 from django.contrib.auth import get_user_model
 from accounts.decorators import admin_required, sales_required
-from .sales_tool_models import SalesTool, ToolCheckout
-from .tool_forms import SalesToolForm, ToolStockAdjustmentForm, ToolCheckoutForm, CheckoutReviewForm
+from .sales_tool_models import SalesTool, ToolCategory, ToolCheckout
+from .tool_forms import (
+    SalesToolForm, ToolCategoryForm, ToolStockAdjustmentForm,
+    ToolCheckoutForm, CheckoutReviewForm
+)
 from datetime import datetime, timedelta
 from django.utils import timezone
 
 User = get_user_model()
+
+# ============================================
+# ADMIN VIEWS - Category Management
+# ============================================
+
+@admin_required
+def tool_category_list(request):
+    """Admin: List all tool categories"""
+    categories = ToolCategory.objects.annotate(num_tools=Count('tools')).order_by('name')
+    return render(request, 'inventory/tool_category_list.html', {
+        'categories': categories,
+        'title': 'Kelola Kategori Tools'
+    })
+
+
+@admin_required
+def tool_category_create(request):
+    """Admin: Create new tool category"""
+    if request.method == 'POST':
+        form = ToolCategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save()
+            messages.success(request, f'Kategori "{category.name}" berhasil dibuat.')
+            return redirect('inventory:tool_category_list')
+        else:
+            messages.error(request, 'Harap perbaiki kesalahan di bawah ini.')
+    else:
+        form = ToolCategoryForm()
+
+    return render(request, 'inventory/tool_category_form.html', {
+        'form': form,
+        'title': 'Tambah Kategori Tools',
+        'button_text': 'Simpan Kategori'
+    })
+
+
+@admin_required
+def tool_category_update(request, pk):
+    """Admin: Update tool category"""
+    category = get_object_or_404(ToolCategory, pk=pk)
+
+    if request.method == 'POST':
+        form = ToolCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            category = form.save()
+            messages.success(request, f'Kategori "{category.name}" berhasil diupdate.')
+            return redirect('inventory:tool_category_list')
+        else:
+            messages.error(request, 'Harap perbaiki kesalahan di bawah ini.')
+    else:
+        form = ToolCategoryForm(instance=category)
+
+    return render(request, 'inventory/tool_category_form.html', {
+        'form': form,
+        'category': category,
+        'title': f'Edit Kategori: {category.name}',
+        'button_text': 'Simpan Perubahan'
+    })
+
+
+@admin_required
+def tool_category_delete(request, pk):
+    """Admin: Soft delete tool category (set is_active=False)"""
+    category = get_object_or_404(ToolCategory, pk=pk)
+
+    if request.method == 'POST':
+        if category.tools.filter(is_active=True).exists():
+            messages.error(request, f'Tidak bisa menghapus kategori "{category.name}" karena masih ada tools aktif di dalamnya.')
+        else:
+            category.is_active = False
+            category.save()
+            messages.success(request, f'Kategori "{category.name}" berhasil dinonaktifkan.')
+        return redirect('inventory:tool_category_list')
+
+    return render(request, 'inventory/tool_category_confirm_delete.html', {
+        'category': category,
+        'title': f'Hapus Kategori: {category.name}'
+    })
+
 
 # ============================================
 # ADMIN VIEWS - Tools Management
@@ -20,17 +102,40 @@ User = get_user_model()
 def tool_list(request):
     """Admin: List all sales tools"""
     search = request.GET.get('search', '')
-    
-    tools = SalesTool.objects.all().select_related('created_by').order_by('name')
-    
+    category_filter = request.GET.get('category', '')
+    status_filter = request.GET.get('status', '')
+
+    tools = SalesTool.objects.all().select_related('created_by', 'category').order_by('name')
+
     if search:
         tools = tools.filter(
             Q(name__icontains=search) | Q(description__icontains=search)
         )
-    
+
+    if category_filter:
+        if category_filter == 'none':
+            tools = tools.filter(category__isnull=True)
+        else:
+            try:
+                tools = tools.filter(category_id=int(category_filter))
+            except ValueError:
+                pass
+
+    if status_filter == 'active':
+        tools = tools.filter(is_active=True)
+    elif status_filter == 'inactive':
+        tools = tools.filter(is_active=False)
+    elif status_filter == 'unlimited':
+        tools = tools.filter(is_unlimited=True)
+
+    categories = ToolCategory.objects.filter(is_active=True).order_by('name')
+
     return render(request, 'inventory/tool_list.html', {
         'tools': tools,
         'search': search,
+        'category_filter': category_filter,
+        'status_filter': status_filter,
+        'categories': categories,
         'title': 'Sales Tools Management'
     })
 
@@ -50,7 +155,7 @@ def tool_create(request):
             messages.error(request, 'Form tidak valid. Silakan periksa input Anda.')
     else:
         form = SalesToolForm()
-    
+
     return render(request, 'inventory/tool_form.html', {
         'form': form,
         'title': 'Tambah Tool Baru',
@@ -62,7 +167,7 @@ def tool_create(request):
 def tool_update(request, pk):
     """Admin: Update tool"""
     tool = get_object_or_404(SalesTool, pk=pk)
-    
+
     if request.method == 'POST':
         form = SalesToolForm(request.POST, request.FILES, instance=tool)
         if form.is_valid():
@@ -73,7 +178,7 @@ def tool_update(request, pk):
             messages.error(request, 'Form tidak valid.')
     else:
         form = SalesToolForm(instance=tool)
-    
+
     return render(request, 'inventory/tool_form.html', {
         'form': form,
         'tool': tool,
@@ -86,13 +191,13 @@ def tool_update(request, pk):
 def tool_delete(request, pk):
     """Admin: Delete tool (soft delete by setting is_active=False)"""
     tool = get_object_or_404(SalesTool, pk=pk)
-    
+
     if request.method == 'POST':
         tool.is_active = False
         tool.save()
         messages.success(request, f'Tool "{tool.name}" telah dinonaktifkan.')
         return redirect('inventory:tool_list')
-    
+
     return render(request, 'inventory/tool_confirm_delete.html', {
         'tool': tool,
         'title': f'Hapus Tool - {tool.name}'
@@ -103,13 +208,17 @@ def tool_delete(request, pk):
 def tool_adjust_stock(request, pk):
     """Admin: Adjust tool stock"""
     tool = get_object_or_404(SalesTool, pk=pk)
-    
+
+    if tool.is_unlimited:
+        messages.info(request, f'Tool "{tool.name}" berstatus Unlimited — stok tidak perlu diatur.')
+        return redirect('inventory:tool_list')
+
     if request.method == 'POST':
         form = ToolStockAdjustmentForm(request.POST)
         if form.is_valid():
             adjustment = form.cleaned_data['adjustment']
             reason = form.cleaned_data['reason']
-            
+
             try:
                 with transaction.atomic():
                     if adjustment > 0:
@@ -118,7 +227,7 @@ def tool_adjust_stock(request, pk):
                     else:
                         tool.deduct_stock(abs(adjustment))
                         action = 'dikurangi'
-                    
+
                     messages.success(
                         request,
                         f'Stock "{tool.name}" berhasil {action} {abs(adjustment)} unit. Stock sekarang: {tool.stock}'
@@ -130,7 +239,7 @@ def tool_adjust_stock(request, pk):
             messages.error(request, 'Form tidak valid.')
     else:
         form = ToolStockAdjustmentForm()
-    
+
     return render(request, 'inventory/tool_adjust_stock.html', {
         'form': form,
         'tool': tool,
@@ -146,17 +255,33 @@ def tool_adjust_stock(request, pk):
 def tools_catalog(request):
     """Sales: Browse available tools"""
     search = request.GET.get('search', '')
-    
-    tools = SalesTool.objects.filter(is_active=True).order_by('name')
-    
+    category_filter = request.GET.get('category', '')
+
+    tools = SalesTool.objects.filter(is_active=True).select_related('category').filter(
+        Q(is_unlimited=True) | Q(stock__gt=0)
+    ).order_by('name')
+
     if search:
         tools = tools.filter(
             Q(name__icontains=search) | Q(description__icontains=search)
         )
-    
+
+    if category_filter:
+        if category_filter == 'none':
+            tools = tools.filter(category__isnull=True)
+        else:
+            try:
+                tools = tools.filter(category_id=int(category_filter))
+            except ValueError:
+                pass
+
+    categories = ToolCategory.objects.filter(is_active=True).order_by('name')
+
     return render(request, 'inventory/tools_catalog.html', {
         'tools': tools,
         'search': search,
+        'category_filter': category_filter,
+        'categories': categories,
         'title': 'Katalog Tools'
     })
 
@@ -165,14 +290,14 @@ def tools_catalog(request):
 def tool_checkout(request, pk=None):
     """Sales: Ambil tool untuk keperluan penjualan"""
     selected_tool = None
-    
+
     if request.method == 'POST':
         form = ToolCheckoutForm(request.POST)
         if form.is_valid():
             checkout = form.save(commit=False)
             checkout.sales_user = request.user
             checkout.save()
-            
+
             messages.success(
                 request,
                 f'Permintaan ambil {checkout.quantity} unit "{checkout.tool.name}" berhasil. Menunggu persetujuan admin.'
@@ -192,9 +317,9 @@ def tool_checkout(request, pk=None):
         if pk:
             selected_tool = get_object_or_404(SalesTool, pk=pk, is_active=True)
             initial['tool'] = selected_tool.pk
-        
+
         form = ToolCheckoutForm(initial=initial)
-    
+
     return render(request, 'inventory/tool_checkout.html', {
         'form': form,
         'selected_tool': selected_tool,
@@ -208,12 +333,12 @@ def my_checkouts(request):
     checkouts = ToolCheckout.objects.filter(
         sales_user=request.user
     ).select_related('tool', 'reviewed_by').order_by('-created_at')
-    
+
     # Separate by status
     pending = checkouts.filter(status='PENDING')
     approved = checkouts.filter(status='APPROVED')
     rejected = checkouts.filter(status='REJECTED')
-    
+
     return render(request, 'inventory/my_checkouts.html', {
         'pending': pending,
         'approved': approved,
@@ -226,11 +351,11 @@ def my_checkouts(request):
 def checkout_detail(request, pk):
     """Sales: Lihat detail pengambilan tool"""
     checkout = get_object_or_404(
-        ToolCheckout, 
+        ToolCheckout,
         pk=pk,
         sales_user=request.user  # Only allow viewing own checkouts
     )
-    
+
     return render(request, 'inventory/checkout_detail.html', {
         'checkout': checkout,
         'title': f'Detail Ambil Tool - {checkout.tool.name}'
@@ -251,19 +376,19 @@ def checkout_review_list(request):
     date_to = request.GET.get('date_to', '')
     month = request.GET.get('month', '')
     year = request.GET.get('year', '')
-    
+
     # Base queryset
     checkouts = ToolCheckout.objects.all().select_related(
         'sales_user', 'tool', 'reviewed_by'
     ).order_by('-created_at')
-    
+
     # Apply filters
     if status_filter and status_filter != 'ALL':
         checkouts = checkouts.filter(status=status_filter)
-    
+
     if sales_user_id:
         checkouts = checkouts.filter(sales_user_id=sales_user_id)
-    
+
     # Date range filter
     if date_from:
         try:
@@ -272,7 +397,7 @@ def checkout_review_list(request):
             checkouts = checkouts.filter(created_at__gte=date_from_obj)
         except ValueError:
             pass
-    
+
     if date_to:
         try:
             date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
@@ -280,7 +405,7 @@ def checkout_review_list(request):
             checkouts = checkouts.filter(created_at__lt=date_to_obj)
         except ValueError:
             pass
-    
+
     # Month/Year filter
     if month and year:
         try:
@@ -292,14 +417,14 @@ def checkout_review_list(request):
             )
         except ValueError:
             pass
-    
+
     # Get all sales users for filter dropdown
     sales_users = User.objects.filter(role='SALES').order_by('full_name')
-    
+
     # Generate year range for filter
     current_year = timezone.now().year
     years = range(current_year - 1, current_year + 2)
-    
+
     return render(request, 'inventory/checkout_review_list.html', {
         'checkouts': checkouts,
         'sales_users': sales_users,
@@ -318,12 +443,12 @@ def checkout_review_list(request):
 def checkout_review(request, pk):
     """Admin: Approve/Reject checkout with sales history"""
     checkout = get_object_or_404(ToolCheckout, pk=pk)
-    
+
     # Get sales user's checkout history
     history = ToolCheckout.objects.filter(
         sales_user=checkout.sales_user
     ).exclude(pk=checkout.pk).select_related('tool').order_by('-created_at')[:10]
-    
+
     # Calculate statistics
     stats = {
         'total': ToolCheckout.objects.filter(sales_user=checkout.sales_user).count(),
@@ -331,37 +456,45 @@ def checkout_review(request, pk):
         'rejected': ToolCheckout.objects.filter(sales_user=checkout.sales_user, status='REJECTED').count(),
         'pending': ToolCheckout.objects.filter(sales_user=checkout.sales_user, status='PENDING').count(),
     }
-    
+
     if request.method == 'POST':
         form = CheckoutReviewForm(request.POST)
         if form.is_valid():
             action = form.cleaned_data['action']
             admin_notes = form.cleaned_data.get('admin_notes', '')
-            
+
             try:
                 with transaction.atomic():
                     if action == 'approve':
                         checkout.approve(admin_user=request.user, admin_notes=admin_notes)
-                        messages.success(
-                            request,
-                            f'Checkout dari {checkout.sales_user.full_name} telah disetujui. Stock "{checkout.tool.name}" berkurang {checkout.quantity} unit.'
-                        )
+                        if checkout.tool.is_unlimited:
+                            messages.success(
+                                request,
+                                f'Checkout dari {checkout.sales_user.full_name} telah disetujui. '
+                                f'Tool "{checkout.tool.name}" berstatus unlimited — stok tidak dikurangi.'
+                            )
+                        else:
+                            messages.success(
+                                request,
+                                f'Checkout dari {checkout.sales_user.full_name} telah disetujui. '
+                                f'Stock "{checkout.tool.name}" berkurang {checkout.quantity} unit.'
+                            )
                     else:  # reject
                         checkout.reject(admin_user=request.user, admin_notes=admin_notes)
                         messages.warning(
                             request,
                             f'Checkout dari {checkout.sales_user.full_name} telah ditolak.'
                         )
-                
+
                 return redirect('inventory:checkout_review_list')
-                
+
             except ValidationError as e:
                 messages.error(request, str(e))
         else:
             messages.error(request, 'Form tidak valid.')
     else:
         form = CheckoutReviewForm()
-    
+
     return render(request, 'inventory/checkout_review.html', {
         'checkout': checkout,
         'form': form,

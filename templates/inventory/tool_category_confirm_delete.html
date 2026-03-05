@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Hapus Kategori{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="mb-1"><i class="bi bi-tag me-2" style="color: var(--color-accent);"></i>Hapus Kategori</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:tool_list' %}">Sales Tools</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventory:tool_category_list' %}">Kategori</a></li>
+                    <li class="breadcrumb-item active">Hapus</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Konfirmasi Hapus</h6>
+                </div>
+                <div class="card-body">
+                    <p>Apakah Anda yakin ingin menonaktifkan kategori <strong>{{ category.name }}</strong>?</p>
+                    <p class="text-muted small mb-4">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Kategori akan dinonaktifkan (soft delete). Tools yang sudah ada di kategori ini tidak akan terpengaruh.
+                    </p>
+                    <form method="post" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Ya, Nonaktifkan
+                        </button>
+                        <a href="{% url 'inventory:tool_category_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Batal
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

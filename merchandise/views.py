@@ -7,12 +7,9 @@ from accounts.decorators import admin_required, admin_or_sales_required
 from .models import Category, Merchandise, StockHistory
 from .forms import CategoryForm, MerchandiseForm, StockAdjustmentForm, StockOpnameExportForm
 import calendar
-import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from orders.models import OrderItem
-
-logger = logging.getLogger(__name__)
 
 # ============================================
 # CATEGORY VIEWS
@@ -232,11 +229,9 @@ def merchandise_edit(request, pk):
                 messages.success(request, f'Merchandise "{merchandise.name}" berhasil diperbarui.')
                 return redirect('merchandise:merchandise_list')
             except Exception as e:
-                logger.error(f'[merchandise_edit] save() ERROR pk={pk}: {type(e).__name__}: {e}', exc_info=True)
                 messages.error(request, f'Gagal memperbarui merchandise: {str(e)}')
         else:
-            logger.error(f'[merchandise_edit] form INVALID pk={pk}: {form.errors.as_json()}')
-            messages.error(request, f'Harap perbaiki kesalahan di bawah ini. [DEBUG: {dict(form.errors)}]')
+            messages.error(request, 'Harap perbaiki kesalahan di bawah ini.')
     else:
         form = MerchandiseForm(instance=merchandise)
     
@@ -299,7 +294,15 @@ def merchandise_toggle_active(request, pk):
 def merchandise_adjust_stock(request, pk):
     """Adjust merchandise stock (Admin only)"""
     merchandise = get_object_or_404(Merchandise, pk=pk)
-    
+
+    # Block adjust stock untuk produk unlimited
+    if merchandise.is_unlimited:
+        messages.warning(
+            request,
+            f'"{merchandise.name}" memiliki stok unlimited — penyesuaian stok tidak diperlukan.'
+        )
+        return redirect('merchandise:merchandise_detail', pk=pk)
+
     if request.method == 'POST':
         form = StockAdjustmentForm(request.POST)
         if form.is_valid():
@@ -462,38 +465,65 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
                 order__created_at__gte=start_date,
                 order__created_at__lte=end_date
             ).aggregate(total=Sum('quantity'))['total'] or 0
-            
-            # Stock awal = current stock + usage
-            stock_awal = merch.stock + usage
-            
+
             # Product name
             name_cell = ws.cell(row=current_row, column=1)
-            name_cell.value = f"  {merch.name}"  # Indent with 2 spaces
             name_cell.font = normal_font
             name_cell.alignment = left_alignment
             name_cell.border = thin_border
-            
-            # Stock Awal
-            stock_cell = ws.cell(row=current_row, column=2)
-            stock_cell.value = stock_awal
-            stock_cell.font = normal_font
-            stock_cell.alignment = center_alignment
-            stock_cell.border = thin_border
-            
-            # Penggunaan
-            usage_cell = ws.cell(row=current_row, column=3)
-            usage_cell.value = usage
-            usage_cell.font = normal_font
-            usage_cell.alignment = center_alignment
-            usage_cell.border = thin_border
-            
-            # Sisa Stock (Formula)
-            sisa_cell = ws.cell(row=current_row, column=4)
-            sisa_cell.value = f'=B{current_row}-C{current_row}'
-            sisa_cell.font = Font(name='Arial', size=11, bold=True)
-            sisa_cell.alignment = center_alignment
-            sisa_cell.border = thin_border
-            
+
+            if merch.is_unlimited:
+                # Unlimited: stok tidak pernah berkurang, tampilkan ∞
+                unlimited_fill = PatternFill(start_color='FFF2CC', end_color='FFF2CC', fill_type='solid')
+                unlimited_font = Font(name='Arial', size=11, bold=True, color='7F6000')
+
+                name_cell.value = f"  {merch.name}  [∞ UNLIMITED]"
+                name_cell.fill = unlimited_fill
+
+                stock_cell = ws.cell(row=current_row, column=2)
+                stock_cell.value = "∞"
+                stock_cell.font = unlimited_font
+                stock_cell.alignment = center_alignment
+                stock_cell.border = thin_border
+                stock_cell.fill = unlimited_fill
+
+                usage_cell = ws.cell(row=current_row, column=3)
+                usage_cell.value = usage  # berapa kali dipakai
+                usage_cell.font = normal_font
+                usage_cell.alignment = center_alignment
+                usage_cell.border = thin_border
+                usage_cell.fill = unlimited_fill
+
+                sisa_cell = ws.cell(row=current_row, column=4)
+                sisa_cell.value = "∞"
+                sisa_cell.font = unlimited_font
+                sisa_cell.alignment = center_alignment
+                sisa_cell.border = thin_border
+                sisa_cell.fill = unlimited_fill
+            else:
+                # Stock awal = current stock + usage
+                stock_awal = merch.stock + usage
+
+                name_cell.value = f"  {merch.name}"
+
+                stock_cell = ws.cell(row=current_row, column=2)
+                stock_cell.value = stock_awal
+                stock_cell.font = normal_font
+                stock_cell.alignment = center_alignment
+                stock_cell.border = thin_border
+
+                usage_cell = ws.cell(row=current_row, column=3)
+                usage_cell.value = usage
+                usage_cell.font = normal_font
+                usage_cell.alignment = center_alignment
+                usage_cell.border = thin_border
+
+                sisa_cell = ws.cell(row=current_row, column=4)
+                sisa_cell.value = f'=B{current_row}-C{current_row}'
+                sisa_cell.font = Font(name='Arial', size=11, bold=True)
+                sisa_cell.alignment = center_alignment
+                sisa_cell.border = thin_border
+
             current_row += 1
     
     # ============================================
@@ -524,38 +554,64 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
                 reviewed_at__gte=start_date,
                 reviewed_at__lt=end_date
             ).aggregate(total=Sum('quantity'))['total'] or 0
-            
-            # Stock awal = current stock + usage
-            stock_awal = tool.stock + usage
-            
+
             # Tool name
             name_cell = ws.cell(row=current_row, column=1)
-            name_cell.value = f"  {tool.name}"  # Indent with 2 spaces
             name_cell.font = normal_font
             name_cell.alignment = left_alignment
             name_cell.border = thin_border
-            
-            # Stock Awal
-            stock_cell = ws.cell(row=current_row, column=2)
-            stock_cell.value = stock_awal
-            stock_cell.font = normal_font
-            stock_cell.alignment = center_alignment
-            stock_cell.border = thin_border
-            
-            # Penggunaan
-            usage_cell = ws.cell(row=current_row, column=3)
-            usage_cell.value = usage
-            usage_cell.font = normal_font
-            usage_cell.alignment = center_alignment
-            usage_cell.border = thin_border
-            
-            # Sisa Stock (Formula)
-            sisa_cell = ws.cell(row=current_row, column=4)
-            sisa_cell.value = f'=B{current_row}-C{current_row}'
-            sisa_cell.font = Font(name='Arial', size=11, bold=True)
-            sisa_cell.alignment = center_alignment
-            sisa_cell.border = thin_border
-            
+
+            if tool.is_unlimited:
+                unlimited_fill = PatternFill(start_color='FFF2CC', end_color='FFF2CC', fill_type='solid')
+                unlimited_font = Font(name='Arial', size=11, bold=True, color='7F6000')
+
+                name_cell.value = f"  {tool.name}  [∞ UNLIMITED]"
+                name_cell.fill = unlimited_fill
+
+                stock_cell = ws.cell(row=current_row, column=2)
+                stock_cell.value = "∞"
+                stock_cell.font = unlimited_font
+                stock_cell.alignment = center_alignment
+                stock_cell.border = thin_border
+                stock_cell.fill = unlimited_fill
+
+                usage_cell = ws.cell(row=current_row, column=3)
+                usage_cell.value = usage  # berapa kali checkout diapprove
+                usage_cell.font = normal_font
+                usage_cell.alignment = center_alignment
+                usage_cell.border = thin_border
+                usage_cell.fill = unlimited_fill
+
+                sisa_cell = ws.cell(row=current_row, column=4)
+                sisa_cell.value = "∞"
+                sisa_cell.font = unlimited_font
+                sisa_cell.alignment = center_alignment
+                sisa_cell.border = thin_border
+                sisa_cell.fill = unlimited_fill
+            else:
+                # Stock awal = current stock + usage
+                stock_awal = tool.stock + usage
+
+                name_cell.value = f"  {tool.name}"
+
+                stock_cell = ws.cell(row=current_row, column=2)
+                stock_cell.value = stock_awal
+                stock_cell.font = normal_font
+                stock_cell.alignment = center_alignment
+                stock_cell.border = thin_border
+
+                usage_cell = ws.cell(row=current_row, column=3)
+                usage_cell.value = usage
+                usage_cell.font = normal_font
+                usage_cell.alignment = center_alignment
+                usage_cell.border = thin_border
+
+                sisa_cell = ws.cell(row=current_row, column=4)
+                sisa_cell.value = f'=B{current_row}-C{current_row}'
+                sisa_cell.font = Font(name='Arial', size=11, bold=True)
+                sisa_cell.alignment = center_alignment
+                sisa_cell.border = thin_border
+
             current_row += 1
     
     # Prepare response

@@ -107,6 +107,10 @@ class Merchandise(models.Model):
         default=True,
         help_text='Active status (soft delete)'
     )
+    is_unlimited = models.BooleanField(
+        default=False,
+        help_text='Stok unlimited — bisa digunakan berkali-kali tanpa mengurangi stok (contoh: tenda, spanduk)'
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -124,6 +128,8 @@ class Merchandise(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
+        if self.is_unlimited:
+            return f"{self.name} (Unlimited)"
         return f"{self.name} (Stock: {self.stock})"
     
     def clean(self):
@@ -134,8 +140,8 @@ class Merchandise(models.Model):
         if not self.name or not self.name.strip():
             raise ValidationError({'name': 'Merchandise name is required.'})
         
-        # Ensure stock is non-negative
-        if self.stock < 0:
+        # Ensure stock is non-negative (only if not unlimited)
+        if not self.is_unlimited and self.stock < 0:
             raise ValidationError({'stock': 'Stock cannot be negative.'})
         
         # Validate image size (max 2MB)
@@ -199,15 +205,17 @@ class Merchandise(models.Model):
     def deduct_stock(self, quantity):
         """
         Deduct stock by quantity — race-condition safe.
+        If is_unlimited=True, skip deduction (merchandise can be reused).
         Must be called inside a transaction.atomic() block.
-        Uses select_for_update() to lock the row and re-fetch
-        the latest stock value before deducting.
-        Raises ValidationError if insufficient stock.
         """
         from django.db import transaction
 
         if quantity <= 0:
             raise ValidationError('Quantity must be greater than 0.')
+
+        # Unlimited merchandise — no stock deduction
+        if self.is_unlimited:
+            return
 
         # Lock row dan re-fetch stok terkini dari DB untuk mencegah race condition
         fresh = Merchandise.objects.select_for_update().get(pk=self.pk)
@@ -228,14 +236,15 @@ class Merchandise(models.Model):
     def add_stock(self, quantity):
         """
         Add stock by quantity — race-condition safe.
-        Must be called inside a transaction.atomic() block.
-        Uses select_for_update() to lock the row and re-fetch
-        the latest stock value before adding.
+        No-op for unlimited merchandise.
         """
         from django.db import transaction
 
         if quantity <= 0:
             raise ValidationError('Quantity must be greater than 0.')
+
+        if self.is_unlimited:
+            return  # unlimited merchandise doesn't track stock
 
         # Lock row dan re-fetch stok terkini dari DB
         fresh = Merchandise.objects.select_for_update().get(pk=self.pk)

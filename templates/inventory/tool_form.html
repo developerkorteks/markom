@@ -4,70 +4,246 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4 align-items-start">
+    <div class="row mb-4">
         <div class="col">
-            <h2><i class="bi bi-tools"></i> {{ title }}</h2>
+            <h2 class="mb-1">
+                <i class="bi bi-tools me-2" style="color: var(--color-accent);"></i>{{ title }}
+            </h2>
             <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
+                <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dasbor</a></li>
                     <li class="breadcrumb-item"><a href="{% url 'inventory:tool_list' %}">Sales Tools</a></li>
                     <li class="breadcrumb-item active">{% if action == 'create' %}Tambah{% else %}Edit{% endif %}</li>
                 </ol>
             </nav>
         </div>
-        <div class="col-12 col-md-auto mt-3 mt-md-0">
-            <a href="{% url 'inventory:tool_list' %}" class="btn btn-outline-secondary w-100 w-md-auto">
-                <i class="bi bi-arrow-left"></i> Kembali
-            </a>
-        </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+    <div class="row">
+        <!-- Form Card -->
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Form Tool</h5>
+                    <h6 class="mb-0">
+                        <i class="bi bi-tools me-2"></i>Informasi Tool
+                    </h6>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
-                        
-                        {% for field in form %}
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Nama Tool *</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">Kategori</label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                <div class="invalid-feedback d-block">{{ form.category.errors.0 }}</div>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <a href="{% url 'inventory:tool_category_create' %}" target="_blank">
+                                        <i class="bi bi-plus-circle"></i> Tambah kategori baru
+                                    </a>
+                                </small>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">
-                                {{ field.label }}
-                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                            </label>
-                            
-                            {% if field.name == 'is_active' %}
-                                <div class="form-check">
-                                    {{ field }}
-                                    <label class="form-check-label" for="{{ field.id_for_label }}">
-                                        Tool aktif dan bisa di-checkout
-                                    </label>
-                                </div>
-                            {% else %}
-                                {{ field }}
-                            {% endif %}
-                            
-                            {% if field.errors %}
-                                <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
-                            {% endif %}
-                            {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Deskripsi (opsional)</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">{{ form.description.errors.0 }}</div>
                             {% endif %}
                         </div>
-                        {% endfor %}
 
-                        <div class="d-grid gap-2">
+                        <!-- Gambar -->
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">
+                                {% if action == 'update' %}Ganti Foto{% else %}Foto Tool{% endif %}
+                            </label>
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                            <div class="invalid-feedback d-block">{{ form.image.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Maks. 2MB, format JPG/PNG</small>
+                            {% if tool.image %}
+                            <div class="mt-2">
+                                <img src="{{ tool.image.url }}" alt="Foto saat ini"
+                                     style="height:80px; object-fit:cover; border-radius:6px; border:1px solid #dee2e6;">
+                                <small class="text-muted ms-2">Foto saat ini</small>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Unlimited toggle -->
+                        <div class="mb-3 p-3 rounded" style="background: var(--color-bg-alt, #f8f9fa); border: 1px solid #dee2e6;">
+                            <div class="form-check form-switch mb-1">
+                                {{ form.is_unlimited }}
+                                <label class="form-check-label fw-semibold" for="{{ form.is_unlimited.id_for_label }}">
+                                    Stok Unlimited <span class="badge bg-info text-dark">∞</span>
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Centang jika tool bisa dipakai berkali-kali tanpa habis (contoh: tenda, spanduk, display stand). Stok tidak akan dikurangi saat checkout diapprove.
+                            </small>
+                            {% if form.is_unlimited.errors %}
+                            <div class="invalid-feedback d-block">{{ form.is_unlimited.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Stock awal (hanya create & bukan unlimited) -->
+                        {% if form.stock %}
+                        <div class="mb-3" id="stockField">
+                            <label for="{{ form.stock.id_for_label }}" class="form-label">Stok Awal *</label>
+                            {{ form.stock }}
+                            {% if form.stock.errors %}
+                            <div class="invalid-feedback d-block">{{ form.stock.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Jumlah stok awal. Gunakan "Adjust Stock" setelah tool disimpan.</small>
+                        </div>
+                        {% endif %}
+
+                        <!-- Aktif -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Aktif (tersedia untuk checkout)
+                                </label>
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i> Simpan
+                                <i class="bi bi-check-circle"></i> Simpan
                             </button>
+                            <a href="{% url 'inventory:tool_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Batal
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            {% if tool %}
+            <!-- Info tool saat edit -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-circle me-1"></i>Info Tool
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            {% if tool.image %}
+                            <tr>
+                                <td colspan="2" class="text-center p-2">
+                                    <img src="{{ tool.image.url }}" alt="{{ tool.name }}"
+                                         style="max-height:120px; max-width:100%; object-fit:contain; border-radius:6px;">
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs); width:45%;">Nama</td>
+                                <td style="font-size: var(--text-xs);">{{ tool.name }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Kategori</td>
+                                <td style="font-size: var(--text-xs);">
+                                    {{ tool.category.name|default:"—" }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Stok Saat Ini</td>
+                                <td>
+                                    {% if tool.is_unlimited %}
+                                    <span class="badge bg-info text-dark">∞ Unlimited</span>
+                                    {% elif tool.stock > 20 %}
+                                    <span class="badge bg-success">{{ tool.stock }} unit</span>
+                                    {% elif tool.stock >= 5 %}
+                                    <span class="badge bg-warning text-dark">{{ tool.stock }} unit</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{{ tool.stock }} unit</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Status</td>
+                                <td>
+                                    {% if tool.is_active %}
+                                    <span class="badge bg-success">Aktif</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Nonaktif</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted" style="font-size: var(--text-xs);">Ditambahkan</td>
+                                <td style="font-size: var(--text-xs);">{{ tool.created_at|date:"d M Y" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick actions -->
+            {% if not tool.is_unlimited %}
+            <div class="d-grid gap-2">
+                <a href="{% url 'inventory:tool_adjust_stock' tool.pk %}" class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-clipboard-data"></i> Adjust Stok
+                </a>
+            </div>
+            {% endif %}
+            {% else %}
+            <!-- Panduan saat create -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-lightbulb me-1"></i>Panduan</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0" style="font-size: var(--text-sm);">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-1"></i>Stok awal bisa 0</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-1"></i>Ubah stok via "Adjust Stock" setelah disimpan</li>
+                        <li class="mb-2"><i class="bi bi-info-circle text-info me-1"></i>Aktifkan "Stok Unlimited" untuk tenda, spanduk, dll</li>
+                        <li><i class="bi bi-tag text-secondary me-1"></i>Pilih kategori untuk memudahkan filter</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var unlimitedChk = document.getElementById('id_is_unlimited');
+    var stockField = document.getElementById('stockField');
+
+    function toggleStock() {
+        if (!stockField) return;
+        stockField.style.display = (unlimitedChk && unlimitedChk.checked) ? 'none' : '';
+    }
+
+    if (unlimitedChk) {
+        unlimitedChk.addEventListener('change', toggleStock);
+        toggleStock();
+    }
+})();
+</script>
 {% endblock %}
