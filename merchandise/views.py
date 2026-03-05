@@ -343,9 +343,10 @@ def stock_opname_export(request):
                 month = int(form.cleaned_data['month'])
                 year = int(form.cleaned_data['year'])
                 branch_name = form.cleaned_data['branch_name']
+                include_sales_tools = form.cleaned_data.get('include_sales_tools', True)
                 
                 # Generate Excel file
-                response = generate_stock_opname_excel(month, year, branch_name)
+                response = generate_stock_opname_excel(month, year, branch_name, include_sales_tools)
                 return response
             except Exception as e:
                 messages.error(request, f'Error generating export: {str(e)}')
@@ -360,13 +361,14 @@ def stock_opname_export(request):
     })
 
 
-def generate_stock_opname_excel(month, year, branch_name):
-    """Generate stock opname Excel file"""
+def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=True):
+    """Generate stock opname Excel file including merchandise and optionally sales tools"""
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
     from openpyxl.utils import get_column_letter
     from django.db.models import Sum
     from django.utils import timezone
+    from inventory.sales_tool_models import SalesTool, ToolCheckout
     
     # Calculate date range for the period (timezone-aware)
     start_date = timezone.make_aware(datetime(year, month, 1))
@@ -462,6 +464,68 @@ def generate_stock_opname_excel(month, year, branch_name):
             # Product name
             name_cell = ws.cell(row=current_row, column=1)
             name_cell.value = f"  {merch.name}"  # Indent with 2 spaces
+            name_cell.font = normal_font
+            name_cell.alignment = left_alignment
+            name_cell.border = thin_border
+            
+            # Stock Awal
+            stock_cell = ws.cell(row=current_row, column=2)
+            stock_cell.value = stock_awal
+            stock_cell.font = normal_font
+            stock_cell.alignment = center_alignment
+            stock_cell.border = thin_border
+            
+            # Penggunaan
+            usage_cell = ws.cell(row=current_row, column=3)
+            usage_cell.value = usage
+            usage_cell.font = normal_font
+            usage_cell.alignment = center_alignment
+            usage_cell.border = thin_border
+            
+            # Sisa Stock (Formula)
+            sisa_cell = ws.cell(row=current_row, column=4)
+            sisa_cell.value = f'=B{current_row}-C{current_row}'
+            sisa_cell.font = Font(name='Arial', size=11, bold=True)
+            sisa_cell.alignment = center_alignment
+            sisa_cell.border = thin_border
+            
+            current_row += 1
+    
+    # ============================================
+    # SALES TOOLS SECTION
+    # ============================================
+    if include_sales_tools:
+        # Add spacing row
+        current_row += 1
+        
+        # Sales Tools Category Header
+        tools_category_cell = ws.cell(row=current_row, column=1)
+        tools_category_cell.value = "SALES TOOLS"
+        tools_category_cell.font = category_font
+        tools_category_cell.fill = PatternFill(start_color='FFD966', end_color='FFD966', fill_type='solid')
+        tools_category_cell.alignment = left_alignment
+        tools_category_cell.border = thin_border
+        ws.merge_cells(f'A{current_row}:D{current_row}')
+        current_row += 1
+        
+        # Get active sales tools
+        sales_tools = SalesTool.objects.filter(is_active=True).order_by('name')
+        
+        for tool in sales_tools:
+            # Calculate usage in period (approved checkouts)
+            usage = ToolCheckout.objects.filter(
+                tool=tool,
+                status='APPROVED',
+                reviewed_at__gte=start_date,
+                reviewed_at__lt=end_date
+            ).aggregate(total=Sum('quantity'))['total'] or 0
+            
+            # Stock awal = current stock + usage
+            stock_awal = tool.stock + usage
+            
+            # Tool name
+            name_cell = ws.cell(row=current_row, column=1)
+            name_cell.value = f"  {tool.name}"  # Indent with 2 spaces
             name_cell.font = normal_font
             name_cell.alignment = left_alignment
             name_cell.border = thin_border

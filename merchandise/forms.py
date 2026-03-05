@@ -212,6 +212,13 @@ class StockOpnameExportForm(forms.Form):
         })
     )
     
+    include_sales_tools = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Sertakan Sales Tools',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
     def clean_branch_name(self):
         """Validasi branch name"""
         branch_name = self.cleaned_data.get('branch_name')

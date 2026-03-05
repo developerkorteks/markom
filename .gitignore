@@ -1,0 +1,142 @@
+# ============================================
+# DJANGO PROJECT GITIGNORE
+# ============================================
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+*.pot
+*.pyc
+
+# Media files (uploaded by users)
+media/
+!media/.gitkeep
+
+# Static files (collected)
+staticfiles/
+static_root/
+/static/CACHE/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+*.cover
+.hypothesis/
+
+# Deployment
+*.env
+.env.local
+.env.production
+secrets.json
+
+# OS
+Thumbs.db
+.DS_Store
+*.bak
+
+# Temporary files
+*.tmp
+tmp_*
+/tmp/
+
+# Excel/CSV uploads (temporary)
+*.xlsx
+*.xls
+*.csv
+!**/template*.csv
+!**/contoh*.xlsx
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Database backups
+*.sql
+*.dump
+
+# Documentation (keep in docs/)
+/*.md
+!README.md
+
+# Compiled translations
+*.mo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Archives
+archive/
+
+# Node modules (if using frontend build tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Sentry
+.sentryclirc
+
+# Ruff
+.ruff_cache/

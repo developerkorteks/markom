@@ -27,6 +27,10 @@ class User(AbstractUser):
         blank=True,
         help_text='Phone number'
     )
+    force_password_change = models.BooleanField(
+        default=False,
+        help_text='User must change password on next login'
+    )
     
     class Meta:
         db_table = 'users'

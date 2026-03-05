@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--ih#trwi%@*+nurqzf^q@fv9)#+-b*v4mg8&m+xv((r9-$j2p@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "*",
@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'accounts.middleware.ForcePasswordChangeMiddleware',  # Force password change on first login
 ]
 
 ROOT_URLCONF = 'mysite.urls'

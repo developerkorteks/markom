@@ -15,9 +15,14 @@
             </nav>
         </div>
         <div class="col-12 col-md-auto mt-3 mt-md-0">
-            <a href="{% url 'accounts:user_create' %}" class="btn btn-primary w-100 w-md-auto">
-                <i class="bi bi-plus-circle"></i> Tambah Pengguna
-            </a>
+            <div class="d-flex gap-2 flex-column flex-md-row">
+                <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Tambah Pengguna
+                </a>
+                <a href="{% url 'accounts:bulk_import' %}" class="btn btn-info">
+                    <i class="bi bi-file-earmark-arrow-up me-1"></i>Bulk Import
+                </a>
+            </div>
         </div>
     </div>
 

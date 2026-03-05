@@ -4,6 +4,37 @@ from django.core.exceptions import ValidationError
 from .models import User
 
 
+class BulkUserImportForm(forms.Form):
+    """Form untuk bulk import users dari CSV file"""
+    
+    csv_file = forms.FileField(
+        label='CSV File',
+        help_text='Upload CSV file dengan kolom: username, full_name, email, password',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.csv',
+        })
+    )
+    
+    def clean_csv_file(self):
+        """Validate CSV file"""
+        csv_file = self.cleaned_data.get('csv_file')
+        
+        if not csv_file:
+            raise ValidationError('File CSV wajib diupload.')
+        
+        # Check file extension
+        if not csv_file.name.endswith('.csv'):
+            raise ValidationError('File harus berformat CSV (.csv)')
+        
+        # Check file size (max 5MB)
+        max_size = 5 * 1024 * 1024  # 5MB in bytes
+        if csv_file.size > max_size:
+            raise ValidationError(f'Ukuran file terlalu besar. Maksimal {max_size // (1024*1024)}MB.')
+        
+        return csv_file
+
+
 class LoginForm(AuthenticationForm):
     """Form login kustom dengan styling Bootstrap"""
 
