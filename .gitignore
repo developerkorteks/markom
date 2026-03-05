@@ -19,7 +19,6 @@ ENV/
 .env/
 
 
-.gitignore
 
 # Django
 *.log
