@@ -98,6 +98,11 @@ class MerchandiseForm(forms.ModelForm):
         self.fields['category'].queryset = Category.objects.filter(is_active=True)
         self.fields['category'].empty_label = '-- Pilih Kategori --'
 
+        # Saat mode edit (instance sudah ada), hapus field stock dari form
+        # karena stok dikelola melalui fitur Sesuaikan Stok, bukan dari form ini
+        if self.instance and self.instance.pk:
+            self.fields.pop('stock', None)
+
     def clean_name(self):
         """Validasi nama merchandise"""
         name = self.cleaned_data.get('name')

@@ -7,9 +7,12 @@ from accounts.decorators import admin_required, admin_or_sales_required
 from .models import Category, Merchandise, StockHistory
 from .forms import CategoryForm, MerchandiseForm, StockAdjustmentForm, StockOpnameExportForm
 import calendar
+import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from orders.models import OrderItem
+
+logger = logging.getLogger(__name__)
 
 # ============================================
 # CATEGORY VIEWS
@@ -229,9 +232,11 @@ def merchandise_edit(request, pk):
                 messages.success(request, f'Merchandise "{merchandise.name}" berhasil diperbarui.')
                 return redirect('merchandise:merchandise_list')
             except Exception as e:
+                logger.error(f'[merchandise_edit] save() ERROR pk={pk}: {type(e).__name__}: {e}', exc_info=True)
                 messages.error(request, f'Gagal memperbarui merchandise: {str(e)}')
         else:
-            messages.error(request, 'Harap perbaiki kesalahan di bawah ini.')
+            logger.error(f'[merchandise_edit] form INVALID pk={pk}: {form.errors.as_json()}')
+            messages.error(request, f'Harap perbaiki kesalahan di bawah ini. [DEBUG: {dict(form.errors)}]')
     else:
         form = MerchandiseForm(instance=merchandise)
     
