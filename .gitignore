@@ -140,12 +140,4 @@ yarn-error.log
 
 # Ruff
 .ruff_cache/
-db.sqlite3
-__pycache__/
-*.pyc
-venv/
-db.sqlite3
-__pycache__/
-*.pyc
-.venv/
-venv/
+
