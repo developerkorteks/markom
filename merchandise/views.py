@@ -435,12 +435,15 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
     ws.column_dimensions['C'].width = 15
     ws.column_dimensions['D'].width = 15
     
-    # Get data - group by category
+    # ============================================
+    # SECTION 1: MERCHANDISE REGULAR (Non-Unlimited)
+    # ============================================
     current_row = 5
     categories = Category.objects.filter(is_active=True).prefetch_related('merchandise_set')
     
     for category in categories:
-        merchandises = category.merchandise_set.filter(is_active=True)
+        # Filter: only regular (non-unlimited) merchandise
+        merchandises = category.merchandise_set.filter(is_active=True, is_unlimited=False)
         
         if not merchandises.exists():
             continue
@@ -457,6 +460,11 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
         ws.merge_cells(f'A{current_row}:D{current_row}')
         current_row += 1
         
+        # Variables for subtotal
+        subtotal_stock_awal = 0
+        subtotal_usage = 0
+        subtotal_sisa = 0
+        
         # Merchandise rows
         for merch in merchandises:
             # Calculate usage in period
@@ -466,68 +474,186 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
                 order__created_at__lte=end_date
             ).aggregate(total=Sum('quantity'))['total'] or 0
 
+            # Stock awal = current stock + usage (regular merchandise only)
+            stock_awal = merch.stock + usage
+
             # Product name
             name_cell = ws.cell(row=current_row, column=1)
+            name_cell.value = f"  {merch.name}"
             name_cell.font = normal_font
             name_cell.alignment = left_alignment
             name_cell.border = thin_border
 
-            if merch.is_unlimited:
-                # Unlimited: stok tidak pernah berkurang, tampilkan ∞
-                unlimited_fill = PatternFill(start_color='FFF2CC', end_color='FFF2CC', fill_type='solid')
-                unlimited_font = Font(name='Arial', size=11, bold=True, color='7F6000')
+            # Stock awal
+            stock_cell = ws.cell(row=current_row, column=2)
+            stock_cell.value = stock_awal
+            stock_cell.font = normal_font
+            stock_cell.alignment = center_alignment
+            stock_cell.border = thin_border
 
-                name_cell.value = f"  {merch.name}  [∞ UNLIMITED]"
-                name_cell.fill = unlimited_fill
+            # Usage
+            usage_cell = ws.cell(row=current_row, column=3)
+            usage_cell.value = usage
+            usage_cell.font = normal_font
+            usage_cell.alignment = center_alignment
+            usage_cell.border = thin_border
 
-                stock_cell = ws.cell(row=current_row, column=2)
-                stock_cell.value = "∞"
-                stock_cell.font = unlimited_font
-                stock_cell.alignment = center_alignment
-                stock_cell.border = thin_border
-                stock_cell.fill = unlimited_fill
+            # Sisa stock (formula)
+            sisa_cell = ws.cell(row=current_row, column=4)
+            sisa_cell.value = f'=B{current_row}-C{current_row}'
+            sisa_cell.font = Font(name='Arial', size=11, bold=True)
+            sisa_cell.alignment = center_alignment
+            sisa_cell.border = thin_border
 
-                usage_cell = ws.cell(row=current_row, column=3)
-                usage_cell.value = usage  # berapa kali dipakai
-                usage_cell.font = normal_font
-                usage_cell.alignment = center_alignment
-                usage_cell.border = thin_border
-                usage_cell.fill = unlimited_fill
-
-                sisa_cell = ws.cell(row=current_row, column=4)
-                sisa_cell.value = "∞"
-                sisa_cell.font = unlimited_font
-                sisa_cell.alignment = center_alignment
-                sisa_cell.border = thin_border
-                sisa_cell.fill = unlimited_fill
-            else:
-                # Stock awal = current stock + usage
-                stock_awal = merch.stock + usage
-
-                name_cell.value = f"  {merch.name}"
-
-                stock_cell = ws.cell(row=current_row, column=2)
-                stock_cell.value = stock_awal
-                stock_cell.font = normal_font
-                stock_cell.alignment = center_alignment
-                stock_cell.border = thin_border
-
-                usage_cell = ws.cell(row=current_row, column=3)
-                usage_cell.value = usage
-                usage_cell.font = normal_font
-                usage_cell.alignment = center_alignment
-                usage_cell.border = thin_border
-
-                sisa_cell = ws.cell(row=current_row, column=4)
-                sisa_cell.value = f'=B{current_row}-C{current_row}'
-                sisa_cell.font = Font(name='Arial', size=11, bold=True)
-                sisa_cell.alignment = center_alignment
-                sisa_cell.border = thin_border
+            # Add to subtotal
+            subtotal_stock_awal += stock_awal
+            subtotal_usage += usage
+            subtotal_sisa += (stock_awal - usage)
 
             current_row += 1
+        
+        # Add subtotal row for this category
+        subtotal_fill = PatternFill(start_color='E7E6E6', end_color='E7E6E6', fill_type='solid')
+        subtotal_font = Font(name='Arial', size=11, bold=True)
+        
+        subtotal_name = ws.cell(row=current_row, column=1)
+        subtotal_name.value = f"SUBTOTAL {category.name.upper()}"
+        subtotal_name.font = subtotal_font
+        subtotal_name.fill = subtotal_fill
+        subtotal_name.alignment = left_alignment
+        subtotal_name.border = thin_border
+        
+        subtotal_stock = ws.cell(row=current_row, column=2)
+        subtotal_stock.value = subtotal_stock_awal
+        subtotal_stock.font = subtotal_font
+        subtotal_stock.fill = subtotal_fill
+        subtotal_stock.alignment = center_alignment
+        subtotal_stock.border = thin_border
+        
+        subtotal_usage_cell = ws.cell(row=current_row, column=3)
+        subtotal_usage_cell.value = subtotal_usage
+        subtotal_usage_cell.font = subtotal_font
+        subtotal_usage_cell.fill = subtotal_fill
+        subtotal_usage_cell.alignment = center_alignment
+        subtotal_usage_cell.border = thin_border
+        
+        subtotal_sisa_cell = ws.cell(row=current_row, column=4)
+        subtotal_sisa_cell.value = subtotal_sisa
+        subtotal_sisa_cell.font = subtotal_font
+        subtotal_sisa_cell.fill = subtotal_fill
+        subtotal_sisa_cell.alignment = center_alignment
+        subtotal_sisa_cell.border = thin_border
+        
+        current_row += 1
     
     # ============================================
-    # SALES TOOLS SECTION
+    # SECTION 2: MERCHANDISE UNLIMITED
+    # ============================================
+    # Get all unlimited merchandise (not grouped by category)
+    unlimited_merchandises = Merchandise.objects.filter(is_active=True, is_unlimited=True).order_by('name')
+    
+    if unlimited_merchandises.exists():
+        # Add spacing row
+        current_row += 1
+        
+        # Section header
+        unlimited_header_cell = ws.cell(row=current_row, column=1)
+        unlimited_header_cell.value = "MERCHANDISE UNLIMITED"
+        unlimited_header_cell.font = category_font
+        unlimited_header_fill = PatternFill(start_color='FFC000', end_color='FFC000', fill_type='solid')
+        unlimited_header_cell.fill = unlimited_header_fill
+        unlimited_header_cell.alignment = left_alignment
+        unlimited_header_cell.border = thin_border
+        ws.merge_cells(f'A{current_row}:D{current_row}')
+        current_row += 1
+        
+        # Track total usage for unlimited items
+        total_unlimited_usage = 0
+        
+        # Unlimited merchandise rows
+        unlimited_fill = PatternFill(start_color='FFF2CC', end_color='FFF2CC', fill_type='solid')
+        unlimited_font = Font(name='Arial', size=11, bold=True, color='7F6000')
+        
+        for merch in unlimited_merchandises:
+            # Calculate usage in period
+            usage = OrderItem.objects.filter(
+                merchandise=merch,
+                order__created_at__gte=start_date,
+                order__created_at__lte=end_date
+            ).aggregate(total=Sum('quantity'))['total'] or 0
+            
+            total_unlimited_usage += usage
+            
+            # Product name
+            name_cell = ws.cell(row=current_row, column=1)
+            name_cell.value = f"  {merch.name}  [∞ UNLIMITED]"
+            name_cell.font = normal_font
+            name_cell.fill = unlimited_fill
+            name_cell.alignment = left_alignment
+            name_cell.border = thin_border
+            
+            # Stock awal (unlimited)
+            stock_cell = ws.cell(row=current_row, column=2)
+            stock_cell.value = "∞"
+            stock_cell.font = unlimited_font
+            stock_cell.fill = unlimited_fill
+            stock_cell.alignment = center_alignment
+            stock_cell.border = thin_border
+            
+            # Usage
+            usage_cell = ws.cell(row=current_row, column=3)
+            usage_cell.value = usage
+            usage_cell.font = normal_font
+            usage_cell.fill = unlimited_fill
+            usage_cell.alignment = center_alignment
+            usage_cell.border = thin_border
+            
+            # Sisa stock (unlimited)
+            sisa_cell = ws.cell(row=current_row, column=4)
+            sisa_cell.value = "∞"
+            sisa_cell.font = unlimited_font
+            sisa_cell.fill = unlimited_fill
+            sisa_cell.alignment = center_alignment
+            sisa_cell.border = thin_border
+            
+            current_row += 1
+        
+        # Total usage row for unlimited merchandise
+        total_fill = PatternFill(start_color='F4B084', end_color='F4B084', fill_type='solid')
+        total_font = Font(name='Arial', size=11, bold=True)
+        
+        total_name = ws.cell(row=current_row, column=1)
+        total_name.value = "TOTAL PENGGUNAAN UNLIMITED"
+        total_name.font = total_font
+        total_name.fill = total_fill
+        total_name.alignment = left_alignment
+        total_name.border = thin_border
+        
+        total_stock = ws.cell(row=current_row, column=2)
+        total_stock.value = "-"
+        total_stock.font = total_font
+        total_stock.fill = total_fill
+        total_stock.alignment = center_alignment
+        total_stock.border = thin_border
+        
+        total_usage_cell = ws.cell(row=current_row, column=3)
+        total_usage_cell.value = total_unlimited_usage
+        total_usage_cell.font = total_font
+        total_usage_cell.fill = total_fill
+        total_usage_cell.alignment = center_alignment
+        total_usage_cell.border = thin_border
+        
+        total_sisa = ws.cell(row=current_row, column=4)
+        total_sisa.value = "-"
+        total_sisa.font = total_font
+        total_sisa.fill = total_fill
+        total_sisa.alignment = center_alignment
+        total_sisa.border = thin_border
+        
+        current_row += 1
+    
+    # ============================================
+    # SECTION 3: SALES TOOLS REGULAR (Non-Unlimited)
     # ============================================
     if include_sales_tools:
         # Add spacing row
@@ -535,7 +661,7 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
         
         # Sales Tools Category Header
         tools_category_cell = ws.cell(row=current_row, column=1)
-        tools_category_cell.value = "SALES TOOLS"
+        tools_category_cell.value = "SALES TOOLS (REGULAR)"
         tools_category_cell.font = category_font
         tools_category_cell.fill = PatternFill(start_color='FFD966', end_color='FFD966', fill_type='solid')
         tools_category_cell.alignment = left_alignment
@@ -543,8 +669,13 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
         ws.merge_cells(f'A{current_row}:D{current_row}')
         current_row += 1
         
-        # Get active sales tools
-        sales_tools = SalesTool.objects.filter(is_active=True).order_by('name')
+        # Get active regular sales tools (non-unlimited)
+        sales_tools = SalesTool.objects.filter(is_active=True, is_unlimited=False).order_by('name')
+        
+        # Variables for subtotal
+        subtotal_tools_stock_awal = 0
+        subtotal_tools_usage = 0
+        subtotal_tools_sisa = 0
         
         for tool in sales_tools:
             # Calculate usage in period (approved checkouts)
@@ -555,63 +686,185 @@ def generate_stock_opname_excel(month, year, branch_name, include_sales_tools=Tr
                 reviewed_at__lt=end_date
             ).aggregate(total=Sum('quantity'))['total'] or 0
 
+            # Stock awal = current stock + usage (regular tools only)
+            stock_awal = tool.stock + usage
+
             # Tool name
             name_cell = ws.cell(row=current_row, column=1)
+            name_cell.value = f"  {tool.name}"
             name_cell.font = normal_font
             name_cell.alignment = left_alignment
             name_cell.border = thin_border
 
-            if tool.is_unlimited:
-                unlimited_fill = PatternFill(start_color='FFF2CC', end_color='FFF2CC', fill_type='solid')
-                unlimited_font = Font(name='Arial', size=11, bold=True, color='7F6000')
+            # Stock awal
+            stock_cell = ws.cell(row=current_row, column=2)
+            stock_cell.value = stock_awal
+            stock_cell.font = normal_font
+            stock_cell.alignment = center_alignment
+            stock_cell.border = thin_border
 
+            # Usage
+            usage_cell = ws.cell(row=current_row, column=3)
+            usage_cell.value = usage
+            usage_cell.font = normal_font
+            usage_cell.alignment = center_alignment
+            usage_cell.border = thin_border
+
+            # Sisa stock (formula)
+            sisa_cell = ws.cell(row=current_row, column=4)
+            sisa_cell.value = f'=B{current_row}-C{current_row}'
+            sisa_cell.font = Font(name='Arial', size=11, bold=True)
+            sisa_cell.alignment = center_alignment
+            sisa_cell.border = thin_border
+
+            # Add to subtotal
+            subtotal_tools_stock_awal += stock_awal
+            subtotal_tools_usage += usage
+            subtotal_tools_sisa += (stock_awal - usage)
+
+            current_row += 1
+        
+        # Add subtotal row for regular sales tools
+        if sales_tools.exists():
+            subtotal_fill = PatternFill(start_color='E7E6E6', end_color='E7E6E6', fill_type='solid')
+            subtotal_font = Font(name='Arial', size=11, bold=True)
+            
+            subtotal_name = ws.cell(row=current_row, column=1)
+            subtotal_name.value = "SUBTOTAL SALES TOOLS (REGULAR)"
+            subtotal_name.font = subtotal_font
+            subtotal_name.fill = subtotal_fill
+            subtotal_name.alignment = left_alignment
+            subtotal_name.border = thin_border
+            
+            subtotal_stock = ws.cell(row=current_row, column=2)
+            subtotal_stock.value = subtotal_tools_stock_awal
+            subtotal_stock.font = subtotal_font
+            subtotal_stock.fill = subtotal_fill
+            subtotal_stock.alignment = center_alignment
+            subtotal_stock.border = thin_border
+            
+            subtotal_usage_cell = ws.cell(row=current_row, column=3)
+            subtotal_usage_cell.value = subtotal_tools_usage
+            subtotal_usage_cell.font = subtotal_font
+            subtotal_usage_cell.fill = subtotal_fill
+            subtotal_usage_cell.alignment = center_alignment
+            subtotal_usage_cell.border = thin_border
+            
+            subtotal_sisa_cell = ws.cell(row=current_row, column=4)
+            subtotal_sisa_cell.value = subtotal_tools_sisa
+            subtotal_sisa_cell.font = subtotal_font
+            subtotal_sisa_cell.fill = subtotal_fill
+            subtotal_sisa_cell.alignment = center_alignment
+            subtotal_sisa_cell.border = thin_border
+            
+            current_row += 1
+    
+    # ============================================
+    # SECTION 4: SALES TOOLS UNLIMITED
+    # ============================================
+    if include_sales_tools:
+        # Get unlimited sales tools
+        unlimited_tools = SalesTool.objects.filter(is_active=True, is_unlimited=True).order_by('name')
+        
+        if unlimited_tools.exists():
+            # Add spacing row
+            current_row += 1
+            
+            # Section header
+            unlimited_tools_header = ws.cell(row=current_row, column=1)
+            unlimited_tools_header.value = "SALES TOOLS (UNLIMITED)"
+            unlimited_tools_header.font = category_font
+            unlimited_tools_header_fill = PatternFill(start_color='FFC000', end_color='FFC000', fill_type='solid')
+            unlimited_tools_header.fill = unlimited_tools_header_fill
+            unlimited_tools_header.alignment = left_alignment
+            unlimited_tools_header.border = thin_border
+            ws.merge_cells(f'A{current_row}:D{current_row}')
+            current_row += 1
+            
+            # Track total usage for unlimited tools
+            total_unlimited_tools_usage = 0
+            
+            # Unlimited tools rows
+            unlimited_fill = PatternFill(start_color='FFF2CC', end_color='FFF2CC', fill_type='solid')
+            unlimited_font = Font(name='Arial', size=11, bold=True, color='7F6000')
+            
+            for tool in unlimited_tools:
+                # Calculate usage in period (approved checkouts)
+                usage = ToolCheckout.objects.filter(
+                    tool=tool,
+                    status='APPROVED',
+                    reviewed_at__gte=start_date,
+                    reviewed_at__lt=end_date
+                ).aggregate(total=Sum('quantity'))['total'] or 0
+                
+                total_unlimited_tools_usage += usage
+                
+                # Tool name
+                name_cell = ws.cell(row=current_row, column=1)
                 name_cell.value = f"  {tool.name}  [∞ UNLIMITED]"
+                name_cell.font = normal_font
                 name_cell.fill = unlimited_fill
-
+                name_cell.alignment = left_alignment
+                name_cell.border = thin_border
+                
+                # Stock awal (unlimited)
                 stock_cell = ws.cell(row=current_row, column=2)
                 stock_cell.value = "∞"
                 stock_cell.font = unlimited_font
-                stock_cell.alignment = center_alignment
-                stock_cell.border = thin_border
                 stock_cell.fill = unlimited_fill
-
-                usage_cell = ws.cell(row=current_row, column=3)
-                usage_cell.value = usage  # berapa kali checkout diapprove
-                usage_cell.font = normal_font
-                usage_cell.alignment = center_alignment
-                usage_cell.border = thin_border
-                usage_cell.fill = unlimited_fill
-
-                sisa_cell = ws.cell(row=current_row, column=4)
-                sisa_cell.value = "∞"
-                sisa_cell.font = unlimited_font
-                sisa_cell.alignment = center_alignment
-                sisa_cell.border = thin_border
-                sisa_cell.fill = unlimited_fill
-            else:
-                # Stock awal = current stock + usage
-                stock_awal = tool.stock + usage
-
-                name_cell.value = f"  {tool.name}"
-
-                stock_cell = ws.cell(row=current_row, column=2)
-                stock_cell.value = stock_awal
-                stock_cell.font = normal_font
                 stock_cell.alignment = center_alignment
                 stock_cell.border = thin_border
-
+                
+                # Usage
                 usage_cell = ws.cell(row=current_row, column=3)
                 usage_cell.value = usage
                 usage_cell.font = normal_font
+                usage_cell.fill = unlimited_fill
                 usage_cell.alignment = center_alignment
                 usage_cell.border = thin_border
-
+                
+                # Sisa stock (unlimited)
                 sisa_cell = ws.cell(row=current_row, column=4)
-                sisa_cell.value = f'=B{current_row}-C{current_row}'
-                sisa_cell.font = Font(name='Arial', size=11, bold=True)
+                sisa_cell.value = "∞"
+                sisa_cell.font = unlimited_font
+                sisa_cell.fill = unlimited_fill
                 sisa_cell.alignment = center_alignment
                 sisa_cell.border = thin_border
-
+                
+                current_row += 1
+            
+            # Total usage row for unlimited tools
+            total_fill = PatternFill(start_color='F4B084', end_color='F4B084', fill_type='solid')
+            total_font = Font(name='Arial', size=11, bold=True)
+            
+            total_name = ws.cell(row=current_row, column=1)
+            total_name.value = "TOTAL PENGGUNAAN UNLIMITED"
+            total_name.font = total_font
+            total_name.fill = total_fill
+            total_name.alignment = left_alignment
+            total_name.border = thin_border
+            
+            total_stock = ws.cell(row=current_row, column=2)
+            total_stock.value = "-"
+            total_stock.font = total_font
+            total_stock.fill = total_fill
+            total_stock.alignment = center_alignment
+            total_stock.border = thin_border
+            
+            total_usage_cell = ws.cell(row=current_row, column=3)
+            total_usage_cell.value = total_unlimited_tools_usage
+            total_usage_cell.font = total_font
+            total_usage_cell.fill = total_fill
+            total_usage_cell.alignment = center_alignment
+            total_usage_cell.border = thin_border
+            
+            total_sisa = ws.cell(row=current_row, column=4)
+            total_sisa.value = "-"
+            total_sisa.font = total_font
+            total_sisa.fill = total_fill
+            total_sisa.alignment = center_alignment
+            total_sisa.border = thin_border
+            
             current_row += 1
     
     # Prepare response

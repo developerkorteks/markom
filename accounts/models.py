@@ -1,6 +1,31 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.exceptions import ValidationError
+
+
+class CustomUserManager(UserManager):
+    """Custom user manager to handle superuser creation with correct role"""
+    
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+        Create and save a superuser with ADMIN role
+        """
+        # Set default values for superuser
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'ADMIN')  # Force ADMIN role for superuser
+        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        
+        # Email is optional now
+        if not email:
+            email = ''
+        
+        return self._create_user(username, email, password, **extra_fields)
+
 
 class User(AbstractUser):
     """
@@ -31,6 +56,13 @@ class User(AbstractUser):
         default=False,
         help_text='User must change password on next login'
     )
+    
+    # Configure fields for createsuperuser command
+    REQUIRED_FIELDS = ['full_name']  # email is not required anymore
+    EMAIL_FIELD = 'email'  # Email field name (optional)
+    
+    # Use custom manager
+    objects = CustomUserManager()
     
     class Meta:
         db_table = 'users'

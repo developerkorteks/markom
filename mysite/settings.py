@@ -27,11 +27,13 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     "*",
+    "bnetfitmarketingtools.my.id",
     "markom.humanmade.my.id",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-
+    "http://bnetfitmarketingtools.my.id",
+    "https://bnetfitmarketingtools.my.id",
     "https://markom.humanmade.my.id",
 ]
 # Application definition

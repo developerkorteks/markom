@@ -45,7 +45,7 @@ def parse_csv(csv_file) -> Tuple[List[Dict], List[str]]:
         csv_reader = csv.DictReader(io.StringIO(content))
         
         # Validate headers
-        required_headers = {'username', 'full_name', 'email', 'password'}
+        required_headers = {'username', 'full_name', 'password'}  # Email is now optional
         headers = set(csv_reader.fieldnames or [])
         
         missing_headers = required_headers - headers
@@ -130,11 +130,9 @@ def validate_csv_data(parsed_data: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
         elif len(full_name) < 3:
             errors.append("Full name must be at least 3 characters")
         
-        # Validate email
-        email = user_data['email']
-        if not email:
-            errors.append("Email is required")
-        else:
+        # Validate email (optional, but must be valid if provided)
+        email = user_data.get('email', '').strip()
+        if email:  # Only validate if email is provided
             try:
                 validate_email(email)
                 if email in existing_emails:
@@ -145,6 +143,7 @@ def validate_csv_data(parsed_data: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
                     seen_emails.add(email)
             except ValidationError:
                 errors.append(f"Invalid email format: '{email}'")
+        # If email is empty, no error - it's optional
         
         # Validate password
         password = user_data['password']

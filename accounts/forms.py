@@ -9,7 +9,7 @@ class BulkUserImportForm(forms.Form):
     
     csv_file = forms.FileField(
         label='CSV File',
-        help_text='Upload CSV file dengan kolom: username, full_name, email, password',
+        help_text='Upload CSV file dengan kolom wajib: username, full_name, password. Kolom opsional: email',
         widget=forms.FileInput(attrs={
             'class': 'form-control',
             'accept': '.csv',
@@ -127,12 +127,14 @@ class UserForm(forms.ModelForm):
         return username
 
     def clean_email(self):
-        """Validasi email"""
+        """Validasi email (optional, tapi jika diisi harus valid & unique)"""
         email = self.cleaned_data.get('email')
 
-        if not email:
-            raise ValidationError('Email wajib diisi.')
+        # Email bersifat optional - jika kosong, langsung return
+        if not email or not email.strip():
+            return ''
 
+        # Jika email diisi, validasi uniqueness
         if self.instance.pk:
             if User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
                 raise ValidationError('Email sudah digunakan.')
