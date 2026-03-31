@@ -90,6 +90,12 @@
                                     <i class="bi bi-box"></i> Produk
                                 </a>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'merchandise:stock_opname_export' %}">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Stock Opname
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -185,6 +191,12 @@
                                 <span class="dropdown-item-text text-muted" style="font-size: var(--text-xs);">
                                     Masuk sebagai <strong>{{ user.username }}</strong>
                                 </span>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'accounts:change_password' %}">
+                                    <i class="bi bi-key"></i> Ubah Password
+                                </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
